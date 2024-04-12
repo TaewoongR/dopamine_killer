@@ -1,0 +1,81 @@
+package com.example.repository
+
+import android.app.usage.UsageStatsManager
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.annotation.RequiresApi
+import com.example.local.AppDAO
+import com.example.local.AppData
+import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class DefaultAppRepository @Inject constructor(
+    @ApplicationContext val context: Context,
+    private val localDataSource: AppDAO,
+) : AppRepository{
+
+    override suspend fun getAppInfo() {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun updateAppName(): List<String> {
+        val packageManager = context.packageManager
+        val apps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+        return apps.mapNotNull { app ->
+            try {
+                packageManager.getApplicationLabel(app).toString()
+            } catch (e: Exception) {
+                null // 앱 이름을 가져오는데 실패할 경우 null을 반환하여 리스트에 포함시키지 않음
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
+    override suspend fun updateAppTime(appName: String, context: Context) {
+        val packageManager = context.packageManager
+        val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val appUsageTimeArray = IntArray(24) // 24시간에 대한 사용 시간을 저장할 배열
+        val calendar = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+
+        val startTime = calendar.timeInMillis // 당일 0시
+
+        // 현재 시간까지의 각 시간대별로 queryUsageStats()를 호출
+        val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        for (hour in 0..currentHour) {
+            val beginTime = startTime + TimeUnit.HOURS.toMillis(hour.toLong())
+            val endTime = beginTime + TimeUnit.HOURS.toMillis(1)
+
+            // 해당 시간대에 대한 사용 통계를 조회
+            val stats = usageStatsManager.queryUsageStats(
+                UsageStatsManager.INTERVAL_DAILY,
+                beginTime,
+                endTime
+            )
+
+            // 특정 앱에 대한 사용 시간을 찾아서 배열에 저장
+            val appStat = stats.find {
+                packageManager.getApplicationLabel(packageManager.getApplicationInfo(it.packageName, PackageManager.GET_META_DATA)).toString() == appName
+            }
+
+            appUsageTimeArray[hour] = appStat?.let { (it.totalTimeInForeground / 1000).toInt() } ?: 0
+        }
+        val appData = AppData(
+            appName = appName,
+            appTime = appUsageTimeArray,
+            isCompleted = true,
+        )
+        localDataSource.upsert(appData)
+    }
+
+
+}
