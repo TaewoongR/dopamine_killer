@@ -8,22 +8,27 @@ import androidx.annotation.RequiresApi
 import com.example.local.AppDAO
 import com.example.local.AppData
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DefaultAppRepository @Inject constructor(
+class AppRepositoryImpl @Inject constructor(
     @ApplicationContext val context: Context,
     private val localDataSource: AppDAO,
 ) : AppRepository{
 
-    override suspend fun getAppInfo() {
+    private val scope = CoroutineScope(Dispatchers.IO)
+
+    override fun getAppInfo() {
         TODO("Not yet implemented")
     }
 
-    override suspend fun updateAppName(): List<String> {
+    override fun updateAppName(): List<String> {
         val packageManager = context.packageManager
         val apps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
         return apps.mapNotNull { app ->
@@ -36,7 +41,7 @@ class DefaultAppRepository @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
-    override suspend fun updateAppTime(appName: String, context: Context) {
+    override fun updateAppTime(appName: String, context: Context) {
         val packageManager = context.packageManager
         val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val appUsageTimeArray = IntArray(24) // 24시간에 대한 사용 시간을 저장할 배열
@@ -74,8 +79,8 @@ class DefaultAppRepository @Inject constructor(
             appTime = appUsageTimeArray,
             isCompleted = true,
         )
-        localDataSource.upsert(appData)
+        scope.launch {
+            localDataSource.upsert(appData)
+        }
     }
-
-
 }

@@ -38,5 +38,4 @@ class AnalysisViewModel @Inject constructor(
         }
     }
 
-    // 필요한 다른 데이터 로딩 메서드를 추가
 }

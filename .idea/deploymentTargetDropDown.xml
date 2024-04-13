@@ -23,6 +23,9 @@
       <entry key="ui.analysis">
         <State />
       </entry>
+      <entry key="ui.overview">
+        <State />
+      </entry>
     </value>
   </component>
 </project>

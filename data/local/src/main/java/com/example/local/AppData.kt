@@ -3,9 +3,7 @@ package com.example.local
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(
-    tableName = "app_data"
-)
+@Entity(tableName = "app_data")
 data class AppData (
     @PrimaryKey val appName: String,
     val appTime: IntArray = IntArray(24),
