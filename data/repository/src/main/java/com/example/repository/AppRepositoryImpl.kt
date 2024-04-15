@@ -11,6 +11,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -23,10 +24,6 @@ class AppRepositoryImpl @Inject constructor(
 ) : AppRepository{
 
     private val scope = CoroutineScope(Dispatchers.IO)
-
-    override fun getAppInfo() {
-        TODO("Not yet implemented")
-    }
 
     override fun updateAppName(): List<String> {
         val packageManager = context.packageManager
@@ -76,11 +73,39 @@ class AppRepositoryImpl @Inject constructor(
         }
         val appData = AppData(
             appName = appName,
-            appTime = appUsageTimeArray,
+            date = Calendar.DATE.toString(),
+            hour00 = appUsageTimeArray[0],
+            hour01 = appUsageTimeArray[1],
+            hour02 = appUsageTimeArray[2],
+            hour03 = appUsageTimeArray[3],
+            hour04 = appUsageTimeArray[4],
+            hour05 = appUsageTimeArray[5],
+            hour06 = appUsageTimeArray[6],
+            hour07 = appUsageTimeArray[7],
+            hour08 = appUsageTimeArray[8],
+            hour09 = appUsageTimeArray[9],
+            hour10 = appUsageTimeArray[10],
+            hour11 = appUsageTimeArray[11],
+            hour12 = appUsageTimeArray[12],
+            hour13 = appUsageTimeArray[13],
+            hour14 = appUsageTimeArray[14],
+            hour15 = appUsageTimeArray[15],
+            hour16 = appUsageTimeArray[16],
+            hour17 = appUsageTimeArray[17],
+            hour18 = appUsageTimeArray[18],
+            hour19 = appUsageTimeArray[19],
+            hour20 = appUsageTimeArray[20],
+            hour21 = appUsageTimeArray[21],
+            hour22 = appUsageTimeArray[22],
+            hour23 = appUsageTimeArray[23],
             isCompleted = true,
         )
         scope.launch {
             localDataSource.upsert(appData)
         }
+    }
+
+    override suspend fun getAppData(): List<AppData> = withContext(Dispatchers.IO) {
+        localDataSource.getAll()  // 데이터베이스에서 모든 AppData 레코드를 가져옴
     }
 }

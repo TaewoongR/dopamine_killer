@@ -11,14 +11,14 @@ import androidx.room.Upsert
 interface AppDAO {
 
     @Query("SELECT * FROM app_data")
-    suspend fun getAll(): List<AppData>
+    fun getAll(): List<AppData>
 
     @Query("SELECT * FROM app_data WHERE appName = :appName")
-    suspend fun getByName(appName: String): AppData?
+    fun getByName(appName: String): AppData?
 
     @Upsert
-    suspend fun upsert(app: AppData)
+    fun upsert(app: AppData)
 
     @Query("DELETE FROM app_data WHERE appName = :appName")
-    suspend fun deleteByName(appName: String): Int
+    fun deleteByName(appName: String): Int
 }
