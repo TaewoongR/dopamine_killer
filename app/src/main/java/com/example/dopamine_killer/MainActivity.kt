@@ -11,7 +11,7 @@ class MainActivity : ComponentActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            // Compose UI를 이곳에서 정의합니다.
+            PermissionScreen()
             AnalysisScreen()
         }
     }

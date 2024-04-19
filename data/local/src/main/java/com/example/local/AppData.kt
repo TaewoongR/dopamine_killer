@@ -31,5 +31,6 @@ data class AppData(
     val hour21: Int,
     val hour22: Int,
     val hour23: Int,
+    val totalHour: Long,
     var isCompleted: Boolean
 )

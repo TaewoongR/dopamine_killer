@@ -47,8 +47,12 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(platform(libs.androidx.compose.bom))
 
-
+    //hilt
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
     ksp(libs.hilt.compiler)
+
+    //compose viewmodel
+    implementation(libs.androidx.lifecycle.viewModelCompose)
+
 }

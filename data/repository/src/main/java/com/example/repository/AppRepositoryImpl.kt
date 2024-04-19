@@ -19,7 +19,7 @@ import javax.inject.Singleton
 
 @Singleton
 class AppRepositoryImpl @Inject constructor(
-    @ApplicationContext val context: Context,
+    @ApplicationContext val context: Context,   //packageManager를 사용하기 위해 context를 쓰며 활동주기에 영향을 최소로 하기위해 이곳에 선언
     private val localDataSource: AppDAO,
 ) : AppRepository{
 
@@ -38,7 +38,7 @@ class AppRepositoryImpl @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
-    override fun updateAppTime(appName: String, context: Context) {
+    override suspend fun updateAppTime(appName: String) {
         val packageManager = context.packageManager
         val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val appUsageTimeArray = IntArray(24) // 24시간에 대한 사용 시간을 저장할 배열
@@ -53,6 +53,7 @@ class AppRepositoryImpl @Inject constructor(
 
         // 현재 시간까지의 각 시간대별로 queryUsageStats()를 호출
         val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        var totalHour = 0
         for (hour in 0..currentHour) {
             val beginTime = startTime + TimeUnit.HOURS.toMillis(hour.toLong())
             val endTime = beginTime + TimeUnit.HOURS.toMillis(1)
@@ -65,12 +66,21 @@ class AppRepositoryImpl @Inject constructor(
             )
 
             // 특정 앱에 대한 사용 시간을 찾아서 배열에 저장
-            val appStat = stats.find {
-                packageManager.getApplicationLabel(packageManager.getApplicationInfo(it.packageName, PackageManager.GET_META_DATA)).toString() == appName
-            }
+            val appStat = stats.firstOrNull { it.packageName == appName }
 
-            appUsageTimeArray[hour] = appStat?.let { (it.totalTimeInForeground / 1000).toInt() } ?: 0
+                appUsageTimeArray[hour] = appStat?.let { (it.totalTimeInForeground / 10).toInt() } ?: 0
+                totalHour += appUsageTimeArray[hour]
         }
+        val endTime = System.currentTimeMillis()
+
+        // 유튜브의 패키지 이름은 "com.google.android.youtube" 입니다.
+        val packageName = "com.google.android.youtube"
+
+        // 지정된 기간 동안의 사용 통계를 조회합니다.
+        val stats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime)
+        val youtubeStats = stats.firstOrNull { it.packageName == packageName }
+        val total = youtubeStats?.totalTimeInForeground ?: 0L
+
         val appData = AppData(
             appName = appName,
             date = Calendar.DATE.toString(),
@@ -98,6 +108,7 @@ class AppRepositoryImpl @Inject constructor(
             hour21 = appUsageTimeArray[21],
             hour22 = appUsageTimeArray[22],
             hour23 = appUsageTimeArray[23],
+            totalHour = total,
             isCompleted = true,
         )
         scope.launch {
@@ -105,7 +116,7 @@ class AppRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getAppData(): List<AppData> = withContext(Dispatchers.IO) {
-        localDataSource.getAll()  // 데이터베이스에서 모든 AppData 레코드를 가져옴
+    override suspend fun getAppDataByName(appName: String): AppData = withContext(Dispatchers.IO) {
+        localDataSource.getByName(appName)  // 데이터베이스에서 모든 AppData 레코드를 가져옴
     }
 }

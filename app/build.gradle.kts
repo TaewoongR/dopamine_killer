@@ -70,10 +70,12 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    //hilt
     implementation(libs.hilt.android)
     implementation(libs.hilt.android.testing)
     ksp(libs.hilt.compiler)
 
+    //compose viewmodel
     implementation(libs.androidx.lifecycle.runtimeCompose)
     implementation(libs.androidx.lifecycle.viewModelCompose)
 }
