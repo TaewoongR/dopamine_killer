@@ -39,7 +39,6 @@ class AppRepositoryImpl @Inject constructor(
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     override suspend fun updateAppTime(appName: String) {
-        val packageManager = context.packageManager
         val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val appUsageTimeArray = IntArray(24) // 24시간에 대한 사용 시간을 저장할 배열
         val calendar = Calendar.getInstance().apply {
@@ -68,48 +67,26 @@ class AppRepositoryImpl @Inject constructor(
             // 특정 앱에 대한 사용 시간을 찾아서 배열에 저장
             val appStat = stats.firstOrNull { it.packageName == appName }
 
-                appUsageTimeArray[hour] = appStat?.let { (it.totalTimeInForeground / 10).toInt() } ?: 0
+                appUsageTimeArray[hour] = appStat?.let { (it.totalTimeInForeground / 1000).toInt() } ?: 0
                 totalHour += appUsageTimeArray[hour]
         }
-        val endTime = System.currentTimeMillis()
-
-        // 유튜브의 패키지 이름은 "com.google.android.youtube" 입니다.
-        val packageName = "com.google.android.youtube"
-
-        // 지정된 기간 동안의 사용 통계를 조회합니다.
-        val stats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime)
-        val youtubeStats = stats.firstOrNull { it.packageName == packageName }
-        val total = youtubeStats?.totalTimeInForeground ?: 0L
 
         val appData = AppData(
             appName = appName,
             date = Calendar.DATE.toString(),
-            hour00 = appUsageTimeArray[0],
-            hour01 = appUsageTimeArray[1],
-            hour02 = appUsageTimeArray[2],
-            hour03 = appUsageTimeArray[3],
-            hour04 = appUsageTimeArray[4],
-            hour05 = appUsageTimeArray[5],
-            hour06 = appUsageTimeArray[6],
-            hour07 = appUsageTimeArray[7],
-            hour08 = appUsageTimeArray[8],
-            hour09 = appUsageTimeArray[9],
-            hour10 = appUsageTimeArray[10],
-            hour11 = appUsageTimeArray[11],
-            hour12 = appUsageTimeArray[12],
-            hour13 = appUsageTimeArray[13],
-            hour14 = appUsageTimeArray[14],
-            hour15 = appUsageTimeArray[15],
-            hour16 = appUsageTimeArray[16],
-            hour17 = appUsageTimeArray[17],
-            hour18 = appUsageTimeArray[18],
-            hour19 = appUsageTimeArray[19],
-            hour20 = appUsageTimeArray[20],
-            hour21 = appUsageTimeArray[21],
-            hour22 = appUsageTimeArray[22],
-            hour23 = appUsageTimeArray[23],
-            totalHour = total,
-            isCompleted = true,
+            hour00 = appUsageTimeArray[0], hour01 = appUsageTimeArray[1],
+            hour02 = appUsageTimeArray[2], hour03 = appUsageTimeArray[3],
+            hour04 = appUsageTimeArray[4], hour05 = appUsageTimeArray[5],
+            hour06 = appUsageTimeArray[6], hour07 = appUsageTimeArray[7],
+            hour08 = appUsageTimeArray[8], hour09 = appUsageTimeArray[9],
+            hour10 = appUsageTimeArray[10], hour11 = appUsageTimeArray[11],
+            hour12 = appUsageTimeArray[12], hour13 = appUsageTimeArray[13],
+            hour14 = appUsageTimeArray[14], hour15 = appUsageTimeArray[15],
+            hour16 = appUsageTimeArray[16], hour17 = appUsageTimeArray[17],
+            hour18 = appUsageTimeArray[18], hour19 = appUsageTimeArray[19],
+            hour20 = appUsageTimeArray[20], hour21 = appUsageTimeArray[21],
+            hour22 = appUsageTimeArray[22], hour23 = appUsageTimeArray[23],
+            isCompleted = true
         )
         scope.launch {
             localDataSource.upsert(appData)

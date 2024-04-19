@@ -14,7 +14,6 @@ import javax.inject.Inject
 class AnalysisViewModel @Inject constructor(
     private val repository: AppRepository
 ) : ViewModel() {
-
     private val _appUiState = MutableStateFlow(AnalysisUiState())
     val appUiState: StateFlow<AnalysisUiState> = _appUiState.asStateFlow()
 
@@ -28,7 +27,7 @@ class AnalysisViewModel @Inject constructor(
             val appData = repository.getAppDataByName("com.google.android.youtube")
             _appUiState.value = AnalysisUiState(
                 appName = appData.appName,
-                appTime = appData.hour15,
+                appTime = appData.totalHour,
                 isCompleted = appData.isCompleted
             )
         }
