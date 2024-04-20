@@ -27,22 +27,9 @@ class AnalysisViewModel @Inject constructor(
             val appData = repository.getAppDataByName("com.google.android.youtube")
             _appUiState.value = AnalysisUiState(
                 appName = appData.appName,
-                appTime = appData.totalHour,
+                appTime = appData.hour13,
                 isCompleted = appData.isCompleted
             )
         }
     }
-    /*
-    private fun loadAppNameList() {
-        viewModelScope.launch {
-            val appList = repository.updateAppName()
-            if (appList.isNotEmpty()) {
-                _appUiState.value = AnalysisUiState(appNameList = appList)
-                loadAppUsageData()
-            } else {
-                _appUiState.value = AnalysisUiState(appNameList = listOf("No applications available"))
-            }
-        }
-    }
-    */
 }

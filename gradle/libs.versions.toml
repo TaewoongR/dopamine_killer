@@ -14,7 +14,7 @@ room = "2.6.1"
 javaxInject = "1"
 hilt = "2.51"
 ksp = "1.9.22-1.0.18"
-androidxHiltNavigationCompose="1.2.0"
+androidxHiltNavigationCompose = "1.2.0"
 androidxLifecycle = "2.6.0-alpha03"
 
 [libraries]

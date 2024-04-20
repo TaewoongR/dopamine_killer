@@ -42,14 +42,3 @@ fun AppUsageItem(appUsage: AnalysisUiState) {
         )
     }
 }
-/*
-@Composable
-fun AppNameList(appUsage: AnalysisUiState){
-    Column(modifier = Modifier.padding(vertical = 8.dp)){
-        Text(
-            text = "${appUsage.appNameList}",
-            style = MaterialTheme.typography.titleMedium
-        )
-    }
-}
- */
