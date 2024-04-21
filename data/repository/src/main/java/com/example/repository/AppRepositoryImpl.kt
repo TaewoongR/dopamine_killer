@@ -50,7 +50,7 @@ class AppRepositoryImpl @Inject constructor(
             }
         }
     }
-
+/*
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     fun fetchAppUsage(appName: String): Int{
         // 당일의 각각 모든 앱의 사용량
@@ -62,68 +62,83 @@ class AppRepositoryImpl @Inject constructor(
         val dailyHour = appStat?.let {it.totalTimeInForeground} ?: 0     // appName이 없으면 0 반환
         return (dailyHour / 1000).toInt()
     }
+ */
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     override suspend fun updateAppTime(appName: String) {
         val appUsageTimeArray = IntArray(24) // 24시간에 대한 사용 시간을 저장할 배열
-        val dailyHour = fetchAppUsage(appName)
         for(hour in 0.. currentHour){
             val beginTime = startTime + TimeUnit.HOURS.toMillis(hour.toLong())
             val endTime = beginTime + TimeUnit.HOURS.toMillis(1) - 1
 
             val usageEvents = usageStatsManager.queryEvents(beginTime, endTime)
-            val event = UsageEvents.Event()
-            val sessions = mutableMapOf<String, MutableList<Pair<Long, Long>>>()
+            val sessions = mutableListOf<Pair<Long, Long>>()
             var lastEvent: UsageEvents.Event? = null
 
             while (usageEvents.hasNextEvent()) {
+                val event = UsageEvents.Event()
                 usageEvents.getNextEvent(event)
                 // 특정 앱의 이벤트만 처리
                 if (event.packageName == appName) {
                     when (event.eventType) {
                         UsageEvents.Event.ACTIVITY_RESUMED -> {
-                            if (sessions[event.packageName] == null) {
-                                sessions[event.packageName] = mutableListOf()
-                            }
-                            if (sessions[event.packageName]?.lastOrNull()?.second == 0L) {
+                            if (sessions.lastOrNull()?.second == 0L) {
                                 continue
                             }
                             // 포그라운드 이벤트 시작 시간 기록
-                            sessions[event.packageName]?.add(Pair(event.timeStamp, 0L))
+                            sessions.add(Pair(event.timeStamp, 0L))
+                            lastEvent = event
                         }
-                        UsageEvents.Event.ACTIVITY_PAUSED -> {
+                        UsageEvents.Event.ACTIVITY_PAUSED, UsageEvents.Event.ACTIVITY_STOPPED -> {
                             lastEvent?.let {
-                                if (it.packageName == event.packageName && (it.eventType == UsageEvents.Event.ACTIVITY_PAUSED || it.eventType == UsageEvents.Event.ACTIVITY_STOPPED)) {
+                                if (it.packageName == appName && it.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
                                     // 마지막 포그라운드 세션의 종료 시간을 업데이트
-                                    sessions[event.packageName]?.last()?.let { session ->
-                                        sessions[event.packageName]?.set(sessions[event.packageName]!!.lastIndex, Pair(session.first, event.timeStamp))
-                                    }
-                                }
-                            }
-                        }
-                        UsageEvents.Event.ACTIVITY_STOPPED ->{
-                            lastEvent?.let {
-                                if (it.packageName == event.packageName && (it.eventType == UsageEvents.Event.ACTIVITY_PAUSED || it.eventType == UsageEvents.Event.ACTIVITY_STOPPED)) {
-                                    // 마지막 포그라운드 세션의 종료 시간을 업데이트
-                                    sessions[event.packageName]?.last()?.let { session ->
-                                        sessions[event.packageName]?.set(sessions[event.packageName]!!.lastIndex, Pair(session.first, event.timeStamp))
+                                    sessions.lastOrNull()?.let { session ->
+                                        if (session.second == 0L) {
+                                            sessions[sessions.lastIndex] = Pair(session.first, event.timeStamp)
+                                            lastEvent = null
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                    lastEvent = event
+                }else{
+                    when(event.eventType){
+                        UsageEvents.Event.DEVICE_SHUTDOWN, UsageEvents.Event.SCREEN_NON_INTERACTIVE ->
+                            lastEvent?.let {
+                            if (it.packageName == appName && it.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
+                                // 마지막 포그라운드 세션의 종료 시간을 업데이트
+                                sessions.lastOrNull()?.let { session ->
+                                    if (session.second == 0L) {
+                                        sessions[sessions.lastIndex] = Pair(session.first, event.timeStamp)
+                                        lastEvent = null
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            sessions.lastOrNull()?.let { session ->
+                if (session.second == 0L) {
+                    sessions[sessions.lastIndex] =
+                        if(hour != currentHour){
+                            Pair(session.first, endTime)
+                        }else{
+                            Pair(session.first, currentTime.timeInMillis)
+                        }
                 }
             }
 
-            var totalDuration = 0
-            sessions[appName]?.forEach {(start, end) ->
-                    val duration = (end - start).toInt()  // 밀리초 단위의 시간 차이
-                    val durationInMinutes = duration / 1000
-                    totalDuration += durationInMinutes
-                }
 
-            appUsageTimeArray[hour] = totalDuration
+
+            var totalDuration = 0L
+            sessions.forEach { (start, end) ->
+                val duration = (end - start) / 1000// 초 단위의 시간 차이
+                totalDuration += duration
+            }
+            appUsageTimeArray[hour] = totalDuration.toInt()
         }
 
         val appData = AppData(
@@ -141,7 +156,7 @@ class AppRepositoryImpl @Inject constructor(
             hour18 = appUsageTimeArray[18], hour19 = appUsageTimeArray[19],
             hour20 = appUsageTimeArray[20], hour21 = appUsageTimeArray[21],
             hour22 = appUsageTimeArray[22], hour23 = appUsageTimeArray[23],
-            totalHour = dailyHour.toInt(), isCompleted = true
+            totalHour = appUsageTimeArray.sum(), isCompleted = true
         )
         scope.launch {
             localDataSource.upsert(appData)

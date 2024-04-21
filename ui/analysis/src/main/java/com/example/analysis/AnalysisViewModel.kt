@@ -27,7 +27,7 @@ class AnalysisViewModel @Inject constructor(
             val appData = repository.getAppDataByName("com.google.android.youtube")
             _appUiState.value = AnalysisUiState(
                 appName = appData.appName,
-                appTime = appData.hour13,
+                appTime = appData.totalHour,
                 isCompleted = appData.isCompleted
             )
         }
