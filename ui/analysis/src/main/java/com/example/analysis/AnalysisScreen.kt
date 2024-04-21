@@ -2,7 +2,7 @@ package com.example.analysis
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -21,9 +21,11 @@ fun AnalysisScreen(
     val appUiState by viewModel.appUiState.collectAsState()
 
     Surface(color = MaterialTheme.colorScheme.background) {
-        LazyColumn(modifier.padding(16.dp)) {
-            item {
-                AppUsageItem(appUiState)
+        Column(modifier = modifier.padding(16.dp)) {
+            AppUsageItem(appUsage = appUiState)
+            // 버튼 클릭 시 ViewModel의 loadAppUsageData() 함수를 호출
+            Button(onClick = { viewModel.updateHourlyData() }) {
+                Text("Load App Usage Data")
             }
         }
     }
@@ -33,7 +35,7 @@ fun AnalysisScreen(
 fun AppUsageItem(appUsage: AnalysisUiState) {
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
         Text(
-            text = "${appUsage.appName}: ${appUsage.appTime}초",
+            text = "${appUsage.appName}: ${appUsage.dailyTime}초",
             style = MaterialTheme.typography.titleMedium
         )
         Text(

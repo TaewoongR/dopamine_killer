@@ -5,9 +5,10 @@ import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
-import com.example.local.AppDAO
-import com.example.local.AppData
+import com.example.local.app.AppDAO
+import com.example.local.app.AppData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,89 +51,77 @@ class AppRepositoryImpl @Inject constructor(
             }
         }
     }
-/*
+
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
-    fun fetchAppUsage(appName: String): Int{
+    fun updateYesterdayTotalUsage(appName: String): Int{
         // 당일의 각각 모든 앱의 사용량
+        val yesterdayStart = calendar
         val stats = usageStatsManager.queryUsageStats(
             UsageStatsManager.INTERVAL_DAILY,
             startTime,
-            currentTime.timeInMillis)
+            startTime + TimeUnit.HOURS.toMillis(24))    // UsageStatsManager의 para는 밀리초 기준
         val appStat = stats.firstOrNull { it.packageName == appName }   // appName의 당일 사용시간
         val dailyHour = appStat?.let {it.totalTimeInForeground} ?: 0     // appName이 없으면 0 반환
         return (dailyHour / 1000).toInt()
     }
- */
+
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
-    override suspend fun updateAppTime(appName: String) {
+    override suspend fun updateHourlyTime(appName: String) {
         val appUsageTimeArray = IntArray(24) // 24시간에 대한 사용 시간을 저장할 배열
+        var lastEvent: UsageEvents.Event? = null    // 사용 시간이 정각을 포함할 때 다음 for문 루프에게 정각 이전부터 지속적으로 사용한다는 것을 알려줘야하기 때문에 for문 밖에 선언
+
         for(hour in 0.. currentHour){
-            val beginTime = startTime + TimeUnit.HOURS.toMillis(hour.toLong())
+            val beginTime = startTime + TimeUnit.HOURS.toMillis(hour.toLong())  // queryEvents - 밀리초 기준
             val endTime = beginTime + TimeUnit.HOURS.toMillis(1) - 1
 
             val usageEvents = usageStatsManager.queryEvents(beginTime, endTime)
-            val sessions = mutableListOf<Pair<Long, Long>>()
-            var lastEvent: UsageEvents.Event? = null
+            val sessions = mutableListOf<Pair<Long, Long>>()    // 특정 앱 실행 시작과 끝 시간 저장용 페어 리스트
 
             while (usageEvents.hasNextEvent()) {
                 val event = UsageEvents.Event()
                 usageEvents.getNextEvent(event)
+
+                Log.d("AppUsage", "Event Type: ${event.eventType}, App Name : ${event.packageName} Time Stamp: ${event.timeStamp}")
+
                 // 특정 앱의 이벤트만 처리
                 if (event.packageName == appName) {
-                    when (event.eventType) {
-                        UsageEvents.Event.ACTIVITY_RESUMED -> {
-                            if (sessions.lastOrNull()?.second == 0L) {
-                                continue
-                            }
-                            // 포그라운드 이벤트 시작 시간 기록
-                            sessions.add(Pair(event.timeStamp, 0L))
-                            lastEvent = event
+                    Log.d("hour", "hour : $hour")
+                    if (event.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
+                        if (sessions.lastOrNull()?.second == 0L) {
+                            continue
                         }
-                        UsageEvents.Event.ACTIVITY_PAUSED, UsageEvents.Event.ACTIVITY_STOPPED -> {
-                            lastEvent?.let {
-                                if (it.packageName == appName && it.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
-                                    // 마지막 포그라운드 세션의 종료 시간을 업데이트
-                                    sessions.lastOrNull()?.let { session ->
-                                        if (session.second == 0L) {
-                                            sessions[sessions.lastIndex] = Pair(session.first, event.timeStamp)
-                                            lastEvent = null
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }else{
-                    when(event.eventType){
-                        UsageEvents.Event.DEVICE_SHUTDOWN, UsageEvents.Event.SCREEN_NON_INTERACTIVE ->
-                            lastEvent?.let {
-                            if (it.packageName == appName && it.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
-                                // 마지막 포그라운드 세션의 종료 시간을 업데이트
-                                sessions.lastOrNull()?.let { session ->
-                                    if (session.second == 0L) {
-                                        sessions[sessions.lastIndex] = Pair(session.first, event.timeStamp)
-                                        lastEvent = null
-                                    }
+                        // 포그라운드 이벤트 시작 시간 기록
+                        sessions.add(Pair(event.timeStamp, 0L))
+                        lastEvent = event
+                    } else {
+                        lastEvent?.let {
+                            sessions.lastOrNull()?.let { session ->
+                                if (session.second == 0L) {
+                                    sessions[sessions.lastIndex] = Pair(session.first, event.timeStamp)
+                                    lastEvent = null
+                                }else if(session == null){  // lastEvent(foreground에서 실행중)가 null이 아닌경우 계속 실행중이지만 새로운 루프이기 때문에 session이 null임
+                                    sessions.add(Pair(startTime,event.timeStamp))
                                 }
                             }
                         }
                     }
                 }
             }
+            // 앱 지속 사용 시간이 정시에 걸칠 때
             sessions.lastOrNull()?.let { session ->
                 if (session.second == 0L) {
                     sessions[sessions.lastIndex] =
                         if(hour != currentHour){
                             Pair(session.first, endTime)
                         }else{
+                            Log.d("","")
                             Pair(session.first, currentTime.timeInMillis)
                         }
                 }
             }
 
-
-
+            // 시간대 사용 시간 합산
             var totalDuration = 0L
             sessions.forEach { (start, end) ->
                 val duration = (end - start) / 1000// 초 단위의 시간 차이
@@ -155,7 +144,7 @@ class AppRepositoryImpl @Inject constructor(
             hour16 = appUsageTimeArray[16], hour17 = appUsageTimeArray[17],
             hour18 = appUsageTimeArray[18], hour19 = appUsageTimeArray[19],
             hour20 = appUsageTimeArray[20], hour21 = appUsageTimeArray[21],
-            hour22 = appUsageTimeArray[22], hour23 = appUsageTimeArray[23],
+            hour22 = appUsageTimeArray[22], hour23 = updateYesterdayTotalUsage(appName),
             totalHour = appUsageTimeArray.sum(), isCompleted = true
         )
         scope.launch {
@@ -163,9 +152,7 @@ class AppRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getAppDataByName(appName: String): AppData = withContext(Dispatchers.IO) {
+    override suspend fun getHourlyDataByName(appName: String): AppData = withContext(Dispatchers.IO) {
         localDataSource.getByName(appName)  // 데이터베이스에서 모든 AppData 레코드를 가져옴
     }
-
-
 }

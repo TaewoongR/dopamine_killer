@@ -1,11 +1,27 @@
-package com.example.local
+package com.example.local.app
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "app_data")
+@Entity(
+    tableName = "app_data",
+    /*
+    foreignKeys = [
+        ForeignKey(
+            entity = UserData::class,
+            parentColumns = ["userId"],
+            childColumns = ["userId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+
+     */
+)
 data class AppData(
-    @PrimaryKey val appName: String,
+    @PrimaryKey
+    //val id: String = "",
+    //@ColumnInfo(index = true)
+    val appName: String,
     val date: String,
     val hour00: Int,
     val hour01: Int,

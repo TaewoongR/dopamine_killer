@@ -18,16 +18,22 @@ class AnalysisViewModel @Inject constructor(
     val appUiState: StateFlow<AnalysisUiState> = _appUiState.asStateFlow()
 
     init {
-        loadAppUsageData()
+        updateHourlyData()
     }
 
-    private fun loadAppUsageData() {
+     fun updateHourlyData() {
         viewModelScope.launch {
-            repository.updateAppTime("com.google.android.youtube")
-            val appData = repository.getAppDataByName("com.google.android.youtube")
+            repository.updateHourlyTime("com.google.android.youtube")
+            loadHourlyData("com.google.android.youtube")
+        }
+    }
+
+    fun loadHourlyData(appName: String){
+        viewModelScope.launch {
+            val appData = repository.getHourlyDataByName(appName)
             _appUiState.value = AnalysisUiState(
                 appName = appData.appName,
-                appTime = appData.totalHour,
+                dailyTime = appData.totalHour,
                 isCompleted = appData.isCompleted
             )
         }
