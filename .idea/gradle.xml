@@ -13,11 +13,13 @@
             <option value="$PROJECT_DIR$/data" />
             <option value="$PROJECT_DIR$/data/local" />
             <option value="$PROJECT_DIR$/data/repository" />
+            <option value="$PROJECT_DIR$/data/service" />
             <option value="$PROJECT_DIR$/ui" />
             <option value="$PROJECT_DIR$/ui/analysis" />
             <option value="$PROJECT_DIR$/ui/installedApp" />
             <option value="$PROJECT_DIR$/ui/navigation" />
             <option value="$PROJECT_DIR$/ui/overview" />
+            <option value="$PROJECT_DIR$/ui/service" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

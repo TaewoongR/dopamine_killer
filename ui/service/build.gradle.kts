@@ -26,7 +26,6 @@ dependencies {
     implementation(libs.material)
     implementation(libs.javax.inject)
     implementation(project(":data:local"))
-    implementation(project(":data:service"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

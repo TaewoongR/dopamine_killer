@@ -1,5 +1,6 @@
 package com.example.local.app
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -22,6 +23,7 @@ data class AppData(
     //val id: String = "",
     //@ColumnInfo(index = true)
     val appName: String,
+    @ColumnInfo
     val date: String,
     val hour00: Int,
     val hour01: Int,

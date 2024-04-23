@@ -3,6 +3,7 @@ package com.example.analysis
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.repository.AppRepository
+import com.example.service.DateFactory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,7 +13,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AnalysisViewModel @Inject constructor(
-    private val repository: AppRepository
+    private val dateFactory: DateFactory,
+    private val repository: AppRepository,
 ) : ViewModel() {
     private val _appUiState = MutableStateFlow(AnalysisUiState())
     val appUiState: StateFlow<AnalysisUiState> = _appUiState.asStateFlow()
@@ -23,7 +25,12 @@ class AnalysisViewModel @Inject constructor(
 
      fun updateHourlyData() {
         viewModelScope.launch {
-            repository.updateHourlyTime("com.google.android.youtube")
+            val fromMilli = dateFactory.returnTheDayStart(0)
+            repository.updateHourlyTime(
+                "com.google.android.youtube",
+                fromMilli,
+                dateFactory.returnTheDayEnd(fromMilli),
+                dateFactory.returnStringDate(fromMilli))
             loadHourlyData("com.google.android.youtube")
         }
     }
