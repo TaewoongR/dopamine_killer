@@ -11,11 +11,11 @@ class DateFactoryImpl @Inject constructor(): DateFactory{
      override suspend fun returnTheDayStart(fromDay: Int): Long {
          val calendar = Calendar.getInstance()
          calendar.apply {
+             add(Calendar.DATE, -fromDay)
              set(Calendar.HOUR_OF_DAY, 0)
              set(Calendar.MINUTE, 0)
              set(Calendar.SECOND, 0)
              set(Calendar.MILLISECOND, 0)
-             add(Calendar.DATE, fromDay * (-1))
          }
         return calendar.timeInMillis
     }

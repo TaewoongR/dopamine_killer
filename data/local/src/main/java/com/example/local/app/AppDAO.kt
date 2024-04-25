@@ -13,8 +13,8 @@ interface AppDAO {
     @Query("SELECT * FROM app_data")
     fun getAll(): List<AppData>
 
-    @Query("SELECT * FROM app_data WHERE appName = :appName")
-    fun getByName(appName: String): AppData
+    @Query("SELECT * FROM app_data WHERE appName = :appName AND date = :date")
+    fun getByNameDate(appName: String, date: String): AppData
 
     @Upsert
     fun upsert(app: AppData)

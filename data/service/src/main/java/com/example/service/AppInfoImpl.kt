@@ -17,7 +17,7 @@ class AppInfoImpl @Inject constructor(
     @ApplicationContext val context: Context,   //context가 활동주기에 영향을 최소로 하기위해 이곳에 선언
 ) : AppInfo{
 
-    override suspend fun getAppName(): List<String> {
+    override suspend fun getAppNameList(): List<String> {
         val packageManager = context.packageManager
         val apps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
         return apps.mapNotNull { app ->
@@ -29,10 +29,24 @@ class AppInfoImpl @Inject constructor(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
+    override suspend fun findAppByName(appName: String): String {
+        val packageManager = context.packageManager
+        val packages = packageManager.getInstalledPackages(PackageManager.GET_META_DATA)
+        // 패키지 목록을 필터링
+        return packages.firstOrNull { pkg ->
+            try {
+                val label = packageManager.getApplicationLabel(pkg.applicationInfo).toString()
+                Log.d("error","not found")
+                label.contains(appName, ignoreCase = true)
+            } catch (e: Exception) {
+                false
+            }
+        }?.packageName.toString()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override suspend fun getHourlyTime(appName: String, startTime: Long, toTime: Long): IntArray {
-        val usageStatsManager =
-            context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val appUsageTimeArray = IntArray(24) // 24시간에 대한 사용 시간을 저장할 배열
         var lastEvent: UsageEvents.Event? = null    // 사용 시간이 정각을 포함할 때 다음 for문 루프에게 정각 이전부터 지속적으로 사용한다는 것을 알려줘야하기 때문에 for문 밖에 선언
 
@@ -41,7 +55,7 @@ class AppInfoImpl @Inject constructor(
             val endTime = beginTime + TimeUnit.HOURS.toMillis(1) - 1
             val usageEvents = usageStatsManager.queryEvents(beginTime, endTime)
             val sessions = mutableListOf<Pair<Long, Long>>()    // 특정 앱 실행 시작과 끝 시간 저장용 페어 리스트
-
+            Log.d("time","begin Time : $beginTime, end Time : $endTime")
             while (usageEvents.hasNextEvent()) {
                 val event = UsageEvents.Event()
                 usageEvents.getNextEvent(event)

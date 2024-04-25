@@ -3,25 +3,37 @@ package com.example.installedapp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.repository.AppRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class InstalledViewModel @Inject constructor(private val repository: AppRepository) : ViewModel() {
-        private val _appUiState = MutableStateFlow(InstalledUiState())
-        val appUiState: StateFlow<InstalledUiState> = _appUiState.asStateFlow()
+@HiltViewModel
+class InstalledViewModel @Inject constructor(
+    private val repository: AppRepository
+) : ViewModel() {
+    private val _installedUiState = MutableStateFlow(InstalledUiState())
+    val installedUiState: StateFlow<InstalledUiState> = _installedUiState.asStateFlow()
 
-        init {
-            loadAppName()
-        }
+    init {
+        loadAppList()
+    }
 
-        private fun loadAppName(){
-            viewModelScope.launch {
-                _appUiState.value = InstalledUiState(
-                    nameList = repository.getAppName()
-                )
-            }
+    private fun loadAppList(){
+        viewModelScope.launch {
+            _installedUiState.value = InstalledUiState(
+                nameList = repository.getInstalledNameList()
+            )
         }
     }
+
+    private fun findApp(){
+        viewModelScope.launch {
+            _installedUiState.value = InstalledUiState(
+                appName = repository.findInstalledApp("youtube")
+            )
+        }
+    }
+}

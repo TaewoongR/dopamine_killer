@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.installedapp.InstalledScreen
 
 @Composable
 fun AnalysisScreen(
@@ -22,14 +23,18 @@ fun AnalysisScreen(
 
     Surface(color = MaterialTheme.colorScheme.background) {
         Column(modifier = modifier.padding(16.dp)) {
-            AppUsageItem(appUsage = appUiState)
-            // 버튼 클릭 시 ViewModel의 loadAppUsageData() 함수를 호출
-            Button(onClick = { viewModel.updateHourlyData() }) {
-                Text("Load App Usage Data")
+            Column {
+                AppUsageItem(appUsage = appUiState)
+                Button(onClick = { viewModel.updateHourlyData() }) {
+                    Text("Load App Usage Data")
+                }
             }
+            // 여기서 두 번째 Column은 자연스럽게 아래에 배치됩니다.
+            InstalledScreen()
         }
     }
 }
+
 
 @Composable
 fun AppUsageItem(appUsage: AnalysisUiState) {
