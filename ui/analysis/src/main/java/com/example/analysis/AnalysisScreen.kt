@@ -11,12 +11,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.installedapp.InstalledScreen
 
 @Composable
 fun AnalysisScreen(
-    viewModel: AnalysisViewModel = viewModel(),
+    navController: NavController,
+    viewModel: AnalysisViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
     val appUiState by viewModel.appUiState.collectAsState()

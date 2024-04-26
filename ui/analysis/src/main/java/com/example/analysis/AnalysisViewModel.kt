@@ -24,17 +24,17 @@ class AnalysisViewModel @Inject constructor(
     }
 
      fun updateHourlyData() {
-        viewModelScope.launch {
-            val fromMilli = dateFactory.returnTheDayStart(0)
-            val stringDate = dateFactory.returnStringDate(fromMilli)
-            val toMilli = dateFactory.returnTheDayEnd(fromMilli)
+         val fromMilli = dateFactory.returnTheDayStart(0)
+         val stringDate = dateFactory.returnStringDate(fromMilli)
+         val toMilli = dateFactory.returnTheDayEnd(fromMilli)
+         viewModelScope.launch {
             repository.updateHourlyTime(
                 "com.google.android.youtube",
                 fromMilli,
                 toMilli,
                 stringDate)
             loadHourlyData("com.google.android.youtube", stringDate)
-        }
+         }
     }
 
     fun loadHourlyData(appName: String, date: String){

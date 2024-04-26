@@ -8,7 +8,7 @@ import javax.inject.Singleton
 @Singleton
 class DateFactoryImpl @Inject constructor(): DateFactory{
 
-     override suspend fun returnTheDayStart(fromDay: Int): Long {
+     override fun returnTheDayStart(fromDay: Int): Long {
          val calendar = Calendar.getInstance()
          calendar.apply {
              add(Calendar.DATE, -fromDay)
@@ -20,7 +20,7 @@ class DateFactoryImpl @Inject constructor(): DateFactory{
         return calendar.timeInMillis
     }
 
-    override suspend fun returnTheDayEnd(endMilli: Long): Long{
+    override fun returnTheDayEnd(endMilli: Long): Long{
         val calendar = Calendar.getInstance()
         calendar.setTimeInMillis(endMilli)
         calendar.apply {
@@ -32,19 +32,19 @@ class DateFactoryImpl @Inject constructor(): DateFactory{
         return calendar.timeInMillis
     }
 
-    override suspend fun returnTheHour(milliSecDate: Long): Int{
+    override fun returnTheHour(milliSecDate: Long): Int{
         val calendar = Calendar.getInstance()
         calendar.setTimeInMillis(milliSecDate)
         return calendar.get(Calendar.HOUR_OF_DAY)
     }
 
-    override suspend fun returnTheDate(milliSecDate: Long): Calendar {
+    override fun returnTheDate(milliSecDate: Long): Calendar {
         val calendar = Calendar.getInstance()
         calendar.setTimeInMillis(milliSecDate)
         return calendar
     }
 
-    override suspend fun returnStringDate(milliSecDate: Long): String{
+    override fun returnStringDate(milliSecDate: Long): String{
         val calendar = Calendar.getInstance()
         calendar.setTimeInMillis(milliSecDate)
         return SimpleDateFormat("yyyyMMdd").format(calendar.time)

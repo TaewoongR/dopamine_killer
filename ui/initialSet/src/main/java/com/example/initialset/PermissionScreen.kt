@@ -1,4 +1,4 @@
-package com.example.dopamine_killer
+package com.example.initialset
 
 import android.app.AppOpsManager
 import android.content.Context
@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import com.example.analysis.AnalysisScreen
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
@@ -25,7 +24,6 @@ fun PermissionScreen() {
 
     // 권한이 없으면 사용자에게 설정 화면으로 이동하도록 유도
     if (hasPermission.value) {
-        AnalysisScreen()
     } else {
         Column {
             Text("이 앱은 사용 통계에 대한 접근 권한이 필요합니다.")

@@ -7,7 +7,7 @@ plugins {
 
 android{
     compileSdk = 34
-    namespace = "com.example.repository"
+    namespace = "com.example.service"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -20,7 +20,6 @@ android{
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
