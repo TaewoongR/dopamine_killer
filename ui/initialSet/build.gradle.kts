@@ -1,13 +1,15 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsKotlinAndroid)
-    alias(libs.plugins.hilt)
-    alias(libs.plugins.ksp)
 }
 
 android{
     compileSdk = 34
     namespace = "com.example.initialSet"
+
+    defaultConfig {
+        minSdk = 29
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -33,9 +35,6 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.material3)
-    implementation(project(":ui:service"))
-    implementation(project(":ui:installedApp"))
-    implementation(project(":ui:analysis"))
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
@@ -45,14 +44,4 @@ dependencies {
     //version catalog
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
-
-
-
-    //hilt
-    implementation(libs.hilt.android)
-    implementation(libs.androidx.hilt.navigation.compose)
-    ksp(libs.hilt.compiler)
-
-    //compose viewmodel
-    implementation(libs.androidx.lifecycle.viewModelCompose)
 }

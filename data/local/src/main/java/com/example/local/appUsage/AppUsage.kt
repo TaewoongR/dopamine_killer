@@ -1,12 +1,9 @@
-package com.example.local.app
+package com.example.local.appUsage
 
-import androidx.room.Entity
-
-@Entity(
-    tableName = "app_data", primaryKeys = ["appName","date"])
-data class AppData(
+data class AppUsage(
     val appName: String,
     val date: String,
+    val dayOfWeek: Int = 0, // Calendar 라이브러리 일 = 1, 토 = 7
     val hour00: Int,
     val hour01: Int,
     val hour02: Int,

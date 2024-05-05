@@ -7,7 +7,11 @@ plugins {
 
 android{
     compileSdk = 34
-    namespace = "com.example.service"
+    namespace = "com.example.data.service"
+
+    defaultConfig {
+        minSdk = 29
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -26,6 +30,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.javax.inject)
     implementation(project(":data:local"))
+    implementation(libs.androidx.ui.graphics.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

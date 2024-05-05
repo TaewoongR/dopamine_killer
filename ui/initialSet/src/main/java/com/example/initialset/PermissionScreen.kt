@@ -22,7 +22,6 @@ fun PermissionScreen() {
     val mode = appOps.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), context.packageName)
     val hasPermission = remember { mutableStateOf(mode == AppOpsManager.MODE_ALLOWED) }
 
-    // 권한이 없으면 사용자에게 설정 화면으로 이동하도록 유도
     if (hasPermission.value) {
     } else {
         Column {

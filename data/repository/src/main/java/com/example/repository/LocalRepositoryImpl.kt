@@ -1,7 +1,8 @@
 package com.example.repository
 
-import com.example.local.app.AppDAO
-import com.example.local.app.AppData
+import androidx.compose.ui.graphics.ImageBitmap
+import com.example.local.appUsage.AppDAO
+import com.example.local.appUsage.AppUsageEntity
 import com.example.service.AppInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -10,16 +11,16 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AppRepositoryImpl @Inject constructor(
+class LocalRepositoryImpl @Inject constructor(
     private val appInfo: AppInfo,
     private val localDataSource: AppDAO
-) : AppRepository{
+) : LocalRepository{
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    override suspend fun updateHourlyTime(appName: String, startTime: Long, endTime: Long, date: String) {
-        val time = appInfo.getHourlyTime(appName, startTime, endTime)
-        val appData = AppData(
-            appName = appName, date = date,
+    override suspend fun updateHourlyTime(appName: String, startTime: Long, date: String, dayOfWeek: Int) {
+        val time = appInfo.getHourlyTime(appName, startTime)
+        val appUsageEntity = AppUsageEntity(
+            appName = appName, date = date, dayOfWeek = dayOfWeek,
             hour00 = time[0], hour01 = time[1],
             hour02 = time[2], hour03 = time[3],
             hour04 = time[4], hour05 = time[5],
@@ -31,15 +32,15 @@ class AppRepositoryImpl @Inject constructor(
             hour16 = time[16], hour17 = time[17],
             hour18 = time[18], hour19 = time[19],
             hour20 = time[20], hour21 = time[21],
-            hour22 = time[22], hour23 = time[22],
+            hour22 = time[22], hour23 = time[23],
             totalHour = time.sum(), isCompleted = true
         )
         withContext(Dispatchers.IO) {
-            localDataSource.upsert(appData)
+            localDataSource.upsert(appUsageEntity)
         }
     }
 
-    override suspend fun getHourlyDataByNameDate(appName: String, date: String): AppData = withContext(Dispatchers.IO) {
+    override suspend fun getHourlyDataByNameDate(appName: String, date: String): AppUsageEntity = withContext(Dispatchers.IO) {
         localDataSource.getByNameDate(appName, date)  // 데이터베이스에서 모든 AppData 레코드를 가져옴
     }
 
@@ -49,5 +50,9 @@ class AppRepositoryImpl @Inject constructor(
 
     override suspend fun findInstalledApp(appName: String): String{
         return appInfo.findAppByName(appName)
+    }
+
+    override suspend fun getAppIcon(appName: String): ImageBitmap {
+        return appInfo.getAppIcon(appName)
     }
 }

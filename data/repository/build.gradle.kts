@@ -9,6 +9,10 @@ android{
     compileSdk = 34
     namespace = "com.example.repository"
 
+    defaultConfig {
+        minSdk = 29
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -27,6 +31,8 @@ dependencies {
     implementation(libs.javax.inject)
     implementation(project(":data:local"))
     implementation(project(":data:service"))
+    implementation(libs.androidx.ui.graphics.android)
+    implementation(project(":data:network"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

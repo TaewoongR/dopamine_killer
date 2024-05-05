@@ -76,7 +76,7 @@ fun BotNavBar() {
                 RewardScreen(navController)
             }
             composable(Screens.Overview.route) {
-                OverviewScreen()
+                OverviewScreen(navController)
             }
             composable(Screens.Analysis.route) {
                 AnalysisScreen(navController)

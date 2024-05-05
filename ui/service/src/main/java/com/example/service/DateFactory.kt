@@ -8,4 +8,5 @@ interface DateFactory{
     fun returnTheHour(milliSecDate: Long): Int
     fun returnTheDate(milliSecDate: Long): Calendar
     fun returnStringDate(milliSecDate: Long): String
+    fun returnDayOfWeek(milliSecDate: Long): Int
 }

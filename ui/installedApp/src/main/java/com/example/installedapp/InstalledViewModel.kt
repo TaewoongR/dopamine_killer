@@ -2,7 +2,7 @@ package com.example.installedapp
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.repository.AppRepository
+import com.example.repository.LocalRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InstalledViewModel @Inject constructor(
-    private val repository: AppRepository
+    private val repository: LocalRepository
 ) : ViewModel() {
     private val _installedUiState = MutableStateFlow(InstalledUiState())
     val installedUiState: StateFlow<InstalledUiState> = _installedUiState.asStateFlow()

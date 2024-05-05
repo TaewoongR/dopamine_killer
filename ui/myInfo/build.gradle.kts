@@ -9,6 +9,10 @@ android{
     compileSdk = 34
     namespace = "com.example.myInfo"
 
+    defaultConfig {
+        minSdk = 29
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8

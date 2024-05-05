@@ -7,7 +7,11 @@ plugins {
 
 android{
     compileSdk = 34
-    namespace = "com.example.reccord"
+    namespace = "com.example.record"
+
+    defaultConfig {
+        minSdk = 29
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -37,6 +41,8 @@ dependencies {
     implementation(project(":data:repository"))
     implementation(project(":ui:service"))
     implementation(project(":ui:installedApp"))
+    implementation(project(":ui:initialSet"))
+    implementation(project(":ui:initialSet"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

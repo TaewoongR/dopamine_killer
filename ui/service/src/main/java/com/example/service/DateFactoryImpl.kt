@@ -49,4 +49,10 @@ class DateFactoryImpl @Inject constructor(): DateFactory{
         calendar.setTimeInMillis(milliSecDate)
         return SimpleDateFormat("yyyyMMdd").format(calendar.time)
     }
+
+    override fun returnDayOfWeek(milliSecDate: Long): Int {
+        val calendar = Calendar.getInstance()
+        calendar.setTimeInMillis(milliSecDate)
+        return calendar.get(Calendar.DAY_OF_WEEK)
+    }
 }

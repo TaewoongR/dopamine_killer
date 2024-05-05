@@ -1,7 +1,7 @@
 package com.example.repository.di
 
-import com.example.repository.AppRepository
-import com.example.repository.AppRepositoryImpl
+import com.example.repository.LocalRepository
+import com.example.repository.LocalRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -13,5 +13,5 @@ import javax.inject.Singleton
 interface RepositoryModule {
     @Binds
     @Singleton
-    fun bindRepository(appRepositoryImpl: AppRepositoryImpl): AppRepository
+    fun bindRepository(appRepositoryImpl: LocalRepositoryImpl): LocalRepository
 }

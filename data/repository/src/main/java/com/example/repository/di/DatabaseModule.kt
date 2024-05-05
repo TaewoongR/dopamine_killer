@@ -2,8 +2,8 @@ package com.example.repository.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.local.app.AppDAO
-import com.example.local.app.AppDatabase
+import com.example.local.appUsage.AppDAO
+import com.example.local.appUsage.AppDatabase
 import com.example.local.user.UserDAO
 import com.example.local.user.UserDatabase
 import dagger.Module
