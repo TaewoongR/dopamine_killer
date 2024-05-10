@@ -4,6 +4,8 @@ import com.example.repository.AppRepository
 import com.example.repository.AppRepositoryImpl
 import com.example.repository.DailyRepository
 import com.example.repository.DailyRepositoryImpl
+import com.example.repository.GoalRepository
+import com.example.repository.GoalRepositoryImpl
 import com.example.repository.NetworkRepository
 import com.example.repository.NetworkRepositoryImpl
 import dagger.Binds
@@ -27,4 +29,8 @@ interface RepositoryModule {
     @Binds
     @Singleton
     fun bindNetworkRepository(networkRepositoryImpl: NetworkRepositoryImpl): NetworkRepository
+
+    @Binds
+    @Singleton
+    fun bindGoalRepository(goalRepositoryImpl: GoalRepositoryImpl): GoalRepository
 }

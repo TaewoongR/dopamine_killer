@@ -22,6 +22,4 @@ class CoreDomainImpl @Inject constructor(
     override fun updateDailyInfo() {
         TODO("Not yet implemented")
     }
-
-
 }

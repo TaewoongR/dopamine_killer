@@ -30,13 +30,17 @@ dependencies {
     implementation(libs.material)
     implementation(libs.javax.inject)
     implementation(project(":data:local"))
-    implementation(libs.androidx.ui.graphics.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
+    // ImageBitmap
+    implementation(libs.androidx.ui.graphics.android)
+
+    // hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
+    // room
     implementation(libs.room.ktx)
 }

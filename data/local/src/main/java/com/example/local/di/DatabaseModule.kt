@@ -6,6 +6,8 @@ import com.example.local.appUsage.AppDAO
 import com.example.local.appUsage.AppDatabase
 import com.example.local.dailyInfo.DailyDAO
 import com.example.local.dailyInfo.DailyDatabase
+import com.example.local.record.RecordDAO
+import com.example.local.record.RecordDatabase
 import com.example.local.user.UserDAO
 import com.example.local.user.UserDatabase
 import dagger.Module
@@ -58,4 +60,16 @@ object DataModule {
         return userDatabase.userDAO()
     }
 
+    @Provides
+    @Singleton
+    fun provideRecordDatabase(@ApplicationContext context: Context): RecordDatabase {
+        return Room.databaseBuilder(context, RecordDatabase::class.java, "RecordData.db")
+            .fallbackToDestructiveMigration() // 데이터베이스 스키마 버전이 변경될 경우 데이터를 삭제하고 다시 시작합니다.
+            .build()
+    }
+
+    @Provides
+    fun provideRecordDAO(recordDatabase: RecordDatabase): RecordDAO {
+        return recordDatabase.recordDAO()
+    }
 }
