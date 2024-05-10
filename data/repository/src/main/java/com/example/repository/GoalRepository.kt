@@ -1,5 +1,7 @@
 package com.example.repository
 
+import com.example.local.record.RecordData
+
 interface GoalRepository {
     fun createGoal(appName: String, goalTime: Int)
 
@@ -9,5 +11,5 @@ interface GoalRepository {
 
     fun failGoal(appName: String, date: String)
 
-    fun getOnGoingList():List<TempRecordData>
+    fun getOnGoingList():List<RecordData>
 }

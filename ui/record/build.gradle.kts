@@ -43,6 +43,7 @@ dependencies {
     implementation(project(":ui:installedApp"))
     implementation(project(":ui:initialSet"))
     implementation(project(":ui:initialSet"))
+    implementation(project(":domain:RecordDomain"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

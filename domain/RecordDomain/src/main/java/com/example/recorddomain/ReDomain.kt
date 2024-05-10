@@ -1,5 +1,5 @@
 package com.example.recorddomain
 
 interface ReDomain{
-    fun
+    suspend fun getRecordList(): List<RecordDataDomain>
 }

@@ -1,8 +1,10 @@
 package com.example.local.record
 
+import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
 
+@Dao
 interface RecordDAO {
     @Upsert
     fun upsert(recordEntity: RecordEntity)

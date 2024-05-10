@@ -5,31 +5,16 @@
       <entry key="DefaultPreview">
         <State />
       </entry>
+      <entry key="DefaultPreview2">
+        <State />
+      </entry>
+      <entry key="DefaultPreview3">
+        <State />
+      </entry>
+      <entry key="DefaultPreview5">
+        <State />
+      </entry>
       <entry key="app">
-        <State />
-      </entry>
-      <entry key="data">
-        <State />
-      </entry>
-      <entry key="data.local">
-        <State />
-      </entry>
-      <entry key="data.repository">
-        <State />
-      </entry>
-      <entry key="domain">
-        <State />
-      </entry>
-      <entry key="service">
-        <State />
-      </entry>
-      <entry key="ui">
-        <State />
-      </entry>
-      <entry key="ui.analysis">
-        <State />
-      </entry>
-      <entry key="ui.overview">
         <State />
       </entry>
     </value>

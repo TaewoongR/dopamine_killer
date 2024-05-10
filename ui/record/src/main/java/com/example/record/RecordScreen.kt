@@ -60,7 +60,7 @@ fun RecordScreen(
     viewModel: RecordViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
-    val uiState by viewModel.appUiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     RecordContent(uiState)
 }
 
@@ -90,7 +90,7 @@ fun RecordContent(uiState: RecordUiState) {
                 .width(totalWidth)
                 .background(Color.White, shape = RoundedCornerShape(16.dp))) {
                 Column {
-                    for (i in 0 until 3)
+                    for (i in 0 until 3)        // 진행중인 개수
                         ongoingRecords(
                             modifier = Modifier,
                             aspectRatio = 1 / 0.1875f,
