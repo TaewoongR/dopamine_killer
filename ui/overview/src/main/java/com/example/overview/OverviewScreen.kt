@@ -1,10 +1,7 @@
 package com.example.overview
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,20 +14,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
@@ -45,36 +38,7 @@ fun OverviewScreen(
 ) {
     val appUiState by viewModel.overviewUiState.collectAsState()
 
-    MyScreenContent()
-}
-
-
-@Composable
-fun DisplayImage(
-    imageBitmap: ImageBitmap,
-    modifier: Modifier = Modifier,
-    contentDescription: String = "Displayed Image",
-    contentScale: ContentScale = ContentScale.Crop,
-    cornerRadius: Int = 0,  // 이미지 모서리 둥글기(0은 모서리가 둥글지 않음)
-    borderWidth: Int = 2,  // 테두리의 두께
-    borderColor: Color = Color.Black,  // 테두리의 색상
-    onClick: (() -> Unit)? = null  // 클릭 이벤트 핸들러(null이면 클릭 이벤트 없음)
-) {
-    Image(
-        bitmap = imageBitmap,
-        contentDescription = contentDescription,
-        modifier = modifier
-            .clip(RoundedCornerShape(cornerRadius.dp))
-            .border(borderWidth.dp, borderColor, RoundedCornerShape(cornerRadius.dp))
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
-        contentScale = contentScale
-    )
-}
-
-
-@Composable
-fun DisplayAppName(appName: String){
-    Text(text = appName)
+    MyScreenContent(appUiState)
 }
 
 val backgroundColor: Color = Color(android.graphics.Color.parseColor("#EFEFEF"))
@@ -82,7 +46,7 @@ val keyColor: Color = Color(android.graphics.Color.parseColor("#FF9A62"))
 val subColor: Color = Color(android.graphics.Color.parseColor("#73A66A"))
 
 @Composable
-fun MyScreenContent() {
+fun MyScreenContent(uiState: OverviewUiState) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -102,7 +66,7 @@ fun MyScreenContent() {
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                DonutGraph(percent = 0.8f)
+                DonutGraph(uiState)
                 Spacer(modifier = Modifier.width(10.dp))
                 RoundedSquare()
             }
@@ -123,7 +87,8 @@ fun MyScreenContent() {
 }
 
 @Composable
-fun DonutGraph(percent: Float) {
+fun DonutGraph(uiState: OverviewUiState) {
+    val percent = uiState.dailyTime
     Box(
         modifier = Modifier
             .size(150.dp)
@@ -181,5 +146,5 @@ fun Rectangle(){
 @Preview
 @Composable
 fun DefaultPreview() {
-    MyScreenContent()
+    MyScreenContent(uiState = OverviewUiState())
 }

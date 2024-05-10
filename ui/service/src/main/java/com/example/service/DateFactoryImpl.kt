@@ -8,6 +8,10 @@ import javax.inject.Singleton
 @Singleton
 class DateFactoryImpl @Inject constructor(): DateFactory{
 
+    override fun returnToday(): Long {
+        return Calendar.getInstance().timeInMillis
+    }
+
      override fun returnTheDayStart(fromDay: Int): Long {
          val calendar = Calendar.getInstance()
          calendar.apply {

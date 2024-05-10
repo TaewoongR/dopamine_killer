@@ -15,6 +15,10 @@
             <option value="$PROJECT_DIR$/data/network" />
             <option value="$PROJECT_DIR$/data/repository" />
             <option value="$PROJECT_DIR$/data/service" />
+            <option value="$PROJECT_DIR$/domain" />
+            <option value="$PROJECT_DIR$/domain/AnalysisDomain" />
+            <option value="$PROJECT_DIR$/domain/RecordDomain" />
+            <option value="$PROJECT_DIR$/domain/coreDomain" />
             <option value="$PROJECT_DIR$/ui" />
             <option value="$PROJECT_DIR$/ui/analysis" />
             <option value="$PROJECT_DIR$/ui/initialSet" />

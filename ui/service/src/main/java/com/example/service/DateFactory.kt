@@ -3,6 +3,7 @@ package com.example.service
 import java.util.Calendar
 
 interface DateFactory{
+    fun returnToday(): Long
     fun returnTheDayStart(fromDay: Int): Long
     fun returnTheDayEnd(endMilli: Long): Long
     fun returnTheHour(milliSecDate: Long): Int

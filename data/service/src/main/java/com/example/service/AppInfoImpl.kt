@@ -20,6 +20,7 @@ import javax.inject.Singleton
 @Singleton
 class AppInfoImpl @Inject constructor(
     @ApplicationContext val context: Context,   //context가 활동주기에 영향을 최소로 하기위해 이곳에 선언
+    private val dateFactory: DateFactoryForData
 ) : AppInfo{
 
     override suspend fun getAppNameList(): List<String> {
@@ -132,6 +133,24 @@ class AppInfoImpl @Inject constructor(
             appUsageTimeArray[hour] = totalDuration.toInt()
         }
         return appUsageTimeArray
+    }
+
+    override suspend fun getLastMonthAvgUsage(appName: String): Int {
+        val usageStatsManager =
+            context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val usageStats = usageStatsManager.queryUsageStats(
+            UsageStatsManager.INTERVAL_MONTHLY,
+            dateFactory.returnLastMonthStart(),
+            dateFactory.returnLastMonthEnd()
+        )
+        val appUsage = usageStats.filter { it.packageName == appName }
+        var totalUsageTime = 0L
+        appUsage.forEach {
+            totalUsageTime += it.totalTimeInForeground
+        }
+        val totalDays = dateFactory.returnLastMonthEndDate(dateFactory.returnLastMonthStart())
+
+        return if (totalDays > 0) (totalUsageTime / totalDays / (1000 * 60)).toInt() else 0
     }
 
     override suspend fun getAppIcon(packageName: String): ImageBitmap {

@@ -21,4 +21,7 @@ interface AppDAO {
 
     @Query("DELETE FROM app_usage WHERE appName = :appName")
     fun deleteByName(appName: String): Int
+
+    @Query("SELECT totalHour FROM app_usage WHERE appName = :appName AND date = :date")
+    fun getTheDayUsage(appName: String, date: String):Int
 }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="youtube">youtube</string>
+    <string name="X">X</string>
+    <string name="instagram">instagram</string>
+    <string name="kakaotalk">kakaotalk</string>
+    <string name="naver">naver</string>
+    <string name="TikTalk">TikTalk</string>
+
+</resources>

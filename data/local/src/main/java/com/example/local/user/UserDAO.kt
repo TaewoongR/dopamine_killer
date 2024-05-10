@@ -1,15 +1,11 @@
 package com.example.local.user
 
 import androidx.room.Dao
-import androidx.room.Insert
+import androidx.room.Upsert
 
 @Dao
 interface UserDAO {
-    @Insert
-    fun insertUser(userData: UserData)
-/*
-    @Query("SELECT * FROM app_data WHERE id = :userId")
-    fun getAppDataById(userId: String): List<AppData>
+    @Upsert
+    fun upsert(user: UserEntity)
 
- */
 }

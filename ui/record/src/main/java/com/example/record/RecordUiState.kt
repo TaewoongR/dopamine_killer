@@ -1,5 +1,5 @@
 package com.example.record
 
-class RecordUiState {
-
-}
+data class RecordUiState(
+    val temp: String = ""
+)

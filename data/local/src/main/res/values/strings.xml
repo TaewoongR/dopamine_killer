@@ -1,3 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">local</string>
+    <string name="Youtube">youtube</string>
+    <string name="X">X</string>
+    <string name="Instagram">instagram</string>
+    <string name="KakaoTalk">kakaotalk</string>
+    <string name="Naver">naver</string>
+    <string name="TikTalk">TikTalk</string>
 </resources>
