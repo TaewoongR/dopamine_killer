@@ -30,13 +30,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -84,7 +84,7 @@ fun RecordContent(uiState: RecordUiState) {
                 .verticalScroll(scrollState)
         ) {
             Spacer(modifier = Modifier.height(86.dp))
-            MostApps(modifier = Modifier, totalWidth = totalWidth)
+            MostApps(modifier = Modifier, totalWidth = totalWidth, uiState)
             Spacer(modifier = Modifier.height(18.dp))
             Box(modifier = Modifier
                 .width(totalWidth)
@@ -95,14 +95,16 @@ fun RecordContent(uiState: RecordUiState) {
                             modifier = Modifier,
                             aspectRatio = 1 / 0.1875f,
                             totalWidth = totalWidth,
-                            index = i
+                            index = i,
+                            uiState = uiState
                         )
                     for (i in 0 until 5)
                         finishedRecords(
                             modifier = Modifier,
                             aspectRatio = 1/0.1875f,
                             totalWidth = totalWidth,
-                            index = i
+                            index = i,
+                            uiState = uiState
                         )
                 }
             }
@@ -112,7 +114,7 @@ fun RecordContent(uiState: RecordUiState) {
 }
 
 @Composable
-fun MostApps(modifier: Modifier, totalWidth: Dp) {
+fun MostApps(modifier: Modifier, totalWidth: Dp, uiState: RecordUiState) {
     Box(
         modifier = Modifier
             .width(totalWidth)
@@ -123,7 +125,7 @@ fun MostApps(modifier: Modifier, totalWidth: Dp) {
         Row {
             // 첫 번째 아이콘 이미지
             IconImage(
-                imageResId = R.drawable.iconex,
+                imageBitmap = uiState.recordList[0].appIcon,
                 size = totalWidth * 0.4f,
                 cornerRadius = 12.dp
             )
@@ -132,7 +134,7 @@ fun MostApps(modifier: Modifier, totalWidth: Dp) {
             Column {
                 // 두 번째 아이콘 이미지
                 IconImage(
-                    imageResId = R.drawable.iconex,
+                    imageBitmap = uiState.recordList[1].appIcon,
                     size = totalWidth * 0.28f,
                     cornerRadius = 12.dp
                 )
@@ -143,7 +145,7 @@ fun MostApps(modifier: Modifier, totalWidth: Dp) {
                 ) {
                     // 세 번째 아이콘 이미지
                     IconImage(
-                        imageResId = R.drawable.iconex,
+                        imageBitmap = uiState.recordList[2].appIcon,
                         size = totalWidth * 0.2f,
                         cornerRadius = 12.dp
                     )
@@ -152,7 +154,7 @@ fun MostApps(modifier: Modifier, totalWidth: Dp) {
                         Spacer(modifier = Modifier.height(totalWidth * 0.04f))
                         // 네 번째 아이콘 이미지
                         IconImage(
-                            imageResId = R.drawable.iconex,
+                            imageBitmap = uiState.recordList[3].appIcon,
                             size = totalWidth * 0.14f,
                             cornerRadius = 12.dp
                         )
@@ -162,7 +164,7 @@ fun MostApps(modifier: Modifier, totalWidth: Dp) {
         }
         // 다섯 번째 아이콘 이미지
         IconImage(
-            imageResId = R.drawable.iconex,
+            imageBitmap = uiState.recordList[4].appIcon,
             size = totalWidth * 0.1f,
             cornerRadius = 12.dp,
             modifier = Modifier
@@ -173,7 +175,7 @@ fun MostApps(modifier: Modifier, totalWidth: Dp) {
 }
 
 @Composable
-fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int){
+fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int, uiState: RecordUiState){
     val squareSize = (totalWidth - 10.dp) / 2 * 0.24f
 
     Box(
@@ -189,7 +191,7 @@ fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
         ) {
             IconImage(
                 modifier = Modifier.padding(start = totalWidth * 0.06f, end = totalWidth * 0.05f),
-                imageResId = R.drawable.iconex,
+                imageBitmap = uiState.recordList[index].appIcon,
                 size = squareSize,
                 cornerRadius = 8.dp
             )
@@ -216,7 +218,7 @@ fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
 }
 
 @Composable
-fun finishedRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int){
+fun finishedRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int, uiState: RecordUiState){
     val squareSize = (totalWidth - 10.dp) / 2 * 0.24f
 
     Box(
@@ -232,7 +234,7 @@ fun finishedRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, inde
         ) {
             IconImage(
                 modifier = Modifier.padding(start = totalWidth * 0.06f, end = totalWidth * 0.05f),
-                imageResId = R.drawable.iconex,
+                imageBitmap = uiState.recordList[index].appIcon,
                 size = squareSize,
                 cornerRadius = 8.dp
             )
@@ -281,8 +283,8 @@ fun finishedRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, inde
 
 @Composable
 fun IconImage(
+    imageBitmap: ImageBitmap,
     modifier: Modifier = Modifier,
-    imageResId: Int,
     size: Dp,
     cornerRadius: Dp
 ) {
@@ -293,7 +295,7 @@ fun IconImage(
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painter = painterResource(id = imageResId),
+            bitmap = imageBitmap,
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop

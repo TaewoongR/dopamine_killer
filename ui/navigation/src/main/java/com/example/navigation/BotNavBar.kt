@@ -82,7 +82,7 @@ fun BotNavBar() {
                 AnalysisScreen(navController)
             }
             composable(Screens.MyInfo.route) {
-                MyInfoScreen()
+                MyInfoScreen(navController)
             }
         }
     }

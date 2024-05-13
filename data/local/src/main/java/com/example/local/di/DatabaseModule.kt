@@ -2,14 +2,22 @@ package com.example.local.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.local.appUsage.AppDAO
-import com.example.local.appUsage.AppDatabase
-import com.example.local.dailyInfo.DailyDAO
-import com.example.local.dailyInfo.DailyDatabase
+import com.example.local.dailyInfo.DailyInfoDAO
+import com.example.local.dailyInfo.DailyInfoDatabase
+import com.example.local.dailyUsage.DailyDAO
+import com.example.local.dailyUsage.DailyDatabase
+import com.example.local.horulyUsage.HourlyDAO
+import com.example.local.horulyUsage.HourlyDatabase
+import com.example.local.monthlyUsage.MonthlyDAO
+import com.example.local.monthlyUsage.MonthlyDatabase
 import com.example.local.record.RecordDAO
 import com.example.local.record.RecordDatabase
+import com.example.local.selectedApp.SelectedAppDAO
+import com.example.local.selectedApp.SelectedAppDatabase
 import com.example.local.user.UserDAO
 import com.example.local.user.UserDatabase
+import com.example.local.weeklyUsage.WeeklyDAO
+import com.example.local.weeklyUsage.WeeklyDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,15 +31,15 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
-        return Room.databaseBuilder(context, AppDatabase::class.java, "AppData.db")
+    fun provideHourlyDatabase(@ApplicationContext context: Context): HourlyDatabase {
+        return Room.databaseBuilder(context, HourlyDatabase::class.java, "HourlyData.db")
             .fallbackToDestructiveMigration() // 데이터베이스 스키마 버전이 변경될 경우 데이터를 삭제하고 다시 시작합니다.
             .build()
     }
 
     @Provides
-    fun provideAppDAO(appDatabase: AppDatabase): AppDAO {
-        return appDatabase.appDAO()
+    fun provideHourlyDAO(hourlyDatabase: HourlyDatabase): HourlyDAO {
+        return hourlyDatabase.hourlyDAO()
     }
 
     @Provides
@@ -45,6 +53,45 @@ object DataModule {
     @Provides
     fun provideDailyDAO(dailyDatabase: DailyDatabase): DailyDAO {
         return dailyDatabase.dailyDAO()
+    }
+
+    @Provides
+    @Singleton
+    fun provideWeeklyDatabase(@ApplicationContext context: Context): WeeklyDatabase {
+        return Room.databaseBuilder(context, WeeklyDatabase::class.java, "WeeklyData.db")
+            .fallbackToDestructiveMigration() // 데이터베이스 스키마 버전이 변경될 경우 데이터를 삭제하고 다시 시작합니다.
+            .build()
+    }
+
+    @Provides
+    fun provideWeeklyDAO(weeklyDatabase: WeeklyDatabase): WeeklyDAO {
+        return weeklyDatabase.weeklyDAO()
+    }
+
+    @Provides
+    @Singleton
+    fun provideMonthlyDatabase(@ApplicationContext context: Context): MonthlyDatabase {
+        return Room.databaseBuilder(context, MonthlyDatabase::class.java, "MonthlyData.db")
+            .fallbackToDestructiveMigration() // 데이터베이스 스키마 버전이 변경될 경우 데이터를 삭제하고 다시 시작합니다.
+            .build()
+    }
+
+    @Provides
+    fun provideMonthlyDAO(monthlyDatabase: MonthlyDatabase): MonthlyDAO {
+        return monthlyDatabase.monthlyDAO()
+    }
+
+    @Provides
+    @Singleton
+    fun provideDailyInfoDatabase(@ApplicationContext context: Context): DailyInfoDatabase {
+        return Room.databaseBuilder(context, DailyInfoDatabase::class.java, "DailyInfoData.db")
+            .fallbackToDestructiveMigration() // 데이터베이스 스키마 버전이 변경될 경우 데이터를 삭제하고 다시 시작합니다.
+            .build()
+    }
+
+    @Provides
+    fun provideDailyInfoDAO(dailyInfoDatabase: DailyInfoDatabase): DailyInfoDAO {
+        return dailyInfoDatabase.dailyInfoDAO()
     }
 
     @Provides
@@ -71,5 +118,18 @@ object DataModule {
     @Provides
     fun provideRecordDAO(recordDatabase: RecordDatabase): RecordDAO {
         return recordDatabase.recordDAO()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSelectedAppDatabase(@ApplicationContext context: Context): SelectedAppDatabase {
+        return Room.databaseBuilder(context, SelectedAppDatabase::class.java, "RecordData.db")
+            .fallbackToDestructiveMigration() // 데이터베이스 스키마 버전이 변경될 경우 데이터를 삭제하고 다시 시작합니다.
+            .build()
+    }
+
+    @Provides
+    fun provideSelectedAppDAO(selectedAppDatabase: SelectedAppDatabase): SelectedAppDAO {
+        return selectedAppDatabase.selectedAppDAO()
     }
 }

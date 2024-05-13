@@ -2,17 +2,12 @@ package com.example.initialset
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,50 +16,52 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
-import androidx.compose.ui.Alignment.Companion.CenterEnd
-import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.initialSet.R
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import kotlinx.coroutines.launch
 
 val backgroundColor: Color = Color(android.graphics.Color.parseColor("#EFEFEF"))
 val keyColor: Color = Color(android.graphics.Color.parseColor("#FF9A62"))
 
+@Composable
+fun AppSettingScreen(
+    navController: NavController,
+    viewModel: AppSettingViewModel = hiltViewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    appSelection(uiState, viewModel, navController)
+}
 
 @Composable
-fun appSelection() {
+fun appSelection(uiState: AppSettingUiState, viewModel: AppSettingViewModel, navController: NavController) {
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val totalWidth = screenWidth * 0.85f
-    val squareSize = (totalWidth - 10.dp) / 2 * 0.24f
-    val ScrollState = rememberScrollState()
+    val scrollState = rememberScrollState()
 
     Box(
         modifier = Modifier
@@ -88,25 +85,25 @@ fun appSelection() {
             ) {
                 Column(
                     modifier = Modifier
-                        .verticalScroll(ScrollState)
+                        .verticalScroll(scrollState)
                 ) {
                     Spacer(modifier = Modifier.height(totalWidth * 0.06f))
-                    for (i in 0 until 30) {
-                        IndividualApp(totalWidth)
+                    for (i in 0 until uiState.appList.size) {
+                        IndividualApp(totalWidth, uiState.appList[i], viewModel)
                     }
                 }
             }
         }
         Box(modifier = Modifier.offset(y = totalWidth * 1f)){
-            setButton(totalWidth = totalWidth)
+            setButton(totalWidth, viewModel, uiState, navController)
         }
     }
 }
 
 @Composable
-fun IndividualApp(totalWidth: Dp) {
+fun IndividualApp(totalWidth: Dp, appData: AppSettingData, viewModel: AppSettingViewModel) {
     val squareSize = (totalWidth - 10.dp) / 2 * 0.24f
-
+    val icon = appData.icon
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -117,25 +114,29 @@ fun IndividualApp(totalWidth: Dp) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconImage(
+            imageBitmap = icon,
             modifier = Modifier.padding(
                 end = totalWidth * 0.05f
             ),
-            imageResId = R.drawable.iconex,
             size = squareSize * 0.8f,
             cornerRadius = 8.dp
         )
 
-        Text(text = "App Name 1", style = TextStyle(fontSize = 14.sp))
+        Text(text = appData.appName, style = TextStyle(fontSize = 14.sp))
 
         Spacer(modifier = Modifier.weight(1f))
-        ToggleButton(totalWidth)
-
+        ToggleButton(
+            totalWidth = totalWidth,
+            isButtonEnabled = appData.isButtonEnabled,
+            onToggleChange = {isEnabled ->
+                viewModel.updateToggleState(appData.appName, isEnabled)
+            }
+        )
     }
 }
 
 @Composable
-fun ToggleButton(totalWidth: Dp) {
-    var isButtonEnabled by remember { mutableStateOf(false) }
+fun ToggleButton(totalWidth: Dp, isButtonEnabled: Boolean, onToggleChange: (Boolean) -> Unit) {
     val circlePosition by animateFloatAsState(targetValue = if (isButtonEnabled) 1f else 0f,
         label = "FloatAnimation"
     )
@@ -145,7 +146,7 @@ fun ToggleButton(totalWidth: Dp) {
             .width(totalWidth * 0.13f)
             .height(totalWidth * 0.07f)
             .background(Color.LightGray, RoundedCornerShape(999.dp))
-            .clickable { isButtonEnabled = !isButtonEnabled },
+            .clickable { onToggleChange(!isButtonEnabled) },
         contentAlignment = Alignment.CenterStart
     ) {
         Box(
@@ -166,13 +167,25 @@ fun ToggleButton(totalWidth: Dp) {
 }
 
 @Composable
-fun setButton(totalWidth: Dp){
+fun setButton(totalWidth: Dp, viewModel: AppSettingViewModel, uiState: AppSettingUiState, navController: NavController){
+    val scope = rememberCoroutineScope()
     Box(
         modifier = Modifier
             .width(totalWidth)
             .aspectRatio(1f / 0.1875f)
-            .background(keyColor, shape = RoundedCornerShape(12.dp)),
-        contentAlignment = Alignment.Center
+            .background(keyColor, shape = RoundedCornerShape(12.dp))
+            .clickable {
+                scope.launch { // 코루틴 시작
+                    viewModel.updateSelectedApps(uiState.appList)  // 데이터 저장 함수 비동기 호출
+                    navController.navigate("goal_setting") { // 데이터 저장 완료 후 화면 전환
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                }
+            },
+        contentAlignment = Center
     ) {
         Text(text = "완료", style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White))
     }
@@ -180,8 +193,8 @@ fun setButton(totalWidth: Dp){
 
 @Composable
 fun IconImage(
+    imageBitmap: ImageBitmap,
     modifier: Modifier = Modifier,
-    imageResId: Int,
     size: Dp,
     cornerRadius: Dp
 ) {
@@ -189,20 +202,13 @@ fun IconImage(
         modifier = modifier
             .size(size)
             .clip(RoundedCornerShape(cornerRadius)),
-        contentAlignment = Alignment.Center
+        contentAlignment = Center
     ) {
         Image(
-            painter = painterResource(id = imageResId),
+            bitmap = imageBitmap,
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
     }
-}
-
-
-@Preview
-@Composable
-fun DefaultPreview5(){
-    appSelection()
 }

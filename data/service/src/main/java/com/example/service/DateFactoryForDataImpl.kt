@@ -91,4 +91,57 @@ class DateFactoryForDataImpl @Inject constructor(): DateFactoryForData{
         calendar.setTimeInMillis(milliSecDate)
         return calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
     }
+
+    override fun returnWeekStartFrom(numberAgo: Int): Long {
+        val calendar = Calendar.getInstance()
+        calendar.apply {
+            add(Calendar.WEEK_OF_YEAR, -numberAgo)
+            set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)      // Calendar의 주의 시작은 일요일
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        return calendar.timeInMillis
+    }
+
+    override fun returnWeekEndFrom(numberAgo: Int): Long {
+        val calendar = Calendar.getInstance()
+        calendar.apply {
+            add(Calendar.WEEK_OF_YEAR, -numberAgo + 1)
+            set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        return calendar.timeInMillis - 1
+    }
+
+    override fun returnMonthEndFrom(numberAgo: Int): Long {
+        val calendar = Calendar.getInstance()
+        calendar.apply {
+            add(Calendar.MONTH, -numberAgo + 1)
+            set(Calendar.DAY_OF_MONTH, 1)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        return calendar.timeInMillis - 1
+    }
+
+    override fun returnMonthStartFrom(numberAgo: Int): Long {
+        val calendar = Calendar.getInstance()
+        calendar.apply {
+            add(Calendar.MONTH, -numberAgo)
+            set(Calendar.DAY_OF_MONTH, 1)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        return calendar.timeInMillis
+    }
+
 }

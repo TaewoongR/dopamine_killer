@@ -2,9 +2,10 @@ package com.example.repository
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.ImageBitmapConfig
-import com.example.local.appUsage.AppDAO
-import com.example.local.appUsage.AppUsageEntity
-import com.example.service.AppInfo
+import com.example.local.horulyUsage.HourlyDAO
+import com.example.local.horulyUsage.HourlyEntity
+import com.example.service.AppFetchingInfo
+import com.example.service.DateFactoryForData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -14,20 +15,23 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AppRepositoryImpl @Inject constructor(
-    private val appInfo: AppInfo,
-    private val appUsageSource: AppDAO,
-) : AppRepository {
+class HourlyRepositoryImpl @Inject constructor(
+    private val appInfo: AppFetchingInfo,
+    private val appUsageSource: HourlyDAO,
+    private val dateFactory: DateFactoryForData
+) : HourlyRepository {
     private val scope = CoroutineScope(Dispatchers.IO)
 
     override suspend fun updateHourlyTime(
         appName: String,
-        startTime: Long,
-        date: String,
-        dayOfWeek: Int
+        packageName: String,
+        dayFrom: Int,
     ) {
-        val time = appInfo.getHourlyTime(appName, startTime)
-        val appUsageEntity = AppUsageEntity(
+        val startTime = dateFactory.returnTheDayStart(dayFrom)
+        val time = appInfo.getHourlyTime(packageName, startTime)
+        val date = dateFactory.returnStringDate(startTime)
+        val dayOfWeek = dateFactory.returnDayOfWeek(startTime)
+        val appUsageEntity = HourlyEntity(
             appName = appName, date = date, dayOfWeek = dayOfWeek,
             hour00 = time[0], hour01 = time[1],
             hour02 = time[2], hour03 = time[3],
@@ -48,33 +52,39 @@ class AppRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getHourlyDataByNameDate(appName: String, date: String): AppUsageEntity =
+    override suspend fun getHourlyDataByNameDate(appName: String, date: String): HourlyEntity =
         withContext(Dispatchers.IO) {
             appUsageSource.getByNameDate(appName, date)  // 데이터베이스에서 모든 AppData 레코드를 가져옴
         }
-
-    override suspend fun getInstalledNameList(): List<String> {
-        return appInfo.getAppNameList()
-    }
 
     override suspend fun getInstalledAppName(appName: String): String {
         return appInfo.findAppByName(appName)
     }
 
     override suspend fun getAppIcon(appName: String): ImageBitmap {
+        val packageName = appInfo.findAppByName(appName)
         return try {
-            appInfo.getAppIcon(appName)
+            appInfo.getAppIcon(packageName)
         } catch (e: Exception) {
             ImageBitmap(1, 1, ImageBitmapConfig.Alpha8)
         }
     }
 
-    override suspend fun getDailyUsageByApp(appName: String, date: String): Int {
+    override suspend fun getTodayUsageByApp(appName: String): Int {
+        val today = dateFactory.returnStringDate(dateFactory.returnToday())
         return try {
-            scope.async { appUsageSource.getTheDayUsage(appName, date) }.await()
+            scope.async { appUsageSource.getTheDayUsage(appName, today) }.await()
         } catch (e: Exception) {
             0
         }
     }
 
+    override suspend fun getYesterdayUsageByApp(appName: String): Int {
+        val today = dateFactory.returnStringDate(dateFactory.returnTheDayStart(1))
+        return try {
+            scope.async { appUsageSource.getTheDayUsage(appName, today) }.await()
+        } catch (e: Exception) {
+            0
+        }
+    }
 }

@@ -18,10 +18,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AppInfoImpl @Inject constructor(
+class AppFetchingInfoImpl @Inject constructor(
     @ApplicationContext val context: Context,   //context가 활동주기에 영향을 최소로 하기위해 이곳에 선언
     private val dateFactory: DateFactoryForData
-) : AppInfo{
+) : AppFetchingInfo{
 
     override suspend fun getAppNameList(): List<String> {
         val packageManager = context.packageManager
@@ -47,7 +47,8 @@ class AppInfoImpl @Inject constructor(
                 Log.d("error","not found")
                 false
             }
-        }?.packageName.toString()
+        }?.packageName.toString()   // null일 경우 "null" String반환
+
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
@@ -127,7 +128,7 @@ class AppInfoImpl @Inject constructor(
             // 시간대 사용 시간 합산
             var totalDuration = 0L
             sessions.forEach { (start, end) ->
-                val duration = (end - start) / 1000     // 초 단위의 시간 차이
+                val duration = (end - start) / 1000    // 초 단위의 시간 차이
                 totalDuration += duration
             }
             appUsageTimeArray[hour] = totalDuration.toInt()
@@ -149,8 +150,8 @@ class AppInfoImpl @Inject constructor(
             totalUsageTime += it.totalTimeInForeground
         }
         val totalDays = dateFactory.returnLastMonthEndDate(dateFactory.returnLastMonthStart())
-
-        return if (totalDays > 0) (totalUsageTime / totalDays / (1000 * 60)).toInt() else 0
+        Log.d("month Hour", totalUsageTime.toString())
+        return if (totalDays > 0) (totalUsageTime / totalDays / (1000)).toInt() else 0
     }
 
     override suspend fun getAppIcon(packageName: String): ImageBitmap {
@@ -181,6 +182,68 @@ class AppInfoImpl @Inject constructor(
             drawable.draw(canvas)
             bitmap.asImageBitmap()
         }
+    }
+
+    override suspend fun getDailyUsage(appName: String, numberAgo: Int): Triple<Int,String,Int> {
+        val usageStatsManager =
+            context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val startTime = dateFactory.returnTheDayStart(numberAgo)
+        val usageStats = usageStatsManager.queryUsageStats(
+            UsageStatsManager.INTERVAL_DAILY,
+            startTime,
+            dateFactory.returnTheDayEnd(startTime)
+        )
+
+        val packageName = findAppByName(appName)
+        val appUsage = usageStats.filter { it.packageName == packageName }
+        var totalUsageTime = 0L
+        appUsage.forEach {
+            totalUsageTime += it.totalTimeInForeground
+        }
+        Log.d("daily Hour", totalUsageTime.toString())
+        Log.d("time", dateFactory.returnStringDate(startTime))
+        return Triple(((totalUsageTime / 1000 / 60).toInt()), dateFactory.returnStringDate(startTime),dateFactory.returnDayOfWeek(startTime) )
+    }
+
+    override suspend fun getWeeklyAvgUsage(appName: String, numberAgo: Int): Pair<Int,String> {
+        val usageStatsManager =
+            context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val weekStartFromTime = dateFactory.returnWeekStartFrom(numberAgo)
+        val usageStats = usageStatsManager.queryUsageStats(
+            UsageStatsManager.INTERVAL_WEEKLY,
+            weekStartFromTime,
+            dateFactory.returnWeekEndFrom(numberAgo)
+        )
+
+        val packageName = findAppByName(appName)
+        val appUsage = usageStats.filter { it.packageName == packageName }
+        var totalUsageTime = 0L
+        appUsage.forEach {
+            totalUsageTime += it.totalTimeInForeground
+        }
+        Log.d("weekly Hour", totalUsageTime.toString())
+        return Pair((totalUsageTime / 7 / 1000 / 60).toInt(),dateFactory.returnStringDate(weekStartFromTime))
+    }
+
+    override suspend fun getMonthlyAvgUsage(appName: String, numberAgo: Int): Pair<Int, String> {
+        val usageStatsManager =
+            context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val monthStartFromTime = dateFactory.returnMonthStartFrom(numberAgo)
+        val usageStats = usageStatsManager.queryUsageStats(
+            UsageStatsManager.INTERVAL_MONTHLY,
+            monthStartFromTime,
+            dateFactory.returnMonthEndFrom(numberAgo)
+        )
+
+        val packageName = findAppByName(appName)
+        val appUsage = usageStats.filter { it.packageName == packageName }
+        var totalUsageTime = 0L
+        appUsage.forEach {
+            totalUsageTime += it.totalTimeInForeground
+        }
+        val totalDays = dateFactory.returnLastMonthEndDate(dateFactory.returnMonthStartFrom(numberAgo))
+        Log.d("month Hour", totalUsageTime.toString())
+        return Pair((totalUsageTime / totalDays / 1000 / 60).toInt(),dateFactory.returnStringDate(monthStartFromTime))
     }
 }
 

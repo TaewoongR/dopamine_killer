@@ -1,7 +1,7 @@
 package com.example.repository
 
-import com.example.local.appUsage.AppUsageEntity
+import com.example.local.horulyUsage.HourlyEntity
 
 interface NetworkRepository {
-    suspend fun updateUser(appUsage: List<AppUsageEntity>)
+    suspend fun updateUser(appUsage: List<HourlyEntity>)
 }

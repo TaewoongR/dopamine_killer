@@ -1,6 +1,6 @@
 package com.example.network.appUsage.model
 
-import com.example.local.appUsage.AppUsageEntity
+import com.example.local.horulyUsage.HourlyEntity
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -37,7 +37,7 @@ data class NetworkAppUsageEntity(
     val isCompleted: Boolean
 )
 
-fun NetworkAppUsageEntity.asEntity() = AppUsageEntity(
+fun NetworkAppUsageEntity.asEntity() = HourlyEntity(
     appName = appName,
     date = date,
     dayOfWeek = dayOfWeek,

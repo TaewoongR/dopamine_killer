@@ -1,17 +1,20 @@
 package com.example.recorddomain
 
-import com.example.local.selectedApp.AppNameStorageInterface
-import com.example.repository.AppRepository
+import com.example.local.record.RecordDAO
+import com.example.local.record.RecordEntity
 import com.example.repository.GoalRepository
+import com.example.repository.HourlyRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class ReDomainImpl @Inject constructor(
-    private val appNameStorage: AppNameStorageInterface,
-    private val appRepository: AppRepository,
+    private val recordDAO: RecordDAO,
+    private val appRepository: HourlyRepository,
     private val goalRepository: GoalRepository
 ):ReDomain {
     override suspend fun getRecordList(): List<RecordDataDomain> {
-        val appList = goalRepository.getOnGoingList()
+        val appList = withContext(Dispatchers.IO){ goalRepository.getOnGoingList()}
         return appList.map {
             RecordDataDomain(
                 appName = it.appName,
@@ -24,4 +27,15 @@ class ReDomainImpl @Inject constructor(
         }
     }
 
+    override suspend fun createGoal(goalList: List<GoalDataDomain>) {
+        goalList.forEach {data->
+            recordDAO.upsert(
+                RecordEntity(
+                    appName = data.appName,
+                    date = data.date,
+                    goalTime = data.goalTime
+                )
+            )
+        }
+    }
 }

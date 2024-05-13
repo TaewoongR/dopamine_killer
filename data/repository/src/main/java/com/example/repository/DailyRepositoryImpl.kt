@@ -1,80 +1,56 @@
 package com.example.repository
 
-import com.example.local.appUsage.AppDAO
-import com.example.local.dailyInfo.DailyDAO
-import com.example.service.AppInfo
+import com.example.local.dailyUsage.DailyDAO
+import com.example.local.dailyUsage.DailyEntity
+import com.example.service.AppFetchingInfo
 import com.example.service.DateFactoryForData
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class DailyRepositoryImpl @Inject constructor(
-    private val appInfo: AppInfo,
-    private val dailyInfoSource: DailyDAO,
-    private val appInfoSource: AppDAO,
+    private val appInfo: AppFetchingInfo,
+    private val selectedAppRepository: SelectedAppRepository,
+    private val dailySource: DailyDAO,
     private val dateFactory: DateFactoryForData
 ) : DailyRepository{
 
-    private fun dailyExist(appName: String): String?{
-        return dailyInfoSource.isExist(appName = appName)
+    override suspend fun getDailyUsageFrom(appName: String, dayAgo: Int): Triple<Int, String, Int> {
+        val dateString = dateFactory.returnStringDate(dateFactory.returnTheDayStart(dayAgo))
+        val entity = dailySource.get(appName, dateString)
+        return Triple(entity.dailyUsage, entity.date, entity.dayOfWeek)
     }
 
-    override suspend fun getLastWeekAvgUsageByApp(appName: String, todayDate: String): Int{
-        if(dailyExist(appName) == null){
-            updateDailyInfo(appName, todayDate)
-        }
-        if (dailyInfoSource.getUpdateTime(appName) != todayDate) {
-            updateDailyInfo(appName, todayDate)
-        }
-        return dailyInfoSource.get(appName).lastWeekAvgUsage
+    override suspend fun updateDailyUsageFrom(appName: String, dayAgo: Int) {
+        val usageNDate = appInfo.getDailyUsage(appName, dayAgo)
+        dailySource.upsert(
+            DailyEntity(
+                appName = appName,
+                date = usageNDate.second,
+                dayOfWeek = usageNDate.third,
+                dailyUsage = usageNDate.first
+            )
+        )
     }
 
-    override suspend fun getLastMonthAvgUsageByApp(appName: String, todayDate: String): Int{
-        if(dailyExist(appName) == null){
-            updateDailyInfo(appName, todayDate)
-        }
-        if (dailyInfoSource.get(appName).thisInfoUpdateTime != todayDate) {
-            updateDailyInfo(appName, todayDate)
-        }
-        return dailyInfoSource.get(appName).lastMonthAvgUsage
-    }
-
-    private suspend fun updateDailyInfo(appName: String, todayDate: String){
-        updateLastWeekAvgUsage(appName, todayDate)
-        updateLastMonthAvgUsage(appName, todayDate)
-        dailyInfoSource.updateDailyInfoDate(appName,todayDate)
-    }
-
-    private fun updateLastWeekAvgUsage(appName: String, todayDate: String){
-        if(appInfoSource.getByNameDate(appName, todayDate).dayOfWeek == 1){
-            var totalHour = 0
-            for( i in 6 downTo 0){
-                val lastDate = dateFactory.returnStringDate(dateFactory.returnTheDayStart(i))
-                val usage = appInfoSource.getTheDayUsage(appName, lastDate)
-                totalHour += usage
+    override suspend fun initialDailyUpdate() {
+        val nameList = selectedAppRepository.getAllInstalled()
+        nameList.forEach {appName ->
+            for(i in 0..9) {   // 1~9일 전
+                val usageNDate = appInfo.getDailyUsage(appName, i)
+                dailySource.upsert(
+                    DailyEntity(
+                        appName = appName,
+                        date = usageNDate.second,
+                        dayOfWeek = usageNDate.third,
+                        dailyUsage = usageNDate.first
+                    )
+                )
             }
-            val weekAvg = totalHour / 7
-            dailyInfoSource.updateLastWeekAvg(appName,weekAvg)
         }
     }
 
-     private suspend fun updateLastMonthAvgUsage(appName: String, todayDate: String){
-        val lastUpDate = dateFactory.returnStringDate(dailyInfoSource.get(appName).lastUpdateTime)
-        val lastMonthStartMilli = dateFactory.returnLastMonthStart()
-        val lastMonthStartString = dateFactory.returnStringDate(lastMonthStartMilli)
-
-        if(lastUpDate <= lastMonthStartString && todayDate.substring(0,6) != dailyInfoSource.get(appName)!!.thisInfoUpdateTime.substring(0,6)){
-            val lastDate = dateFactory.returnLastMonthEndDate(lastMonthStartMilli)
-            val theDay = lastMonthStartString.toInt()
-            var totalHour = 0
-            for(i in 0..<lastDate){
-                totalHour += appInfoSource.getTheDayUsage(appName, (theDay + i).toString())
-            }
-            dailyInfoSource.updateLastMonthAvg(appName,totalHour / lastDate)
-        }else if(lastUpDate > lastMonthStartString){
-            dailyInfoSource.updateLastMonthAvg(appName, appInfo.getLastMonthAvgUsage(appName))
-        }
+    override suspend fun deleteUndetected() {
+        dailySource.delete()
     }
-
-
 }

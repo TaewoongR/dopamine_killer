@@ -27,6 +27,7 @@ dependencies {
     implementation(libs.material)
     implementation(project(":data:repository"))
     implementation(project(":data:service"))
+    implementation(project(":data:local"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -1,6 +1,6 @@
-package com.example.local.appUsage
+package com.example.local.horulyUsage
 
-data class AppUsage(
+data class HourlyUsage(
     val appName: String,
     val date: String,
     val dayOfWeek: Int = 0, // Calendar 라이브러리 일 = 1, 토 = 7

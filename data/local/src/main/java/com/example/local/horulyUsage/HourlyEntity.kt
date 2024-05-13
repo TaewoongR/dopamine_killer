@@ -1,10 +1,10 @@
-package com.example.local.appUsage
+package com.example.local.horulyUsage
 
 import androidx.room.Entity
 
 @Entity(
-    tableName = "app_usage", primaryKeys = ["appName","date"])
-data class AppUsageEntity(
+    tableName = "hourly_usage", primaryKeys = ["appName","date"])
+data class HourlyEntity(
     val appName: String,
     val date: String,
     val dayOfWeek: Int = 0, // Calendar 라이브러리 일 = 1, 토 = 7
@@ -36,7 +36,7 @@ data class AppUsageEntity(
     var isCompleted: Boolean
 )
 
-fun AppUsageEntity.asExternalModel() = AppUsage(
+fun HourlyEntity.asExternalModel() = HourlyUsage(
     appName = appName,
     date = date,
     dayOfWeek = dayOfWeek,

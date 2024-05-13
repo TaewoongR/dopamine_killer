@@ -10,3 +10,9 @@ data class RecordDataDomain(
     val howLong: Int,
     val onGoing: Boolean
 )
+
+data class GoalDataDomain(
+    val appName: String,
+    val date: String,
+    val goalTime: Int,
+)

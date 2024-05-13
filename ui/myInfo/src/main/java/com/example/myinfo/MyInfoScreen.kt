@@ -12,6 +12,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,11 +24,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 
 val backgroundColor: Color = Color(android.graphics.Color.parseColor("#EFEFEF"))
 
 @Composable
-fun settingsContent (){
+fun MyInfoScreen(
+    navController: NavController,
+    viewModel: MyInfoViewModel = hiltViewModel(),
+    modifier: Modifier = Modifier
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    settingsContent(uiState)
+}
+
+@Composable
+fun settingsContent (uiState: MyInfoUiState){
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val totalWidth = screenWidth * 0.85f
 
@@ -93,5 +107,5 @@ fun Settings(modifier: Modifier, totalWidth: Dp) {
 @Preview
 @Composable
 fun DefaultPreview3(){
-    settingsContent()
+    settingsContent(uiState = MyInfoUiState())
 }

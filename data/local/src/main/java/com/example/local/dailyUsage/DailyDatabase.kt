@@ -1,9 +1,9 @@
-package com.example.local.dailyInfo
+package com.example.local.dailyUsage
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
 
-@Database(entities = [DailyInfoEntity::class], version = 1, exportSchema = false)
+@Database(entities = [DailyEntity::class], version = 2, exportSchema = false)
 abstract class DailyDatabase : RoomDatabase() {
     abstract fun dailyDAO(): DailyDAO
 }

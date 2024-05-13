@@ -13,4 +13,8 @@ interface DateFactoryForData{
     fun returnLastMonthStart(): Long
     fun returnLastMonthEnd(): Long
     fun returnLastMonthEndDate(milliSecDate: Long): Int
+    fun returnWeekStartFrom(numberAgo: Int): Long
+    fun returnWeekEndFrom(numberAgo: Int): Long
+    fun returnMonthStartFrom(numberAgo: Int): Long
+    fun returnMonthEndFrom(numberAgo: Int): Long
 }

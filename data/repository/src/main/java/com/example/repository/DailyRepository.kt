@@ -1,7 +1,8 @@
 package com.example.repository
 
 interface DailyRepository {
-    suspend fun getLastWeekAvgUsageByApp(appName: String, todayDate: String): Int
-
-    suspend fun getLastMonthAvgUsageByApp(appName: String, todayDate: String): Int
+    suspend fun getDailyUsageFrom(appName: String, dayAgo: Int): Triple< Int,String, Int>
+    suspend fun updateDailyUsageFrom(appName: String, dayAgo: Int)
+    suspend fun initialDailyUpdate()
+    suspend fun deleteUndetected()
 }

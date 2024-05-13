@@ -1,7 +1,7 @@
 package com.example.service.di
 
-import com.example.service.AppInfo
-import com.example.service.AppInfoImpl
+import com.example.service.AppFetchingInfo
+import com.example.service.AppFetchingInfoImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -13,5 +13,5 @@ import javax.inject.Singleton
 interface AppInfoModule {
     @Binds
     @Singleton
-    fun bindAppInfo(appInfoImpl: AppInfoImpl): AppInfo
+    fun bindAppInfo(appInfoImpl: AppFetchingInfoImpl): AppFetchingInfo
 }

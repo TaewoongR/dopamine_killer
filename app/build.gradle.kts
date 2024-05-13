@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(project(":ui:analysis"))
     implementation(project(":ui:navigation"))
+    implementation(project(":ui:initialSet"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

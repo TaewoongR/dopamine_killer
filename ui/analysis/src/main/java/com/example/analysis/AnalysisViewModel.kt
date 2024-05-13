@@ -3,8 +3,7 @@ package com.example.analysis
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.analysisdomain.AnDomain
-import com.example.recorddomain.ReDomain
-import com.example.service.DateFactory
+import com.example.coredomain.CoreDomain
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,21 +13,32 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AnalysisViewModel @Inject constructor(
-    private val dateFactory: DateFactory,
-    private val AnDomain: AnDomain,
-    private val ReDomain: ReDomain
+    private val anDomain: AnDomain,
+    private val coreDomain: CoreDomain
 ) : ViewModel() {
-    private val _appUiState = MutableStateFlow(AnalysisUiState())
-    val appUiState: StateFlow<AnalysisUiState> = _appUiState.asStateFlow()
-
-    private val today = dateFactory.returnStringDate(dateFactory.returnToday())
-    private val yesterday = dateFactory.returnStringDate(dateFactory.returnTheDayStart(1))
+    private val _uiState = MutableStateFlow(AnalysisUiState())
+    val uiState: StateFlow<AnalysisUiState> = _uiState.asStateFlow()
 
     init {
         updateUiState()
     }
 
     private fun updateUiState() {
-
+        viewModelScope.launch {
+            val appsUsageList = anDomain.getAllSelectedAppUsage()  // 비동기 작업을 기다림
+            val appList = appsUsageList.map { appUsage ->
+                AnalysisAppState(
+                    appName = appUsage.appName,
+                    dailyTime = appUsage.dailyTime,
+                    yesterdayTime = appUsage.yesterdayTime,
+                    lastWeekAvgTime = appUsage.lastWeekAvgTime,
+                    lastMonthAvgTime = appUsage.lastMonthAvgTime,
+                    appIcon = coreDomain.getAppIcon(appUsage.appName)
+                )
+            }
+            _uiState.value = AnalysisUiState(  // UI 상태를 업데이트
+                appList = appList
+            )
+        }
     }
 }

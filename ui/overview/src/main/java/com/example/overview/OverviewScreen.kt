@@ -1,11 +1,8 @@
 package com.example.overview
 
-import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +16,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,7 +37,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 
@@ -46,9 +44,8 @@ import androidx.navigation.NavController
 fun OverviewScreen(
     navController: NavController,
     viewModel: OverviewViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier
 ) {
-    val overviewUiState by viewModel.overviewUiState.collectAsState()
+    val overviewUiState by viewModel.uiState.collectAsState()
 
     MyScreenContent(overviewUiState)
 }
@@ -87,9 +84,9 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                DonutGraph(modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState = overviewUiState)
+                DonutGraph(percent = 0.7f, modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState)
                 Spacer(modifier = Modifier.width(10.dp))
-                barGraphOverview(modifier = Modifier.size(individualWidth), size = individualWidth)
+                barGraphOverview(modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState)
             }
 
             Column(
@@ -98,28 +95,26 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 for (i in 0 until 3) {
-                    recordOverview(modifier = Modifier, aspectRatio = 1f/0.1875f, totalWidth = totalWidth, i)
+                    recordOverview(modifier = Modifier, aspectRatio = 1f/0.1875f, totalWidth = totalWidth, i, overviewUiState)
                 }
             }
-            Rectangle(modifier = Modifier, aspectRatio = 1f/0.6f, totalWidth = totalWidth)
-            //showImage()
+            rewardOverview(modifier = Modifier, aspectRatio = 1f/0.6f, totalWidth = totalWidth)
         }
     }
 }
 
 @Composable
-fun DonutGraph(modifier: Modifier, size: Dp, overviewUiState: OverviewUiState) {
+fun DonutGraph(percent: Float, modifier: Modifier, size: Dp, uiState: OverviewUiState) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val percent = overviewUiState.dailyTime / 200
-    val icon = overviewUiState.appIcon
-    val iconSize = size * 0.24f
+    val squareSize = (size.value * 0.24f)// 아이콘 크기 설정
 
     Box(
-        modifier = modifier
-            .background(color = Color.White, shape = RoundedCornerShape(16.dp))
+        modifier = Modifier
+            .size(size)
+            .background(color = Color.White, shape = RoundedCornerShape(16.dp)),
+        contentAlignment = Alignment.Center
     ) {
         Canvas(
-
             modifier = Modifier.matchParentSize(),
             onDraw = {
                 val boxSize = Size(size.toPx(), size.toPx())
@@ -128,8 +123,6 @@ fun DonutGraph(modifier: Modifier, size: Dp, overviewUiState: OverviewUiState) {
                 val strokeWidth = screenWidth.toPx() * 0.08f
                 val startAngle = -90f // 12시 방향 각도 시작
                 val sweepAngle = percent * 360f
-                val squareSize = (size * 0.24f).toPx()// 아이콘 크기 설정
-                val topLeftSquare = Offset(center.x - squareSize / 2, center.y - squareSize / 2)
 
                 drawCircle(
                     color = vagueColor,
@@ -145,44 +138,22 @@ fun DonutGraph(modifier: Modifier, size: Dp, overviewUiState: OverviewUiState) {
                     useCenter = false,
                     topLeft = Offset(center.x - radius, center.y - radius),
                     size = Size(radius * 2, radius * 2),
-                    style = androidx.compose.ui.graphics.drawscope.Stroke(
-                        width = strokeWidth,
-                        cap = StrokeCap.Round
-                    )
-                )
-
-                drawImage(
-                    image = icon
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth, cap = StrokeCap.Round)
                 )
             }
         )
+        IconImage(
+            modifier = Modifier,
+            imageBitmap = uiState.appIcon,
+            size = squareSize.dp,
+            cornerRadius = 8.dp
+        )
     }
-
 }
 
-@Composable
-fun DisplayImage(
-    imageBitmap: ImageBitmap,
-    modifier: Modifier = Modifier,
-    contentScale: ContentScale = ContentScale.Crop,
-    cornerRadius: Int = 0,  // 이미지 모서리 둥글기(0은 모서리가 둥글지 않음)
-    borderWidth: Int = 2,  // 테두리의 두께
-    borderColor: Color = Color.Black,  // 테두리의 색상
-    onClick: (() -> Unit)? = null  // 클릭 이벤트 핸들러(null이면 클릭 이벤트 없음)
-) {
-    Image(
-        bitmap = imageBitmap,
-        contentDescription = "icon",
-        modifier = modifier
-            .clip(RoundedCornerShape(cornerRadius.dp))
-            .border(borderWidth.dp, borderColor, RoundedCornerShape(cornerRadius.dp))
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
-        contentScale = contentScale
-    )
-}
 
 @Composable
-fun barGraphOverview(modifier: Modifier, size: Dp) {
+fun barGraphOverview(modifier: Modifier, size: Dp, uiState: OverviewUiState) {
     Box(
         modifier = modifier
             .size(size)
@@ -200,20 +171,29 @@ fun barGraphOverview(modifier: Modifier, size: Dp) {
                 keyColor.copy(alpha = 0.85f),
                 keyColor.copy(alpha = 1.0f)
             )
-            val random = java.util.Random()
+            val maxTime = listOf(
+                uiState.lastMonthAvgTime,
+                uiState.lastWeekAvgTime,
+                uiState.yesterdayTime,
+                uiState.dailyTime
+            ).maxOrNull() ?: 1  // 0을 방지하기 위해 최소값은 1로 설정
 
+            val times = listOf(
+                uiState.lastMonthAvgTime,
+                uiState.lastWeekAvgTime,
+                uiState.yesterdayTime,
+                uiState.dailyTime
+            )
             val paddingTop = (size * 0.2f).toPx() // 위쪽 패딩
             val paddingBottom = (size * 0.24f).toPx() // 아래쪽 패딩, 텍스트 공간
             val totalBarsWidth = barWidth * 4 + barSpacing * 3
             val startX = (size.toPx() - totalBarsWidth) / 2
 
             // 임의의 높이를 가진 4개의 막대 그리기
-            repeat(4) { index ->
-                val barHeight =
-                    (random.nextFloat()) // 일단 높이 랜덤으로 설정
+            times.forEachIndexed { index, time ->
+                val barHeight = time.toFloat() / maxTime  // 높이 계산
                 val barStartX = startX + index * (barWidth + barSpacing)
-                val barTopY =
-                    (1 - barHeight) * (size.toPx() - paddingTop - paddingBottom) // 패딩 적용
+                val barTopY = (1 - barHeight) * (size.toPx() - paddingTop - paddingBottom)
 
                 drawRoundRect(
                     color = barColors[index],
@@ -230,12 +210,9 @@ fun barGraphOverview(modifier: Modifier, size: Dp) {
 }
 
 @Composable
-fun recordOverview(
-    modifier: Modifier,
-    aspectRatio: Float,
-    totalWidth: Dp,
-    index: Int
-) {
+fun recordOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int, uiState: OverviewUiState) {
+    val squareSize = (totalWidth - 10.dp) / 2 * 0.24f
+
     Box(
         modifier = modifier
             .width(totalWidth)
@@ -243,16 +220,14 @@ fun recordOverview(
             .background(color = Color.White, shape = RoundedCornerShape(16.dp))
     ) {
         Row(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(end = totalWidth * 0.02f),
             verticalAlignment = Alignment.CenterVertically // 앱 아이콘, 째깐둥이 수직 중앙 정렬
         ) {
-            // 정사각형 이미지 대신 사용할 Box
-            Box(
-                modifier = Modifier
-                    .padding(totalWidth * 0.06f)
-                    .size(((totalWidth) - 10.dp) / 2 * 0.24f)
-                    .aspectRatio(1f)
-                    .background(color = vagueColor, shape = RoundedCornerShape(8.dp))
+            IconImage(
+                modifier = Modifier.padding(start = totalWidth * 0.06f, end = totalWidth * 0.05f),
+                imageBitmap = uiState.appIcon,
+                size = squareSize,
+                cornerRadius = 8.dp
             )
 
             // 최대 20개까지, int 값만큼 째깐둥이를 그림
@@ -264,12 +239,21 @@ fun recordOverview(
                         .background(subColor, shape = RoundedCornerShape(99.dp))
                 )
             }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = "더보기", // 접근성을 위한 설명
+                tint = Color.Gray,
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }
 
 @Composable
-fun Rectangle(modifier: Modifier, aspectRatio: Float, totalWidth: Dp){
+fun rewardOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp){
     Box(
         modifier = Modifier
             .width(totalWidth)
@@ -278,17 +262,30 @@ fun Rectangle(modifier: Modifier, aspectRatio: Float, totalWidth: Dp){
     )
 }
 
+@Composable
+fun IconImage(
+    imageBitmap: ImageBitmap,
+    modifier: Modifier = Modifier,
+    size: Dp,
+    cornerRadius: Dp
+) {
+    Box(
+        modifier = modifier
+            .size(size)
+            .clip(RoundedCornerShape(cornerRadius)),
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            bitmap = imageBitmap,
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+    }
+}
+
 @Preview
 @Composable
 fun DefaultPreview() {
     MyScreenContent(overviewUiState = OverviewUiState())
 }
-
-
-/*@Composable
-fun showImage(){
-    Image(
-        painter = painterResource(id = R.drawable.ex),
-        contentDescription = "A call icon for calling"
-    )
-}*/

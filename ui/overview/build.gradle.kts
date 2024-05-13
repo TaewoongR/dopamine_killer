@@ -42,6 +42,7 @@ dependencies {
     implementation(project(":ui:service"))
     implementation(project(":ui:installedApp"))
     implementation(project(":domain:coreDomain"))
+    implementation(project(":domain:AnalysisDomain"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

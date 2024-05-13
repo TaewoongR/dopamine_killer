@@ -5,7 +5,7 @@ import androidx.room.Query
 import androidx.room.Upsert
 
 @Dao
-interface DailyDAO {
+interface DailyInfoDAO {
     @Query("SELECT thisInfoUpdateTime FROM daily_info WHERE appName = :appName")
     fun isExist(appName: String): String?
 

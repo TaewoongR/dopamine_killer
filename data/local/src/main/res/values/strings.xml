@@ -3,7 +3,8 @@
     <string name="Youtube">youtube</string>
     <string name="X">X</string>
     <string name="Instagram">instagram</string>
-    <string name="KakaoTalk">kakaotalk</string>
+    <string name="카카오톡">kakaotalk</string>
     <string name="Naver">naver</string>
     <string name="TikTalk">TikTalk</string>
+    <string name="Netflix">Netflix</string>
 </resources>

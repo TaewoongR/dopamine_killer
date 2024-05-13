@@ -41,7 +41,6 @@ dependencies {
     implementation(project(":ui:installedApp"))
     implementation(project(":ui:analysis"))
     implementation(project(":ui:overview"))
-    implementation(project(":ui:initialSet"))
     implementation(project(":ui:myInfo"))
     implementation(project(":ui:record"))
     implementation(project(":ui:reward"))
