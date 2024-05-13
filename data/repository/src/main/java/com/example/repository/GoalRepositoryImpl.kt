@@ -38,4 +38,9 @@ class GoalRepositoryImpl @Inject constructor(
         val list = recordDao.getOnGoingList()
         return list.map { it.asExternalModel() }
     }
+
+    override fun getAllList(): List<RecordData> {
+        val list = recordDao.getAllList()
+        return list.map { it.asExternalModel() }
+    }
 }

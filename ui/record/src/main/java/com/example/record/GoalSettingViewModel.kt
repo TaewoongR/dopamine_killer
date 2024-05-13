@@ -1,5 +1,6 @@
 package com.example.record
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.analysisdomain.AnDomain
@@ -45,6 +46,15 @@ class GoalSettingViewModel @Inject constructor(
             _uiState.value = GoalSettingUiState(goalInfoList.toList())
         }
     }
+
+    fun updateGoalTime(appName: String, newGoalTime: Int) {
+        val updatedList = _uiState.value.goalList.map { goalInfo ->
+            if (goalInfo.appName == appName) goalInfo.copy(goalTime = newGoalTime) else goalInfo
+        }
+        Log.d("GoalSettingUiState",_uiState.value.goalList[0].goalTime.toString())
+        _uiState.value = _uiState.value.copy(goalList = updatedList)
+    }
+
 
     fun saveAppSettings(goalList: List<GoalInfo>) {
         val list = mutableListOf<GoalDataDomain>()

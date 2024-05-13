@@ -12,4 +12,6 @@ interface GoalRepository {
     fun failGoal(appName: String, date: String)
 
     fun getOnGoingList():List<RecordData>
+
+    fun getAllList():List<RecordData>
 }

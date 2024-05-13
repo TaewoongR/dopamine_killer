@@ -14,28 +14,33 @@ class ReDomainImpl @Inject constructor(
     private val goalRepository: GoalRepository
 ):ReDomain {
     override suspend fun getRecordList(): List<RecordDataDomain> {
-        val appList = withContext(Dispatchers.IO){ goalRepository.getOnGoingList()}
-        return appList.map {
-            RecordDataDomain(
-                appName = it.appName,
-                appIcon = appRepository.getAppIcon(it.appName),
-                date = it.date,
-                goalTime = it.goalTime,
-                howLong = it.howLong,
-                onGoing = it.onGoing
-            )
+        return withContext(Dispatchers.IO) {
+            val appList = goalRepository.getAllList()
+            return@withContext appList.map {
+                RecordDataDomain(
+                    appName = it.appName,
+                    appIcon = appRepository.getAppIcon(it.appName),
+                    date = it.date,
+                    goalTime = it.goalTime,
+                    howLong = it.howLong,
+                    onGoing = it.onGoing
+                )
+            }
         }
     }
 
+
     override suspend fun createGoal(goalList: List<GoalDataDomain>) {
-        goalList.forEach {data->
-            recordDAO.upsert(
-                RecordEntity(
-                    appName = data.appName,
-                    date = data.date,
-                    goalTime = data.goalTime
+        withContext(Dispatchers.IO) {
+            goalList.forEach { data ->
+                recordDAO.upsert(
+                    RecordEntity(
+                        appName = data.appName,
+                        date = data.date,
+                        goalTime = data.goalTime
+                    )
                 )
-            )
+            }
         }
     }
 }

@@ -29,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -45,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import kotlinx.coroutines.launch
 
 @Composable
 fun GoalSettingScreen(
@@ -63,7 +65,7 @@ fun goalSetContent(uiState: GoalSettingUiState, viewModel: GoalSettingViewModel,
     val minuteMarks = (0..12).map { it * 5 }
 
     val sliderPositions = remember { mutableStateListOf<Float>() }
-    repeat(10) {
+    repeat(uiState.goalList.size) {
         sliderPositions.add(0f)
     }
 
@@ -91,7 +93,8 @@ fun goalSetContent(uiState: GoalSettingUiState, viewModel: GoalSettingViewModel,
                     onSliderPositionChanged = { newPosition ->
                         sliderPositions[index] = newPosition
                     },
-                    goalInfo = uiState.goalList[index]
+                    goalInfo = uiState.goalList[index],
+                    viewModel = viewModel
                 )
                 Spacer(modifier = Modifier.height(totalWidth * 0.1f)) // 박스들 사이 스페이서 추가
             }
@@ -112,7 +115,8 @@ fun goalSetBox(
     minuteMarks: List<Int>,
     sliderPosition: Float,
     onSliderPositionChanged: (Float) -> Unit,
-    goalInfo: GoalInfo
+    goalInfo: GoalInfo,
+    viewModel: GoalSettingViewModel
 ) {
     Box(
         modifier = Modifier
@@ -148,10 +152,15 @@ fun goalSetBox(
             Spacer(modifier = Modifier.height(totalWidth * 0.08f))
             MinuteSlider(
                 value = sliderPosition,
-                onValueChange = onSliderPositionChanged,
+                onValueChange = { newValue ->
+                    onSliderPositionChanged(newValue)
+                    viewModel.updateGoalTime(goalInfo.appName, minuteMarks[newValue.toInt()])
+                },
                 valueRange = 0f..12f,
                 sliderHeight = 10.dp,
-                thumbRadius = 14.dp
+                thumbRadius = 14.dp,
+                goalInfo = goalInfo,
+                viewModel = viewModel
             )
         }
     }
@@ -165,7 +174,9 @@ fun MinuteSlider(
     onValueChange: (Float) -> Unit,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     sliderHeight: Dp = 10.dp,
-    thumbRadius: Dp = 14.dp
+    thumbRadius: Dp = 14.dp,
+    goalInfo: GoalInfo,
+    viewModel: GoalSettingViewModel
 ) {
     BoxWithConstraints(modifier = modifier) {
         val sliderRange = valueRange.endInclusive - valueRange.start
@@ -227,18 +238,21 @@ fun MinuteSlider(
 
 @Composable
 fun setButton(totalWidth: Dp, viewModel: GoalSettingViewModel, uiState: GoalSettingUiState, navController: NavController){
+    val scope = rememberCoroutineScope()
     Box(
         modifier = Modifier
             .width(totalWidth)
             .aspectRatio(1f / 0.1875f)
             .background(keyColor, shape = RoundedCornerShape(12.dp))
             .clickable {
-                viewModel.saveAppSettings(uiState.goalList)  // ViewModel에 전체 상태 전송
-                navController.navigate("bot_nav_bar") { // 대상 루트로 변경하세요
-                    popUpTo(navController.graph.findStartDestination().id) {
-                        inclusive = true
+                scope.launch {
+                    viewModel.saveAppSettings(uiState.goalList)  // ViewModel에 전체 상태 전송
+                    navController.navigate("bot_nav_bar") { // 대상 루트로 변경하세요
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
                     }
-                    launchSingleTop = true
                 }
             },
         contentAlignment = Alignment.Center

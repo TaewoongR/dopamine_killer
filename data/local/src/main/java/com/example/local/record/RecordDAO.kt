@@ -20,4 +20,7 @@ interface RecordDAO {
 
     @Query("SELECT * FROM record_data WHERE onGoing = :onGoing")
     fun getOnGoingList(onGoing: Boolean = true): List<RecordEntity>
+
+    @Query("SELECT * FROM record_data")
+    fun getAllList(): List<RecordEntity>
 }
