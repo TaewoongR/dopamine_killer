@@ -40,6 +40,7 @@ dependencies {
     implementation(project(":domain:coreDomain"))
     implementation(project(":ui:navigation"))
     implementation(project(":ui:record"))
+    implementation(project(":ui:myInfo"))
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
