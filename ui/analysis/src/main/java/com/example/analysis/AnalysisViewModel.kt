@@ -25,9 +25,15 @@ class AnalysisViewModel @Inject constructor(
 
     private fun updateUiState() {
         viewModelScope.launch {
-            val appsUsageList = anDomain.getAllSelectedAppUsage()  // 비동기 작업을 기다림
+            loadData()
+        }
+    }
+
+    fun loadData() {
+        viewModelScope.launch {
+            val appsUsageList = coreDomain.getAllSelectedAppUsage()  // 비동기 작업을 기다림
             val appList = appsUsageList.map { appUsage ->
-                AnalysisAppState(
+                AnalysisAppData(
                     appName = appUsage.appName,
                     dailyTime = appUsage.dailyTime,
                     yesterdayTime = appUsage.yesterdayTime,

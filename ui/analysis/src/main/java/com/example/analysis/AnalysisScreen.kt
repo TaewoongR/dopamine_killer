@@ -87,9 +87,8 @@ fun analysisContent(uiState: AnalysisUiState) {
     }
 }
 
-
 @Composable
-fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, stateData: AnalysisAppState) {
+fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, stateData: AnalysisAppData) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {

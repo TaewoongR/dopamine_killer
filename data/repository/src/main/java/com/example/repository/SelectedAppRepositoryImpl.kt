@@ -15,7 +15,6 @@ class SelectedAppRepositoryImpl @Inject constructor(
 ) : SelectedAppRepository{
     private val mutex = Mutex()
 
-
     override suspend fun getAllInstalled(): List<String> {
         return selectedAppDAO.getAllInstalled()
     }
@@ -26,7 +25,7 @@ class SelectedAppRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateSelected(appList: List<String>, isSelected: Boolean) {
+    override suspend fun updateSelected(appList: List<String>, isSelected: Boolean) {   // abstract 함수에서 Boolean은 이미 선언됨
         mutex.withLock {
             for (name in appList) {
                 selectedAppDAO.upsert(

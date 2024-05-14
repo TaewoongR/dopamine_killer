@@ -50,7 +50,6 @@ val vagueText: Color = Color(android.graphics.Color.parseColor("#777777"))
 val vagueColor: Color = Color(android.graphics.Color.parseColor("#F0F0F0"))
 
 
-val ongoingRecordAppStreaks = arrayOf(3, 14, 42) // 임의 날짜
 val finishedRecordAppStreaks = arrayOf(20, 4, 13, 28, 2)
 
 @Composable
@@ -82,33 +81,29 @@ fun RecordContent(uiState: RecordUiState, viewModel: RecordViewModel, navControl
                 .fillMaxSize()
                 .verticalScroll(scrollState)
         ) {
-            val size = uiState.recordList.size
             Spacer(modifier = Modifier.height(86.dp))
-            MostApps(modifier = Modifier, totalWidth = totalWidth, uiState)
+            MostApps(modifier = Modifier, totalWidth = totalWidth, uiState.descendingList)
             Spacer(modifier = Modifier.height(18.dp))
             Box(modifier = Modifier
                 .width(totalWidth)
                 .background(Color.White, shape = RoundedCornerShape(16.dp))) {
                 Column {
-                    for (i in 0 until size)        // 진행중인 개수
+                    for (i in 0 until uiState.ongoingList.size)        // 진행중인 개수
                         ongoingRecords(
                             modifier = Modifier,
                             aspectRatio = 1 / 0.1875f,
                             totalWidth = totalWidth,
                             index = i,
-                            uiState = uiState
+                            ongoingList = uiState.ongoingList
                         )
-                    /*
-                    for (i in 0 until 5)
+                    for (i in 0 until uiState.finishedList.size)
                         finishedRecords(
                             modifier = Modifier,
                             aspectRatio = 1/0.1875f,
                             totalWidth = totalWidth,
                             index = i,
-                            uiState = uiState
+                            finishedList = uiState.finishedList
                         )
-
-                     */
                 }
             }
             Spacer(modifier = Modifier.height(100.dp))
@@ -117,7 +112,7 @@ fun RecordContent(uiState: RecordUiState, viewModel: RecordViewModel, navControl
 }
 
 @Composable
-fun MostApps(modifier: Modifier, totalWidth: Dp, uiState: RecordUiState) {
+fun MostApps(modifier: Modifier, totalWidth: Dp, descendingList: List<DescendingRecord>) {
     Box(
         modifier = Modifier
             .width(totalWidth)
@@ -126,43 +121,43 @@ fun MostApps(modifier: Modifier, totalWidth: Dp, uiState: RecordUiState) {
             .padding(totalWidth * 0.06f)
     ) {
         Row {
-            if(uiState.recordList.isNotEmpty()){
+            if(descendingList.isNotEmpty()){
                 IconImage(
-                    imageBitmap = uiState.recordList[0].appIcon,
+                    imageBitmap = descendingList[0].appIcon,
                     size = totalWidth * 0.4f,
                     cornerRadius = 12.dp
                 )
                 Spacer(modifier = Modifier.width(totalWidth * 0.04f))
 
-                if(uiState.recordList.size > 1){
+                if(descendingList.size > 1){
                     Column {
                     // 두 번째 아이콘 이미지
                         IconImage(
-                            imageBitmap = uiState.recordList[1].appIcon,
+                            imageBitmap = descendingList[1].appIcon,
                             size = totalWidth * 0.28f,
                             cornerRadius = 12.dp
                         )
                         Spacer(modifier = Modifier.height(totalWidth * 0.04f))
 
-                        if(uiState.recordList.size > 2) {
+                        if(descendingList.size > 2) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.Bottom
                             ) {
                             // 세 번째 아이콘 이미지
                                 IconImage(
-                                    imageBitmap = uiState.recordList[2].appIcon,
+                                    imageBitmap = descendingList[2].appIcon,
                                     size = totalWidth * 0.2f,
                                     cornerRadius = 12.dp
                                 )
                                 Spacer(modifier = Modifier.weight(1f)) // 남은 공간을 채우기 위해 사용
 
-                                if(uiState.recordList.size > 3) {
+                                if(descendingList.size > 3) {
                                     Column(horizontalAlignment = Alignment.End) {
                                         Spacer(modifier = Modifier.height(totalWidth * 0.04f))
                                         // 네 번째 아이콘 이미지
                                         IconImage(
-                                            imageBitmap = uiState.recordList[3].appIcon,
+                                            imageBitmap = descendingList[3].appIcon,
                                             size = totalWidth * 0.14f,
                                             cornerRadius = 12.dp
                                         )
@@ -174,21 +169,22 @@ fun MostApps(modifier: Modifier, totalWidth: Dp, uiState: RecordUiState) {
                 }
             }
         }
-        if(uiState.recordList.size > 4)
-        // 다섯 번째 아이콘 이미지
-        IconImage(
-            imageBitmap = uiState.recordList[4].appIcon,
-            size = totalWidth * 0.1f,
-            cornerRadius = 12.dp,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .offset(y = -(totalWidth * 0.19f))
-        )
+        if(descendingList.size > 4) {
+            // 다섯 번째 아이콘 이미지
+            IconImage(
+                imageBitmap = descendingList[4].appIcon,
+                size = totalWidth * 0.1f,
+                cornerRadius = 12.dp,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .offset(y = -(totalWidth * 0.19f))
+            )
+        }
     }
 }
 
 @Composable
-fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int, uiState: RecordUiState){
+fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int, ongoingList: List<OngoingRecord>){
     val squareSize = (totalWidth - 10.dp) / 2 * 0.24f
 
     Box(
@@ -204,13 +200,13 @@ fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
         ) {
             IconImage(
                 modifier = Modifier.padding(start = totalWidth * 0.06f, end = totalWidth * 0.05f),
-                imageBitmap = uiState.recordList[index].appIcon,
+                imageBitmap = ongoingList[index].appIcon,
                 size = squareSize,
                 cornerRadius = 8.dp
             )
 
             // 최대 20개까지, int 값만큼 째깐둥이를 그림
-            for (k in 1..uiState.recordList[index].howLong / 5) {
+            for (k in 1..minOf(ongoingList[index].howLong / 5, 18)){
                 Box(
                     modifier = Modifier
                         .padding(end = totalWidth * 0.012f) // 째깐둥이 사이 간격 조절
@@ -220,6 +216,27 @@ fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
             }
             Spacer(modifier = Modifier.weight(1f))
 
+            Canvas(modifier = Modifier) {
+                val days = ongoingList[index].howLong.toString()
+
+                drawIntoCanvas {
+                    val textPaint = Paint().asFrameworkPaint().apply {
+                        isAntiAlias = true
+                        textSize = (totalWidth * 0.06f).toPx()
+                        color = Color.DarkGray.toArgb()
+                    }
+                    val textWidth = textPaint.measureText(days)
+                    val fontMetrics = textPaint.fontMetrics
+                    val textHeight = fontMetrics.descent - fontMetrics.ascent
+
+                    it.nativeCanvas.drawText(
+                        days,
+                        size.width - textWidth - totalWidth.value * 0.04f ,
+                        (size.height / 2) + (textHeight / 2) - fontMetrics.descent,
+                        textPaint
+                    )
+                }
+            }
             Icon(
                 imageVector = Icons.Filled.MoreVert,
                 contentDescription = "메뉴", // 접근성을 위한 설명
@@ -231,7 +248,7 @@ fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
 }
 
 @Composable
-fun finishedRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int, uiState: RecordUiState){
+fun finishedRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int, finishedList: List<FinishedRecord>){
     val squareSize = (totalWidth - 10.dp) / 2 * 0.24f
 
     Box(
@@ -247,13 +264,13 @@ fun finishedRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, inde
         ) {
             IconImage(
                 modifier = Modifier.padding(start = totalWidth * 0.06f, end = totalWidth * 0.05f),
-                imageBitmap = uiState.recordList[index].appIcon,
+                imageBitmap = finishedList[index].appIcon,
                 size = squareSize,
                 cornerRadius = 8.dp
             )
 
             // 최대 18개까지, int 값만큼 째깐둥이를 그림
-            for (k in 1..minOf(finishedRecordAppStreaks[index], 18)) {
+            for (k in 1..minOf(finishedList[index].howLong / 5, 18)) {
                 Box(
                     modifier = Modifier
                         .padding(end = totalWidth * 0.012f) // 째깐둥이 사이 간격 조절
@@ -264,7 +281,7 @@ fun finishedRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, inde
             Spacer(modifier = Modifier.weight(1f))
 
             Canvas(modifier = Modifier) {
-                val days = finishedRecordAppStreaks.getOrNull(index).toString()
+                val days = finishedList[index].howLong.toString()
 
                 drawIntoCanvas {
                     val textPaint = Paint().asFrameworkPaint().apply {

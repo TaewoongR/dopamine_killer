@@ -1,6 +1,5 @@
 package com.example.record
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recorddomain.ReDomain
@@ -21,25 +20,54 @@ class RecordViewModel @Inject constructor(
     val uiState: StateFlow<RecordUiState> = _uiState.asStateFlow()
 
     init {
-        startPeriodicUpdate()
+        updateUiState()
     }
 
-    private fun startPeriodicUpdate() {
+    private fun updateUiState() {
         viewModelScope.launch {
             while (isActive) { // isActive는 현재 코루틴이 활성 상태인지 확인합니다.
-                updateUiState()
+                loadData()
                 delay(1000) // 1000ms = 5초
             }
         }
     }
 
-    private fun updateUiState() {
+    fun loadData() {
         viewModelScope.launch {
             val recordList = reDomain.getRecordList()
-            Log.d("recordList", recordList.size.toString())
+
+            // howLong의 큰 순서로 정렬된 리스트
+            val sortedByHowLong = recordList.sortedByDescending { it.howLong }
+
+            // ongoing이 true인 리스트
+            val ongoingList = recordList.filter { it.onGoing }
+
+            // ongoing이 false인 리스트
+            val notOngoingList = recordList.filter { !it.onGoing }
+
             _uiState.value = RecordUiState(
-                recordList = recordList.map {
-                    RecordDataUi(
+                descendingList = sortedByHowLong.map {
+                    DescendingRecord(
+                        appName = it.appName,
+                        appIcon = it.appIcon,
+                        date = it.date,
+                        goalTime = it.goalTime,
+                        howLong = it.howLong,
+                        onGoing = it.onGoing
+                    )
+                },
+                ongoingList = ongoingList.map {
+                    OngoingRecord(
+                        appName = it.appName,
+                        appIcon = it.appIcon,
+                        date = it.date,
+                        goalTime = it.goalTime,
+                        howLong = it.howLong,
+                        onGoing = it.onGoing
+                    )
+                },
+                finishedList = notOngoingList.map {
+                    FinishedRecord(
                         appName = it.appName,
                         appIcon = it.appIcon,
                         date = it.date,

@@ -7,13 +7,11 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.os.Build
+import android.os.PowerManager
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -51,112 +49,10 @@ class AppFetchingInfoImpl @Inject constructor(
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
-    override suspend fun getHourlyTime(appName: String, startTime: Long): IntArray {
-        val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        val appUsageTimeArray = IntArray(24) // 24시간에 대한 사용 시간을 저장할 배열
-        var lastEvent: UsageEvents.Event? = null    // 사용 시간이 정각을 포함할 때 다음 for문 루프에게 정각 이전부터 지속적으로 사용한다는 것을 알려줘야하기 때문에 for문 밖에 선언
-
-        // 전날 마지막 시간대에서 다음날로 넘어가는 시간 사이에 연속으로 앱을 사용하는지 확인
-        val lastHourUsage = usageStatsManager.queryEvents(startTime + TimeUnit.HOURS.toMillis(-1), startTime)
-        while(lastHourUsage.hasNextEvent()){
-            val event = UsageEvents.Event()
-            lastHourUsage.getNextEvent(event)
-            if(event.packageName == appName && (
-                        event.eventType == UsageEvents.Event.ACTIVITY_RESUMED ||
-                        event.eventType == UsageEvents.Event.ACTIVITY_PAUSED ||
-                        event.eventType == UsageEvents.Event.FOREGROUND_SERVICE_START
-                    )
-            ){
-                lastEvent = event
-            }else if(event.eventType == UsageEvents.Event.ACTIVITY_STOPPED){
-                lastEvent = null
-            }
-        }
-
-        for (hour in 0..23) {
-            val beginTime = startTime + TimeUnit.HOURS.toMillis(hour.toLong())  // queryEvents - 밀리초 기준
-            val endTime = beginTime + TimeUnit.HOURS.toMillis(1) - 1
-            val usageEvents = usageStatsManager.queryEvents(beginTime, endTime) ?: continue // 관측하지 못하면 즉시 다음 루프로
-            val sessions = mutableListOf<Pair<Long, Long>>()    // 특정 앱 실행 시작과 끝 시간 저장용 페어 리스트
-            Log.d("time","begin Time : $beginTime, end Time : $endTime")
-            while (usageEvents.hasNextEvent()) {
-                val event = UsageEvents.Event()
-                usageEvents.getNextEvent(event)
-
-                //Log.d("AppUsage", "Event Type: ${event.eventType}, App Name : ${event.packageName} Time Stamp: ${event.timeStamp}")
-
-                // 특정 앱의 이벤트만 처리
-                if (event.packageName == appName) {
-                    Log.d("AppUsage", "Event Type: ${event.eventType}, App Name : ${event.packageName} Time Stamp: ${event.timeStamp}")
-                    if(
-                        (
-                            event.eventType == UsageEvents.Event.ACTIVITY_RESUMED ||
-                            event.eventType == UsageEvents.Event.ACTIVITY_PAUSED ||
-                            event.eventType == UsageEvents.Event.FOREGROUND_SERVICE_START
-                        )
-                        && lastEvent == null
-                    ){
-                        // 포그라운드 이벤트 시작 시간 기록
-                        sessions.add(Pair(event.timeStamp, 0L))
-                        Log.d("measure start", "start : $hour")
-                        lastEvent = event
-                    }else if((event.eventType == UsageEvents.Event.ACTIVITY_STOPPED) && lastEvent != null){
-                        sessions.lastOrNull()?.let { session ->
-                            if(session.second == 0L){
-                                sessions[sessions.lastIndex] =
-                                    Pair(session.first, event.timeStamp)
-                                Log.d("measure end", "end : $hour, calculated time : $")
-                                lastEvent = null
-                            }
-                        }
-                        if(sessions.lastOrNull() == null){
-                            // 정각을 포함해 연속적 이용시 새로운 다음 시간대의 사용량 계산
-                            sessions.add(Pair(beginTime, event.timeStamp))
-                            Log.d("measure end", "special end : $hour, calculated time : $")
-                            lastEvent = null
-                        }
-                    }
-                }
-            }
-            // 정각을 포함해 연속적 이용시 직전 시간대의 마지막 사용량
-            if (lastEvent != null) {
-                sessions.lastOrNull()?.let {
-                    sessions[sessions.lastIndex] = Pair(it.first, endTime)
-                }
-            }
-            // 시간대 사용 시간 합산
-            var totalDuration = 0L
-            sessions.forEach { (start, end) ->
-                val duration = (end - start) / 1000    // 초 단위의 시간 차이
-                totalDuration += duration
-            }
-            appUsageTimeArray[hour] = totalDuration.toInt()
-        }
-        return appUsageTimeArray
-    }
-
-    override suspend fun getLastMonthAvgUsage(appName: String): Int {
-        val usageStatsManager =
-            context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        val usageStats = usageStatsManager.queryUsageStats(
-            UsageStatsManager.INTERVAL_MONTHLY,
-            dateFactory.returnLastMonthStart(),
-            dateFactory.returnLastMonthEnd()
-        )
-        val appUsage = usageStats.filter { it.packageName == appName }
-        var totalUsageTime = 0L
-        appUsage.forEach {
-            totalUsageTime += it.totalTimeInForeground
-        }
-        val totalDays = dateFactory.returnLastMonthEndDate(dateFactory.returnLastMonthStart())
-        Log.d("month Hour", totalUsageTime.toString())
-        return if (totalDays > 0) (totalUsageTime / totalDays / (1000)).toInt() else 0
-    }
-
-    override suspend fun getAppIcon(packageName: String): ImageBitmap {
+    override suspend fun getAppIcon(appName: String): ImageBitmap {
         return try {
             val packageManager = context.packageManager
+            val packageName = findAppByName(appName)
             val appInfo = packageManager.getApplicationInfo(packageName, 0)
             Log.d("appInfoImpl", packageName)
             val drawable = packageManager.getApplicationIcon(appInfo)
@@ -184,35 +80,140 @@ class AppFetchingInfoImpl @Inject constructor(
         }
     }
 
+    /*
     override suspend fun getDailyUsage(appName: String, numberAgo: Int): Triple<Int,String,Int> {
         val usageStatsManager =
             context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val startTime = dateFactory.returnTheDayStart(numberAgo)
+        val endTIme = dateFactory.returnTheDayEnd(startTime)
         val usageStats = usageStatsManager.queryUsageStats(
             UsageStatsManager.INTERVAL_DAILY,
             startTime,
-            dateFactory.returnTheDayEnd(startTime)
+            endTIme
         )
 
         val packageName = findAppByName(appName)
         val appUsage = usageStats.filter { it.packageName == packageName }
         var totalUsageTime = 0L
         appUsage.forEach {
-            totalUsageTime += it.totalTimeInForeground
+            totalUsageTime += it.totalTimeVisible
         }
-        Log.d("daily Hour", totalUsageTime.toString())
+        Log.d("daily Hour", "$startTime ~ $endTIme : $totalUsageTime")
         Log.d("time", dateFactory.returnStringDate(startTime))
         return Triple(((totalUsageTime / 1000 / 60).toInt()), dateFactory.returnStringDate(startTime),dateFactory.returnDayOfWeek(startTime) )
+    }
+     */
+
+    override suspend fun getHourlyUsage(appName: String, numberAgo: Int): Triple<List<Int>, String, Int> {
+        val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        val startTime = dateFactory.returnTheDayStart(numberAgo)
+        val endTime = dateFactory.returnTheDayEnd(startTime)
+        val packageName = findAppByName(appName)
+
+        val usageEvents = usageStatsManager.queryEvents(startTime, endTime)
+
+        val hourlyUsage = MutableList(24) { 0L }
+
+        var lastEventTime = 0L
+        var isAppInForeground = false
+
+        while (usageEvents.hasNextEvent()) {
+            val event = UsageEvents.Event()
+            usageEvents.getNextEvent(event)
+
+            if (event.packageName == packageName) {
+                when (event.eventType) {
+                    UsageEvents.Event.ACTIVITY_RESUMED -> {
+                        if (powerManager.isInteractive) { // Check if screen is on
+                            isAppInForeground = true
+                            lastEventTime = event.timeStamp
+                        }
+                    }
+                    UsageEvents.Event.ACTIVITY_PAUSED -> {
+                        if (isAppInForeground) {
+                            val endHour = (event.timeStamp - startTime) / (1000 * 60 * 60)
+                            if (endHour < 24) {
+                                hourlyUsage[endHour.toInt()] += (event.timeStamp - lastEventTime)
+                            }
+                            isAppInForeground = false
+                        }
+                    }
+                }
+            }
+        }
+
+        //
+        if (isAppInForeground && powerManager.isInteractive) {
+            val endHour = (endTime - startTime) / (1000 * 60 * 60)
+            if (endHour < 24) {
+                hourlyUsage[endHour.toInt()] += (endTime - lastEventTime)
+            }
+        }
+
+        Log.d("hourly Usage", "$startTime ~ $endTime : ${hourlyUsage.map { it / 1000 / 60 }}")
+        Log.d("time", dateFactory.returnStringDate(startTime))
+
+        val hourlyUsageInMinutes = hourlyUsage.map { (it / 1000 / 60).toInt() }
+
+        return Triple(hourlyUsageInMinutes, dateFactory.returnStringDate(startTime), dateFactory.returnDayOfWeek(startTime))
+    }
+
+    override suspend fun getDailyUsage(appName: String, numberAgo: Int): Triple<Int, String, Int> {
+        val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        val startTime = dateFactory.returnTheDayStart(numberAgo)
+        val endTime = dateFactory.returnTheDayEnd(startTime)
+        val packageName = findAppByName(appName)
+
+        // Query usage events for the given time range
+        val usageEvents = usageStatsManager.queryEvents(startTime, endTime)
+
+        var totalUsageTime = 0L
+        var lastEventTime = 0L
+        var isAppInForeground = false
+
+        while (usageEvents.hasNextEvent()) {
+            val event = UsageEvents.Event()
+            usageEvents.getNextEvent(event)
+
+            if (event.packageName == packageName) {
+                when (event.eventType) {
+                    UsageEvents.Event.ACTIVITY_RESUMED -> {
+                        if (powerManager.isInteractive) { // Check if screen is on
+                            isAppInForeground = true
+                            lastEventTime = event.timeStamp
+                        }
+                    }
+                    UsageEvents.Event.ACTIVITY_PAUSED -> {
+                        if (isAppInForeground) {
+                            totalUsageTime += (event.timeStamp - lastEventTime)
+                            isAppInForeground = false
+                        }
+                    }
+                }
+            }
+        }
+
+        if (isAppInForeground && powerManager.isInteractive) {
+            totalUsageTime += (endTime - lastEventTime)
+        }
+
+        Log.d("daily Hour", "$startTime ~ $endTime : $totalUsageTime")
+        Log.d("time", dateFactory.returnStringDate(startTime))
+
+        return Triple((totalUsageTime / 1000 / 60).toInt(), dateFactory.returnStringDate(startTime), dateFactory.returnDayOfWeek(startTime))
     }
 
     override suspend fun getWeeklyAvgUsage(appName: String, numberAgo: Int): Pair<Int,String> {
         val usageStatsManager =
             context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        val weekStartFromTime = dateFactory.returnWeekStartFrom(numberAgo)
+        val startTime = dateFactory.returnWeekStartFrom(numberAgo)
+        val endTIme = dateFactory.returnWeekEndFrom(numberAgo)
         val usageStats = usageStatsManager.queryUsageStats(
             UsageStatsManager.INTERVAL_WEEKLY,
-            weekStartFromTime,
-            dateFactory.returnWeekEndFrom(numberAgo)
+            startTime,
+            endTIme
         )
 
         val packageName = findAppByName(appName)
@@ -221,8 +222,8 @@ class AppFetchingInfoImpl @Inject constructor(
         appUsage.forEach {
             totalUsageTime += it.totalTimeInForeground
         }
-        Log.d("weekly Hour", totalUsageTime.toString())
-        return Pair((totalUsageTime / 7 / 1000 / 60).toInt(),dateFactory.returnStringDate(weekStartFromTime))
+        Log.d("weekly Hour", "$startTime ~ $endTIme : $totalUsageTime")
+        return Pair((totalUsageTime / 7 / 1000 / 60).toInt(),dateFactory.returnStringDate(startTime))
     }
 
     override suspend fun getMonthlyAvgUsage(appName: String, numberAgo: Int): Pair<Int, String> {

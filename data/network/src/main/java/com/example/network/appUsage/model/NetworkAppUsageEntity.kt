@@ -33,8 +33,6 @@ data class NetworkAppUsageEntity(
     val hour21: Int,
     val hour22: Int,
     val hour23: Int,
-    val totalHour: Int,
-    val isCompleted: Boolean
 )
 
 fun NetworkAppUsageEntity.asEntity() = HourlyEntity(
@@ -65,6 +63,4 @@ fun NetworkAppUsageEntity.asEntity() = HourlyEntity(
     hour21 = hour21,
     hour22 = hour22,
     hour23 = hour23,
-    totalHour = totalHour,
-    isCompleted = isCompleted
 )

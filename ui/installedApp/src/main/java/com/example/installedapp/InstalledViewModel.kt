@@ -1,18 +1,14 @@
 package com.example.installedapp
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.repository.HourlyRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class InstalledViewModel @Inject constructor(
-    private val repository: HourlyRepository
 ) : ViewModel() {
     private val _installedUiState = MutableStateFlow(InstalledUiState())
     val installedUiState: StateFlow<InstalledUiState> = _installedUiState.asStateFlow()
@@ -22,10 +18,6 @@ class InstalledViewModel @Inject constructor(
 
 
     private fun findApp(){
-        viewModelScope.launch {
-            _installedUiState.value = InstalledUiState(
-                appName = repository.getInstalledAppName("youtube")
-            )
-        }
+
     }
 }

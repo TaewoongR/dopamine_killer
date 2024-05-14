@@ -4,10 +4,10 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.ImageBitmapConfig
 
 data class AnalysisUiState(
-    val appList: List<AnalysisAppState> = listOf(),
+    val appList: List<AnalysisAppData> = listOf(),
 )
 
-data class AnalysisAppState(
+data class AnalysisAppData(
     val appName: String = "",
     val dailyTime: Int = 0,
     val yesterdayTime: Int = 0,

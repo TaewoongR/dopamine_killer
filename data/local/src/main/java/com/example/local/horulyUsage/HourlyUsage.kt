@@ -28,6 +28,4 @@ data class HourlyUsage(
     val hour21: Int,
     val hour22: Int,
     val hour23: Int,
-    val totalHour: Int,
-    var isCompleted: Boolean
 )

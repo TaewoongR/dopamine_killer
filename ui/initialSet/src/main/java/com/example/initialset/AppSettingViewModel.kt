@@ -42,8 +42,8 @@ class AppSettingViewModel @Inject constructor(
             _uiState.value = AppSettingUiState(appList = appObjectList.toList())
         }
         viewModelScope.launch{coreDomain.updateInstalledApp(appNameList)}
-        viewModelScope.launch{coreDomain.deleteUndetectedUsageObj()}    // 임시 실행
-        viewModelScope.launch{coreDomain.initialUpdate()}
+        viewModelScope.launch{coreDomain.initialUpdate(appNameList)}
+        viewModelScope.launch{coreDomain.initialHourlyUpdate(appNameList)}
     }
 
     fun updateToggleState(appName: String, isEnabled: Boolean) {

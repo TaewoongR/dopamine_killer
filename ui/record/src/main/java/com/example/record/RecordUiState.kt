@@ -4,14 +4,34 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.ImageBitmapConfig
 
 data class RecordUiState(
-    val recordList: List<RecordDataUi> = listOf()
+    val descendingList: List<DescendingRecord> = listOf(),
+    val ongoingList: List<OngoingRecord> = listOf(),
+    val finishedList: List<FinishedRecord> = listOf()
 )
 
-data class RecordDataUi(
-    val appName: String = "",
+data class DescendingRecord(
+    val appName: String,
     val appIcon: ImageBitmap = ImageBitmap(1,1, ImageBitmapConfig.Alpha8),
-    val date: String = "",
-    val goalTime: Int = 0,
-    val howLong: Int = 0,
-    val onGoing: Boolean = false
+    val date: String,
+    val goalTime: Int,
+    val howLong: Int,
+    val onGoing: Boolean
+)
+
+data class OngoingRecord(
+    val appName: String,
+    val appIcon: ImageBitmap = ImageBitmap(1,1, ImageBitmapConfig.Alpha8),
+    val date: String,
+    val goalTime: Int,
+    val howLong: Int,
+    val onGoing: Boolean
+)
+
+data class FinishedRecord(
+    val appName: String,
+    val appIcon: ImageBitmap = ImageBitmap(1,1, ImageBitmapConfig.Alpha8),
+    val date: String,
+    val goalTime: Int,
+    val howLong: Int,
+    val onGoing: Boolean
 )

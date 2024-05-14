@@ -1,13 +1,9 @@
 package com.example.repository.di
 
-import com.example.repository.DailyInfoRepository
-import com.example.repository.DailyInfoRepositoryImpl
 import com.example.repository.DailyRepository
 import com.example.repository.DailyRepositoryImpl
 import com.example.repository.GoalRepository
 import com.example.repository.GoalRepositoryImpl
-import com.example.repository.HourlyRepository
-import com.example.repository.HourlyRepositoryImpl
 import com.example.repository.MonthlyRepository
 import com.example.repository.MonthlyRepositoryImpl
 import com.example.repository.NetworkRepository
@@ -27,10 +23,6 @@ import javax.inject.Singleton
 interface RepositoryModule {
     @Binds
     @Singleton
-    fun bindHourlyRepository(hourlyRepositoryImpl: HourlyRepositoryImpl): HourlyRepository
-
-    @Binds
-    @Singleton
     fun bindDailyRepository(dailyRepositoryImpl: DailyRepositoryImpl): DailyRepository
 
     @Binds
@@ -40,11 +32,6 @@ interface RepositoryModule {
     @Binds
     @Singleton
     fun bindMonthlyRepository(monthlyRepositoryImpl: MonthlyRepositoryImpl): MonthlyRepository
-
-
-    @Binds
-    @Singleton
-    fun bindDailyInfoRepository(dailyInfoRepositoryImpl: DailyInfoRepositoryImpl): DailyInfoRepository
 
     @Binds
     @Singleton
@@ -57,5 +44,4 @@ interface RepositoryModule {
     @Binds
     @Singleton
     fun bindSelectedAppRepository(selectedAppRepositoryImpl: SelectedAppRepositoryImpl): SelectedAppRepository
-
 }

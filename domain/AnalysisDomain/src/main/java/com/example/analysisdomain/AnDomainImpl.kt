@@ -1,7 +1,6 @@
 package com.example.analysisdomain
 
 import com.example.repository.DailyRepository
-import com.example.repository.HourlyRepository
 import com.example.repository.MonthlyRepository
 import com.example.repository.SelectedAppRepository
 import com.example.repository.WeeklyRepository
@@ -10,7 +9,6 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class AnDomainImpl @Inject constructor(
-    private val hourlyRepository: HourlyRepository,
     private val dailyRepository: DailyRepository,
     private val weeklyRepository: WeeklyRepository,
     private val monthlyRepository: MonthlyRepository,

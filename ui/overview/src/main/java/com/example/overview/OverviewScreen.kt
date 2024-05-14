@@ -30,8 +30,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
@@ -84,9 +88,9 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                DonutGraph(percent = 0.7f, modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState)
+                DonutGraph(percent = 0.7f, modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState.analysisData)
                 Spacer(modifier = Modifier.width(10.dp))
-                barGraphOverview(modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState)
+                barGraphOverview(modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState.analysisData)
             }
 
             Column(
@@ -94,8 +98,8 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                for (i in 0 until 3) {
-                    recordOverview(modifier = Modifier, aspectRatio = 1f/0.1875f, totalWidth = totalWidth, i, overviewUiState)
+                for (i in 0 until minOf(3, overviewUiState.recordList.size)) {
+                    recordOverview(modifier = Modifier, aspectRatio = 1f/0.1875f, totalWidth = totalWidth, i, overviewUiState.recordList)
                 }
             }
             rewardOverview(modifier = Modifier, aspectRatio = 1f/0.6f, totalWidth = totalWidth)
@@ -104,7 +108,7 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
 }
 
 @Composable
-fun DonutGraph(percent: Float, modifier: Modifier, size: Dp, uiState: OverviewUiState) {
+fun DonutGraph(percent: Float, modifier: Modifier, size: Dp, analysisData: AnalysisData) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val squareSize = (size.value * 0.24f)// 아이콘 크기 설정
 
@@ -144,7 +148,7 @@ fun DonutGraph(percent: Float, modifier: Modifier, size: Dp, uiState: OverviewUi
         )
         IconImage(
             modifier = Modifier,
-            imageBitmap = uiState.appIcon,
+            imageBitmap = analysisData.appIcon,
             size = squareSize.dp,
             cornerRadius = 8.dp
         )
@@ -153,7 +157,7 @@ fun DonutGraph(percent: Float, modifier: Modifier, size: Dp, uiState: OverviewUi
 
 
 @Composable
-fun barGraphOverview(modifier: Modifier, size: Dp, uiState: OverviewUiState) {
+fun barGraphOverview(modifier: Modifier, size: Dp, analysisData: AnalysisData) {
     Box(
         modifier = modifier
             .size(size)
@@ -172,17 +176,17 @@ fun barGraphOverview(modifier: Modifier, size: Dp, uiState: OverviewUiState) {
                 keyColor.copy(alpha = 1.0f)
             )
             val maxTime = listOf(
-                uiState.lastMonthAvgTime,
-                uiState.lastWeekAvgTime,
-                uiState.yesterdayTime,
-                uiState.dailyTime
+                analysisData.lastMonthAvgTime,
+                analysisData.lastWeekAvgTime,
+                analysisData.yesterdayTime,
+                analysisData.dailyTime
             ).maxOrNull() ?: 1  // 0을 방지하기 위해 최소값은 1로 설정
 
             val times = listOf(
-                uiState.lastMonthAvgTime,
-                uiState.lastWeekAvgTime,
-                uiState.yesterdayTime,
-                uiState.dailyTime
+                analysisData.lastMonthAvgTime,
+                analysisData.lastWeekAvgTime,
+                analysisData.yesterdayTime,
+                analysisData.dailyTime
             )
             val paddingTop = (size * 0.2f).toPx() // 위쪽 패딩
             val paddingBottom = (size * 0.24f).toPx() // 아래쪽 패딩, 텍스트 공간
@@ -210,7 +214,7 @@ fun barGraphOverview(modifier: Modifier, size: Dp, uiState: OverviewUiState) {
 }
 
 @Composable
-fun recordOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int, uiState: OverviewUiState) {
+fun recordOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int, recordList: List<RecordData>) {
     val squareSize = (totalWidth - 10.dp) / 2 * 0.24f
 
     Box(
@@ -225,23 +229,47 @@ fun recordOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
         ) {
             IconImage(
                 modifier = Modifier.padding(start = totalWidth * 0.06f, end = totalWidth * 0.05f),
-                imageBitmap = uiState.appIcon,
+                imageBitmap = recordList[index].appIcon,
                 size = squareSize,
                 cornerRadius = 8.dp
             )
 
             // 최대 20개까지, int 값만큼 째깐둥이를 그림
-            for (k in 1..minOf(ongoingRecordAppStreaks[index], 20)) {
+            for (k in 1..minOf(minOf(recordList[index].howLong / 5, 18))) {
                 Box(
                     modifier = Modifier
                         .padding(end = totalWidth * 0.012f) // 째깐둥이 사이 간격 조절
                         .size(totalWidth * 0.020f, totalWidth * 0.032f) // 째깐둥이 크기
-                        .background(subColor, shape = RoundedCornerShape(99.dp))
+                        .background(
+                            if(recordList[index].onGoing) subColor else Color.LightGray,
+                            shape = RoundedCornerShape(99.dp)
+                        )
                 )
             }
 
             Spacer(modifier = Modifier.weight(1f))
 
+            Canvas(modifier = Modifier) {
+                val days = recordList[index].howLong.toString()
+
+                drawIntoCanvas {
+                    val textPaint = Paint().asFrameworkPaint().apply {
+                        isAntiAlias = true
+                        textSize = (totalWidth * 0.06f).toPx()
+                        color = Color.DarkGray.toArgb()
+                    }
+                    val textWidth = textPaint.measureText(days)
+                    val fontMetrics = textPaint.fontMetrics
+                    val textHeight = fontMetrics.descent - fontMetrics.ascent
+
+                    it.nativeCanvas.drawText(
+                        days,
+                        size.width - textWidth - totalWidth.value * 0.04f ,
+                        (size.height / 2) + (textHeight / 2) - fontMetrics.descent,
+                        textPaint
+                    )
+                }
+            }
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = "더보기", // 접근성을 위한 설명

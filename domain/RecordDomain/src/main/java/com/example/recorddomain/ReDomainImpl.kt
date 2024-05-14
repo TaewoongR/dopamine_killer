@@ -3,14 +3,14 @@ package com.example.recorddomain
 import com.example.local.record.RecordDAO
 import com.example.local.record.RecordEntity
 import com.example.repository.GoalRepository
-import com.example.repository.HourlyRepository
+import com.example.service.AppFetchingInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class ReDomainImpl @Inject constructor(
     private val recordDAO: RecordDAO,
-    private val appRepository: HourlyRepository,
+    private val appRepository: AppFetchingInfo,
     private val goalRepository: GoalRepository
 ):ReDomain {
     override suspend fun getRecordList(): List<RecordDataDomain> {

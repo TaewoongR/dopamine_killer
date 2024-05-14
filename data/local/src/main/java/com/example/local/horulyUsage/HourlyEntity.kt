@@ -32,8 +32,6 @@ data class HourlyEntity(
     val hour21: Int,
     val hour22: Int,
     val hour23: Int,
-    val totalHour: Int,
-    var isCompleted: Boolean
 )
 
 fun HourlyEntity.asExternalModel() = HourlyUsage(
@@ -64,6 +62,4 @@ fun HourlyEntity.asExternalModel() = HourlyUsage(
     hour21 = hour21,
     hour22 = hour22,
     hour23 = hour23,
-    totalHour = totalHour,
-    isCompleted = isCompleted
 )

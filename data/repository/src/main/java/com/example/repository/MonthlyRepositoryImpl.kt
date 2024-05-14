@@ -32,9 +32,8 @@ class MonthlyRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun initialMonthlyUpdate() {
-        val nameList = selectedAppRepository.getAllInstalled()
-        nameList.forEach {appName ->
+    override suspend fun initialMonthlyUpdate(appNameList: List<String>) {
+        appNameList.forEach {appName ->
             for(i in 1..2) {   // 1~3달 전
                 val usageNDate = appInfo.getMonthlyAvgUsage(appName, i)
                 monthlySource.upsert(

@@ -1,10 +1,7 @@
 package com.example.navigation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -26,8 +23,6 @@ import com.example.overview.OverviewScreen
 import com.example.record.RecordScreen
 import com.example.reward.RewardScreen
 
-@RequiresApi(Build.VERSION_CODES.Q)
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BotNavBar() {
     var navigationSelectedItem by remember { mutableIntStateOf(2) }
