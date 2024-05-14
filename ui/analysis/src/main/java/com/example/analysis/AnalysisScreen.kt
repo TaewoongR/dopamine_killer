@@ -157,6 +157,7 @@ fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, sta
                         2 -> "어제"
                         else -> "오늘"
                     }
+
                     drawIntoCanvas {
                         val textPaint = Paint().asFrameworkPaint().apply {
                             isAntiAlias = true

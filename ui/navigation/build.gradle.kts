@@ -44,6 +44,7 @@ dependencies {
     implementation(project(":ui:myInfo"))
     implementation(project(":ui:record"))
     implementation(project(":ui:reward"))
+    implementation(project(":ui:initialSet"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

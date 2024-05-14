@@ -9,6 +9,7 @@ data class OverviewUiState(
 )
 data class AnalysisData(
     val appName: String = "",
+    val goalTime: Int = 0,
     val dailyTime: Int = 0,
     val yesterdayTime: Int = 0,
     val lastWeekAvgTime: Int = 0,

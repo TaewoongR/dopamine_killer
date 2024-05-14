@@ -1,5 +1,6 @@
 package com.example.overview
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -69,6 +70,7 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
     val totalWidth = screenWidth * 0.85f
     val individualWidth = ((totalWidth) - 10.dp) / 2 // 도넛 그래프 박스와 막대 그래프 오버뷰 박스 크기 설정
 
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -88,7 +90,12 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                DonutGraph(percent = 0.7f, modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState.analysisData)
+                Log.d("goalTIme", overviewUiState.analysisData.goalTime.toString())
+                Log.d("dailyTIme", overviewUiState.analysisData.dailyTime.toString())
+
+                val percent = overviewUiState.analysisData.dailyTime.toFloat() / overviewUiState.analysisData.goalTime.toFloat()
+
+                DonutGraph(percent = percent, modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState.analysisData)
                 Spacer(modifier = Modifier.width(10.dp))
                 barGraphOverview(modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState.analysisData)
             }
@@ -126,7 +133,7 @@ fun DonutGraph(percent: Float, modifier: Modifier, size: Dp, analysisData: Analy
                 val radius = (boxSize.minDimension / 2) * 0.6f // 도넛 반지름
                 val strokeWidth = screenWidth.toPx() * 0.08f
                 val startAngle = -90f // 12시 방향 각도 시작
-                val sweepAngle = percent * 360f
+                val sweepAngle = minOf(percent, 1f) * 360f
 
                 drawCircle(
                     color = vagueColor,

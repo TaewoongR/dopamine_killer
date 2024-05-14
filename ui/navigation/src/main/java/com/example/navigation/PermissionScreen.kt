@@ -1,4 +1,4 @@
-package com.example.initialset
+package com.example.navigation
 
 import android.app.AppOpsManager
 import android.content.Context
@@ -27,6 +27,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.analysis.keyColor
+import com.example.myinfo.backgroundColor
+import com.example.navigation.util.PreferenceUtils
+import kotlinx.coroutines.delay
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
@@ -41,11 +45,10 @@ fun PermissionScreen(navController: NavController) {
             val mode = appOps.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), context.packageName)
             hasPermission.value = (mode == AppOpsManager.MODE_ALLOWED)
             if (hasPermission.value) {
-                navController.navigate("app_setting") {
-                    popUpTo("auth_selection_route") { inclusive = true }
-                }
+                navController.navigate("app_setting")
                 break
             }
+            delay(1)
         }
     }
 

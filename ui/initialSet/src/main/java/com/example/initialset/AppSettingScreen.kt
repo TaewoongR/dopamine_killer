@@ -178,7 +178,7 @@ fun setButton(totalWidth: Dp, viewModel: AppSettingViewModel, uiState: AppSettin
                 scope.launch { // 코루틴 시작
                     viewModel.updateSelectedApps(uiState.appList)  // 데이터 저장 함수 비동기 호출
                     navController.navigate("goal_setting") { // 데이터 저장 완료 후 화면 전환
-                        popUpTo(navController.graph.findStartDestination().id) {
+                        popUpTo("goal_setting") {
                             inclusive = true
                         }
                         launchSingleTop = true

@@ -27,7 +27,7 @@ class RecordViewModel @Inject constructor(
         viewModelScope.launch {
             while (isActive) { // isActive는 현재 코루틴이 활성 상태인지 확인합니다.
                 loadData()
-                delay(1000) // 1000ms = 5초
+                delay(1000) // 1000ms = 10초
             }
         }
     }

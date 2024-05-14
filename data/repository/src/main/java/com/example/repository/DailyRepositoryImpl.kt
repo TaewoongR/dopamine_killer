@@ -6,7 +6,9 @@ import com.example.local.horulyUsage.HourlyDAO
 import com.example.local.horulyUsage.HourlyEntity
 import com.example.service.AppFetchingInfo
 import com.example.service.DateFactoryForData
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -51,7 +53,7 @@ class DailyRepositoryImpl @Inject constructor(
         appNameList.forEach {appName ->
             for(i in 0..9) {   // 1~9일 전
                 val usageNDate = appInfo.getDailyUsage(appName, i)
-                dailySource.upsert(
+                withContext(Dispatchers.IO) {dailySource.upsert(
                     DailyEntity(
                         appName = appName,
                         date = usageNDate.second,
@@ -59,6 +61,7 @@ class DailyRepositoryImpl @Inject constructor(
                         dailyUsage = usageNDate.first
                     )
                 )
+                }
             }
         }
     }

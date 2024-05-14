@@ -1,14 +1,18 @@
 package com.example.overview
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.coredomain.CoreDomain
+import com.example.coredomain.FourUsageDomainData
 import com.example.recorddomain.ReDomain
 import com.example.recorddomain.RecordDataDomain
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,16 +30,20 @@ class OverviewViewModel @Inject constructor(
 
     private fun updateOverviewUiState(){
         viewModelScope.launch {
-            loadData()
+            while (isActive) { // isActive는 현재 코루틴이 활성 상태인지 확인합니다.
+                loadData()
+                delay(10000) // 10000ms = 10초
+            }
         }
     }
 
     fun loadData() {
         viewModelScope.launch {
+
             val recordList = reDomain.getRecordList()
 
             // ongoing이 true인 리스트
-            val ongoingList = recordList.filter { it.onGoing }
+            val ongoingList = recordList.filter { it.onGoing }.sortedByDescending { it.howLong }
             // ongoing이 false인 리스트
             val finishedList = recordList.filter { !it.onGoing }
             val overviewList = mutableListOf<RecordDataDomain>()
@@ -58,9 +66,13 @@ class OverviewViewModel @Inject constructor(
             }
 
             // appsUsageList에서 랜덤한 항목 하나를 선택하고 매핑
-            val randomAppUsage = coreDomain.getAllSelectedAppUsage().random()
+            val record = ongoingList.random()
+            val randomAppUsage =
+                coreDomain.getAllSelectedAppUsage()
+                    .firstOrNull { it.appName == record.appName } ?: FourUsageDomainData()
             val analysisData = AnalysisData(
                 appName = randomAppUsage.appName,
+                goalTime = record.goalTime,
                 dailyTime = randomAppUsage.dailyTime,
                 yesterdayTime = randomAppUsage.yesterdayTime,
                 lastWeekAvgTime = randomAppUsage.lastWeekAvgTime,

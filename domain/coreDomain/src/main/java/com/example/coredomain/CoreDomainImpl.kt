@@ -8,6 +8,8 @@ import com.example.repository.SelectedAppRepository
 import com.example.repository.WeeklyRepository
 import com.example.service.AppFetchingInfo
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -17,12 +19,19 @@ class CoreDomainImpl @Inject constructor(
     private val weeklyRepository: WeeklyRepository,
     private val monthlyRepository: MonthlyRepository,
     private val selectedAppRepository: SelectedAppRepository
-): CoreDomain {
+) : CoreDomain {
+
+    private val mutex = Mutex()
 
     override suspend fun initialUpdate(appNameList: List<String>) {
-        withContext(Dispatchers.IO) {dailyRepository.initialDailyUpdate(appNameList)}
-        withContext(Dispatchers.IO) {weeklyRepository.initialWeeklyUpdate(appNameList)}
-        withContext(Dispatchers.IO) {monthlyRepository.initialMonthlyUpdate(appNameList) }
+        mutex.withLock {
+            withContext(Dispatchers.IO) {
+                dailyRepository.initialDailyUpdate(appNameList)}
+            withContext(Dispatchers.IO) {
+                weeklyRepository.initialWeeklyUpdate(appNameList)}
+            withContext(Dispatchers.IO) {
+                monthlyRepository.initialMonthlyUpdate(appNameList)}
+            }
     }
 
     override suspend fun initialHourlyUpdate(appNameList: List<String>) {
@@ -58,29 +67,31 @@ class CoreDomainImpl @Inject constructor(
     }
 
     override suspend fun getAllSelectedAppUsage(): List<FourUsageDomainData> {
-        val nameList = withContext(Dispatchers.IO) { getAllSelectedAppName() }
-        val list = mutableListOf<FourUsageDomainData>()
-        nameList.forEach {
-            withContext(Dispatchers.IO) {
-                list.add(
-                    FourUsageDomainData(
-                        appName = it,
-                        dailyTime = dailyRepository.getDailyUsageFrom(it, 0).first,
-                        yesterdayTime = dailyRepository.getDailyUsageFrom(it, 1).first,
-                        lastWeekAvgTime = weeklyRepository.getWeeklyUsageFrom(it, 1).first,
-                        lastMonthAvgTime = monthlyRepository.getMonthlyUsageFrom(it, 1).first
+        return mutex.withLock {
+            val nameList = withContext(Dispatchers.IO) { getAllSelectedAppName() }
+            val list = mutableListOf<FourUsageDomainData>()
+            nameList.forEach {
+                withContext(Dispatchers.IO) {
+                    list.add(
+                        FourUsageDomainData(
+                            appName = it,
+                            dailyTime = dailyRepository.getDailyUsageFrom(it, 0).first,
+                            yesterdayTime = dailyRepository.getDailyUsageFrom(it, 1).first,
+                            lastWeekAvgTime = weeklyRepository.getWeeklyUsageFrom(it, 1).first,
+                            lastMonthAvgTime = monthlyRepository.getMonthlyUsageFrom(it, 1).first
+                        )
                     )
-                )
+                }
             }
+            list
         }
-        return list
     }
 
     override suspend fun getAppIconForAppSetting(appName: String): Pair<ImageBitmap?, String> {
         val packageName = appRepository.findAppByName(appName)
-        if(packageName != "null"){
+        if (packageName != "null") {
             return Pair(appRepository.getAppIcon(appName), appName)
-        }else
+        } else
             return Pair(null, packageName)
     }
 

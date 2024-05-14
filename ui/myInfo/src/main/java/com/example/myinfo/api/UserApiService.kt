@@ -16,4 +16,5 @@ interface UserApiService {
 data class UserLogin(val username: String, val password: String)
 data class UserSignup(
     val username: String, val email: String, val password: String, val name: String,
-    val nickname: String, val age: Int, val gender: String, val job: String)
+    val nickname: String, val age: Int, val gender: String, val job: String
+)

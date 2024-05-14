@@ -4,6 +4,8 @@ import com.example.local.monthlyUsage.MonthlyDAO
 import com.example.local.monthlyUsage.MonthlyEntity
 import com.example.service.AppFetchingInfo
 import com.example.service.DateFactoryForData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,26 +25,30 @@ class MonthlyRepositoryImpl @Inject constructor(
 
     override suspend fun updateLastMonthlyUsage(appName: String) {
         val usageNDate = appInfo.getMonthlyAvgUsage(appName, 1)
-        monthlySource.upsert(
-            MonthlyEntity(
-                appName = appName,
-                date = usageNDate.second.substring(0,6),
-                monthlyUsage = usageNDate.first
+        withContext(Dispatchers.IO){
+            monthlySource.upsert(
+                MonthlyEntity(
+                    appName = appName,
+                    date = usageNDate.second.substring(0,6),
+                    monthlyUsage = usageNDate.first
+                )
             )
-        )
+        }
     }
 
     override suspend fun initialMonthlyUpdate(appNameList: List<String>) {
         appNameList.forEach {appName ->
             for(i in 1..2) {   // 1~3달 전
                 val usageNDate = appInfo.getMonthlyAvgUsage(appName, i)
-                monthlySource.upsert(
-                    MonthlyEntity(
-                        appName = appName,
-                        date = usageNDate.second.substring(0,6),
-                        monthlyUsage = usageNDate.first
+                withContext(Dispatchers.IO){
+                    monthlySource.upsert(
+                        MonthlyEntity(
+                            appName = appName,
+                            date = usageNDate.second.substring(0,6),
+                            monthlyUsage = usageNDate.first
+                        )
                     )
-                )
+                }
             }
         }
     }

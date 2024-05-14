@@ -13,6 +13,8 @@ class ReDomainImpl @Inject constructor(
     private val appRepository: AppFetchingInfo,
     private val goalRepository: GoalRepository
 ):ReDomain {
+
+
     override suspend fun getRecordList(): List<RecordDataDomain> {
         return withContext(Dispatchers.IO) {
             val appList = goalRepository.getAllList()
