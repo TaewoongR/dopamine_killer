@@ -50,8 +50,6 @@ val vagueText: Color = Color(android.graphics.Color.parseColor("#777777"))
 val vagueColor: Color = Color(android.graphics.Color.parseColor("#F0F0F0"))
 
 
-val finishedRecordAppStreaks = arrayOf(20, 4, 13, 28, 2)
-
 @Composable
 fun RecordScreen(
     navController: NavController,

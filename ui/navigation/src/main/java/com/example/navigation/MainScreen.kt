@@ -24,7 +24,6 @@ fun MainScreen() {
             AuthSelectionScreen(navController)
         }
         composable("login_route"){
-            PreferenceUtils.resetSetup(context)
             val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
             val mode = appOps.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), context.packageName)
             val navigateToScreen: () -> Unit = {
@@ -44,6 +43,7 @@ fun MainScreen() {
                     }
                 }
             }
+            PreferenceUtils.resetSetup(context)
             LoginScreen(navController, navigateToScreen)
         }
         composable("signup_route"){

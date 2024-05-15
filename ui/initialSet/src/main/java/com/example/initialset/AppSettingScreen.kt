@@ -1,5 +1,6 @@
 package com.example.initialset
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,6 +25,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
@@ -41,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import kotlinx.coroutines.launch
 
 val backgroundColor: Color = Color(android.graphics.Color.parseColor("#EFEFEF"))
@@ -80,7 +82,7 @@ fun appSelection(uiState: AppSettingUiState, viewModel: AppSettingViewModel, nav
             Box(
                 modifier = Modifier
                     .width(totalWidth)
-                    .aspectRatio(1f / 1.5f)
+                    .aspectRatio(1f / 1.6f)
                     .background(Color.White, shape = RoundedCornerShape(16.dp))
             ) {
                 Column(
@@ -140,12 +142,16 @@ fun ToggleButton(totalWidth: Dp, isButtonEnabled: Boolean, onToggleChange: (Bool
     val circlePosition by animateFloatAsState(targetValue = if (isButtonEnabled) 1f else 0f,
         label = "FloatAnimation"
     )
+    val backgroundColor by animateColorAsState(targetValue = if (isButtonEnabled) keyColor else Color.LightGray,
+        label = ""
+    )
+
 
     Box(
         modifier = Modifier
             .width(totalWidth * 0.13f)
             .height(totalWidth * 0.07f)
-            .background(Color.LightGray, RoundedCornerShape(999.dp))
+            .background(backgroundColor, RoundedCornerShape(999.dp))
             .clickable { onToggleChange(!isButtonEnabled) },
         contentAlignment = Alignment.CenterStart
     ) {

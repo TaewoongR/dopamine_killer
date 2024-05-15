@@ -1,5 +1,6 @@
 package com.example.overview
 
+import android.graphics.Color.parseColor
 import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -29,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Paint
@@ -56,11 +58,13 @@ fun OverviewScreen(
 }
 
 
-val backgroundColor: Color = Color(android.graphics.Color.parseColor("#EFEFEF"))
-val keyColor: Color = Color(android.graphics.Color.parseColor("#FF9A62"))
-val subColor: Color = Color(android.graphics.Color.parseColor("#73A66A"))
-val vagueText: Color = Color(android.graphics.Color.parseColor("#777777"))
-val vagueColor: Color = Color(android.graphics.Color.parseColor("#F0F0F0"))
+val backgroundColor: Color = Color(parseColor("#EFEFEF"))
+val keyColor: Color = Color(parseColor("#FF9A62"))
+val subColor: Color = Color(parseColor("#73A66A"))
+val vagueText: Color = Color(parseColor("#777777"))
+val vagueColor: Color = Color(parseColor("#F0F0F0"))
+val brushColor: Color = Color(parseColor("#FFC2A0"))
+val brusherColor: Color = Color(parseColor("#FFF4EF"))
 
 val ongoingRecordAppStreaks = arrayOf(3, 14, 42) // 임의 연속 날짜 데이터
 
@@ -132,7 +136,7 @@ fun DonutGraph(percent: Float, modifier: Modifier, size: Dp, analysisData: Analy
                 val center = Offset(boxSize.width / 2, boxSize.height / 2)
                 val radius = (boxSize.minDimension / 2) * 0.6f // 도넛 반지름
                 val strokeWidth = screenWidth.toPx() * 0.08f
-                val startAngle = -90f // 12시 방향 각도 시작
+                val startAngle = 0f // 3시 방향 각도 시작
                 val sweepAngle = minOf(percent, 1f) * 360f
 
                 drawCircle(
@@ -142,14 +146,19 @@ fun DonutGraph(percent: Float, modifier: Modifier, size: Dp, analysisData: Analy
                     style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
                 )
 
+                val gradientBrush = Brush.sweepGradient(
+                    colors = listOf(brusherColor, brushColor, keyColor),
+                    center = Offset(boxSize.width / 2, boxSize.height / 2)
+                )
+
                 drawArc(
-                    color = keyColor,
+                    brush = gradientBrush,
                     startAngle = startAngle,
                     sweepAngle = sweepAngle,
                     useCenter = false,
                     topLeft = Offset(center.x - radius, center.y - radius),
                     size = Size(radius * 2, radius * 2),
-                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                    style = Stroke(width = strokeWidth, cap = StrokeCap.Butt)
                 )
             }
         )
