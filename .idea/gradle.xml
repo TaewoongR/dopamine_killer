@@ -21,8 +21,6 @@
             <option value="$PROJECT_DIR$/domain/coreDomain" />
             <option value="$PROJECT_DIR$/ui" />
             <option value="$PROJECT_DIR$/ui/analysis" />
-            <option value="$PROJECT_DIR$/ui/initialSet" />
-            <option value="$PROJECT_DIR$/ui/installedApp" />
             <option value="$PROJECT_DIR$/ui/myInfo" />
             <option value="$PROJECT_DIR$/ui/navigation" />
             <option value="$PROJECT_DIR$/ui/overview" />

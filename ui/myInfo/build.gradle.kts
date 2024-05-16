@@ -40,7 +40,6 @@ dependencies {
     implementation(project(":data:local"))
     implementation(project(":data:repository"))
     implementation(project(":ui:service"))
-    implementation(project(":ui:installedApp"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

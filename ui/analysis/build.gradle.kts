@@ -40,7 +40,6 @@ dependencies {
     implementation(project(":data:local"))
     implementation(project(":data:repository"))
     implementation(project(":ui:service"))
-    implementation(project(":ui:installedApp"))
     implementation(project(":domain:AnalysisDomain"))
     implementation(project(":domain:RecordDomain"))
     implementation(project(":domain:coreDomain"))

@@ -28,6 +28,7 @@ androidxTracing = "1.3.0-alpha02"
 securityCrypto = "1.1.0-alpha03"
 uiGraphicsAndroidVersion = "1.6.7"
 gson = "2.8.9"
+workManager = "2.9.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -73,7 +74,7 @@ okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor",
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
 ui-graphics-android = { group = "androidx.compose.ui", name = "ui-graphics-android", version.ref = "uiGraphicsAndroidVersion" }
-
+androidx-work = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

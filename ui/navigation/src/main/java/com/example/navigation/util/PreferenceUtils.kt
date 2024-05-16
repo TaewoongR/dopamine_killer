@@ -4,7 +4,7 @@ import android.content.Context
 
 object PreferenceUtils {
 
-    private const val INITIAL_SETUP = "InitialSetup"
+    private const val INITIAL_SETUP = "dopamine_killer_prefs"
     private const val SETUP_COMPLETE_KEY = "SetupComplete"
 
     fun saveSetupComplete(context: Context) {

@@ -71,7 +71,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(project(":ui:analysis"))
     implementation(project(":ui:navigation"))
-    implementation(project(":ui:initialSet"))
+    implementation(project(":domain:coreDomain"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -90,4 +90,7 @@ dependencies {
 
     //compose material3
     implementation(libs.androidx.compose.material3)
+
+    //workmanager
+    implementation(libs.androidx.work)
 }

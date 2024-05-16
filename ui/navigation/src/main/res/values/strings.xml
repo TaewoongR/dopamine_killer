@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="text_analysis">분석</string>
-    <string name="text_overview">홈</string>
-    <string name="text_myinfo">내 정보</string>
-    <string name="text_record">기록</string>
-    <string name="text_reward">업적</string>
-
+    <string name="Youtube">youtube</string>
+    <string name="Instagram">instagram</string>
+    <string name="카카오톡">kakaotalk</string>
+    <string name="Naver">naver</string>
 </resources>

@@ -1,6 +1,5 @@
 package com.example.overview
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.coredomain.CoreDomain
@@ -69,7 +68,7 @@ class OverviewViewModel @Inject constructor(
             val record = ongoingList.random()
             val randomAppUsage =
                 coreDomain.getAllSelectedAppUsage()
-                    .firstOrNull { it.appName == record.appName } ?: FourUsageDomainData()
+                    .firstOrNull { it.appName == record.appName } ?: FourUsageDomainData(appName = "null")
             val analysisData = AnalysisData(
                 appName = randomAppUsage.appName,
                 goalTime = record.goalTime,

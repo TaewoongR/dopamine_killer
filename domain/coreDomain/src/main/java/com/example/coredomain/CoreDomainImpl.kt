@@ -14,11 +14,11 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class CoreDomainImpl @Inject constructor(
-    private val appRepository: AppFetchingInfo,
+    private val appFetchingRepository: AppFetchingInfo,
     private val dailyRepository: DailyRepository,
     private val weeklyRepository: WeeklyRepository,
     private val monthlyRepository: MonthlyRepository,
-    private val selectedAppRepository: SelectedAppRepository
+    private val selectedAppRepository: SelectedAppRepository,
 ) : CoreDomain {
 
     private val mutex = Mutex()
@@ -40,7 +40,7 @@ class CoreDomainImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateSelectedApp(appNameList: List<String>, isSelected: Boolean) {
+    override suspend fun updateInitialSelectedApp(appNameList: List<String>, isSelected: Boolean) {
         Log.d("updateSelectedApp", "updateSelectedApp")
         withContext(Dispatchers.IO) {
             selectedAppRepository.updateSelected(
@@ -50,8 +50,28 @@ class CoreDomainImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateInstalledApp(appNameList: List<String>) {
+    override suspend fun updateInitialInstalledApp(appNameList: List<String>) {
         withContext(Dispatchers.IO) { selectedAppRepository.updateSelected(appNameList) }
+    }
+
+    override suspend fun updateInstalledApp() {
+
+    }
+
+    override suspend fun updateHourlyUsage() {
+
+    }
+
+    override suspend fun updateDailyUsage() {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun updateWeeklyUsage() {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun updateMonthlyUsage() {
+        TODO("Not yet implemented")
     }
 
     override suspend fun deleteUndetectedUsageObj() {
@@ -62,13 +82,9 @@ class CoreDomainImpl @Inject constructor(
         }
     }
 
-    override suspend fun getAllSelectedAppName(): List<String> {
-        return withContext(Dispatchers.IO) { selectedAppRepository.getAllSelected() }
-    }
-
     override suspend fun getAllSelectedAppUsage(): List<FourUsageDomainData> {
         return mutex.withLock {
-            val nameList = withContext(Dispatchers.IO) { getAllSelectedAppName() }
+            val nameList = withContext(Dispatchers.IO) {selectedAppRepository.getAllSelected()}
             val list = mutableListOf<FourUsageDomainData>()
             nameList.forEach {
                 withContext(Dispatchers.IO) {
@@ -88,14 +104,14 @@ class CoreDomainImpl @Inject constructor(
     }
 
     override suspend fun getAppIconForAppSetting(appName: String): Pair<ImageBitmap?, String> {
-        val packageName = appRepository.findAppByName(appName)
+        val packageName = appFetchingRepository.findAppByName(appName)
         if (packageName != "null") {
-            return Pair(appRepository.getAppIcon(appName), appName)
+            return Pair(appFetchingRepository.getAppIcon(appName), appName)
         } else
             return Pair(null, packageName)
     }
 
     override suspend fun getAppIcon(appName: String): ImageBitmap {
-        return appRepository.getAppIcon(appName)
+        return appFetchingRepository.getAppIcon(appName)
     }
 }
