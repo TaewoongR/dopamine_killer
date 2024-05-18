@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="youtube">YouTube</string>
-    <string name="instagram">Instagram</string>
+    <string name="Youtube">youtube</string>
+    <string name="Instagram">instagram</string>
+    <string name="카카오톡">kakaotalk</string>
+    <string name="Naver">naver</string>
 </resources>

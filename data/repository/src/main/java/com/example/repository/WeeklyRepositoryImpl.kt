@@ -6,8 +6,6 @@ import com.example.local.weeklyUsage.WeeklyEntity
 import com.example.service.AppFetchingInfo
 import com.example.service.DateFactoryForData
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -54,7 +52,23 @@ class WeeklyRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun periodicWeeklyUpdate(appWeeklyList: List<Triple<String, String, Int>>) {
+        appWeeklyList.forEach {
+            weeklySource.upsert(
+                WeeklyEntity(
+                    appName = it.first,
+                    date = it.second,
+                    weeklyUsage = it.third
+                )
+            )
+        }
+    }
+
     override suspend fun deleteUndetected() {
         weeklySource.delete()
+    }
+
+    override suspend fun deleteWeekly() {
+        weeklySource.clearAll()
     }
 }

@@ -53,7 +53,22 @@ class MonthlyRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun periodicMonthlyUpdate(appMonthlyList: List<Triple<String, String, Int>>) {
+        appMonthlyList.forEach {
+            monthlySource.upsert(
+                MonthlyEntity(
+                    appName = it.first,
+                    date = it.second,
+                    monthlyUsage = it.third
+                )
+            )
+        }    }
+
     override suspend fun deleteUndetected() {
         monthlySource.delete()
+    }
+
+    override suspend fun deleteMonthly() {
+        monthlySource.clearAll()
     }
 }

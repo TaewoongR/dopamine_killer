@@ -15,4 +15,7 @@ interface MonthlyDAO {
 
     @Upsert
     fun upsert(monthlyEntity: MonthlyEntity)
+
+    @Query("DELETE FROM monthly_usage")
+    fun clearAll()
 }

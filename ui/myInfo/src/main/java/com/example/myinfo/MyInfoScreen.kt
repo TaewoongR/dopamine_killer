@@ -27,7 +27,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.myinfo.utiil.TokenManager
+import com.example.myinfo.api.ApiService
+import com.example.myinfo.util.TokenManager
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 val backgroundColor: Color = Color(android.graphics.Color.parseColor("#EFEFEF"))
 
@@ -106,6 +110,38 @@ fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clickable {
+                        val token = TokenManager.getToken(context)
+                        val username = "현재_사용자_이름" // 실제로 현재 사용자의 이름을 넣어야 합니다.
+
+                        if (token != null) {
+                            // 회원탈퇴 API 호출
+                            val call = ApiService.userApi.deleteUser("Bearer $token", username)
+                            call.enqueue(object : Callback<Map<String, String>> {
+                                override fun onResponse(
+                                    call: Call<Map<String, String>>,
+                                    response: Response<Map<String, String>>
+                                ) {
+                                    if (response.isSuccessful) {
+                                        // 토큰 삭제 및 로그인 화면으로 네비게이션
+                                        navController.navigate("main_screen") { // 대상 루트로 변경하세요
+                                            TokenManager.clearToken(context)
+                                            popUpTo(0) {
+                                                inclusive = true
+                                            }
+                                            launchSingleTop = true
+                                        }
+                                    } else {
+                                        // 실패 처리 (예: 오류 메시지 표시)
+                                    }
+                                }
+
+                                override fun onFailure(call: Call<Map<String, String>>, t: Throwable) {
+                                    // 실패 처리 (예: 네트워크 오류 메시지 표시)
+                                }
+                            })
+                        }
+                    }
                     .height(totalWidth * 0.16f), contentAlignment = Alignment.Center) {
                 Text(
                     text = "계정 탈퇴",

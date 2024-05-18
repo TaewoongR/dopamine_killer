@@ -23,4 +23,7 @@ interface RecordDAO {
 
     @Query("SELECT * FROM record_data")
     fun getAllList(): List<RecordEntity>
+
+    @Query("DELETE FROM record_data")
+    fun clearAll()
 }

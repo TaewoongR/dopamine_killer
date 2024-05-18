@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_Youtube">com.google.android.youtube</string>
+    <string name="app_X">com.twitter.android</string>
+    <string name="app_네이버">com.nhn.android.search</string>
+    <string name="app_네이버_웹툰">com.nhn.android.webtoon</string>
+    <string name="app_Instagram">com.instagram.android</string>
+    <string name="app_카카오톡">com.kakao.talk</string>
+    <string name="app_TikTok">com.ss.android.ugc.trill</string>
+    <string name="app_넷플릭스">com.netflix.mediaclient</string>
+</resources>

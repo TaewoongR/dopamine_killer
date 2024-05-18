@@ -53,4 +53,8 @@ class GoalRepositoryImpl @Inject constructor(
             return list.map { it.asExternalModel() }
         }
     }
+
+    override suspend fun deleteGoal() {
+        recordDao.clearAll()
+    }
 }

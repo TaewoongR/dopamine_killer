@@ -2,8 +2,6 @@ package com.example.local.di
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.example.local.dailyInfo.DailyInfoDAO
-import com.example.local.dailyInfo.DailyInfoEntity
 import com.example.local.dailyUsage.DailyDAO
 import com.example.local.dailyUsage.DailyEntity
 import com.example.local.horulyUsage.HourlyDAO
@@ -21,7 +19,6 @@ import com.example.local.weeklyUsage.WeeklyEntity
 
 @Database(
     entities = [
-        DailyInfoEntity::class,
         DailyEntity::class,
         HourlyEntity::class,
         MonthlyEntity::class,
@@ -30,11 +27,10 @@ import com.example.local.weeklyUsage.WeeklyEntity
         UserEntity::class,
         WeeklyEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class DopamineDatabase : RoomDatabase() {
-    abstract fun dailyInfoDAO(): DailyInfoDAO
     abstract fun dailyDAO(): DailyDAO
     abstract fun hourlyDAO(): HourlyDAO
     abstract fun monthlyDAO(): MonthlyDAO

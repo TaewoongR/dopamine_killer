@@ -27,7 +27,7 @@ class MainViewModel @Inject constructor(
                     list.add(it.appName)
                 }
             }
-            coreDomain.updateInitialSelectedApp(list, true) // 선택된 앱 이름 리스트를 저장
+            coreDomain.updateInitialSelectedApp(list) // 선택된 앱 이름 리스트를 저장
         }
     }
 

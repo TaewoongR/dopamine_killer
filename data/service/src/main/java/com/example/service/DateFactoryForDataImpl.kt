@@ -12,6 +12,17 @@ class DateFactoryForDataImpl @Inject constructor(): DateFactoryForData{
         return Calendar.getInstance().timeInMillis
     }
 
+    override fun returnRightBeforeFixedTime(): Long {
+        val calendar = Calendar.getInstance()
+        calendar.apply {
+            add(Calendar.HOUR_OF_DAY, -1)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        return calendar.timeInMillis
+    }
+
     override fun returnTheDayStart(fromDay: Int): Long {
         val calendar = Calendar.getInstance()
         calendar.apply {
@@ -58,6 +69,12 @@ class DateFactoryForDataImpl @Inject constructor(): DateFactoryForData{
         val calendar = Calendar.getInstance()
         calendar.setTimeInMillis(milliSecDate)
         return calendar.get(Calendar.DAY_OF_WEEK)
+    }
+
+    override fun returnDayOfMonth(milliSecDate: Long): Int {
+        val calendar = Calendar.getInstance()
+        calendar.setTimeInMillis(milliSecDate)
+        return calendar.get(Calendar.DAY_OF_MONTH)
     }
 
     override fun returnLastMonthStart(): Long{
@@ -144,4 +161,30 @@ class DateFactoryForDataImpl @Inject constructor(): DateFactoryForData{
         return calendar.timeInMillis
     }
 
+    override fun getIncludedHourlyMark(startMillis: Long, endMillis: Long): Long? {
+        val calendar = Calendar.getInstance()
+
+        // 두 밀리초 사이가 한시간 이내 인지 확인
+        if (endMillis - startMillis >= 3600000L) { // 3600000 milliseconds = 1 hour
+            return null // 한시간 이외
+        }
+
+        // 인스턴스의 시작 밀리초 설정
+        calendar.timeInMillis = startMillis
+
+        // Move to the next full hour if necessary
+        if (calendar.get(Calendar.MINUTE) != 0 || calendar.get(Calendar.SECOND) != 0 || calendar.get(Calendar.MILLISECOND) != 0) {
+            calendar.add(Calendar.HOUR_OF_DAY, 1)
+            calendar.set(Calendar.MINUTE, 0)
+            calendar.set(Calendar.SECOND, 0)
+            calendar.set(Calendar.MILLISECOND, 0)
+        }
+
+        // If the calculated next full hour is within the end time, return it
+        if (calendar.timeInMillis <= endMillis) {
+            return calendar.timeInMillis
+        }
+
+        return null // No full hour mark within the given timespan
+    }
 }

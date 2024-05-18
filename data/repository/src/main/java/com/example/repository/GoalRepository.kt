@@ -14,4 +14,6 @@ interface GoalRepository {
     suspend fun getOnGoingList():List<RecordData>
 
     suspend fun getAllList():List<RecordData>
+
+    suspend fun deleteGoal()
 }

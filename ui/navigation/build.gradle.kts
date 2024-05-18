@@ -46,7 +46,6 @@ dependencies {
     implementation(project(":domain:coreDomain"))
     implementation(project(":domain:AnalysisDomain"))
     implementation(project(":domain:RecordDomain"))
-    implementation(project(":domain:RecordDomain"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

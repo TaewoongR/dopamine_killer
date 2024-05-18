@@ -15,4 +15,6 @@ class NetworkRepositoryImpl @Inject constructor(
         // 서버에 데이터 PUT
         networkService.saveAppUsage(listOf())
     }
+
+
 }

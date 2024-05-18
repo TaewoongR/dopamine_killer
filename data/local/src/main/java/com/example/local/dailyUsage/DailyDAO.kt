@@ -16,5 +16,6 @@ interface DailyDAO {
     @Upsert
     fun upsert(dailyEntity: DailyEntity)
 
-
+    @Query("DELETE FROM daily_usage")
+    fun clearAll()
 }

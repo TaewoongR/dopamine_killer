@@ -15,4 +15,7 @@ interface WeeklyDAO {
 
     @Upsert
     fun upsert(weeklyEntity: WeeklyEntity)
+
+    @Query("DELETE FROM weekly_usage")
+    fun clearAll()
 }

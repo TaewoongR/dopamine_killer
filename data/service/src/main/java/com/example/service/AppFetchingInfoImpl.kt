@@ -11,6 +11,7 @@ import android.os.PowerManager
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import com.example.data.service.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,40 +22,59 @@ class AppFetchingInfoImpl @Inject constructor(
     private val dateFactory: DateFactoryForData
 ) : AppFetchingInfo{
 
-    override suspend fun getAppNameList(): List<String> {
+    override suspend fun getAppNameList(){
         val packageManager = context.packageManager
-        val apps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
-        return apps.mapNotNull { app ->
+        val apps = packageManager.getInstalledPackages(PackageManager.GET_META_DATA)
+        apps.mapNotNull { app ->
             try {
-                packageManager.getApplicationLabel(app).toString()
+                val appName = packageManager.getApplicationLabel(app.applicationInfo).toString()
+                val packageName = app.packageName
+                Log.d("App Info", "App Name: $appName, Package Name: $packageName")
+                appName
             } catch (e: Exception) {
                 null // 앱 이름을 가져오는데 실패할 경우 null을 반환하여 리스트에 포함시키지 않음
             }
         }
     }
 
-    override suspend fun findAppByName(appName: String): String {
+    override suspend fun getPackageNameBy(appName: String):String {
+        val fields = R.string::class.java.fields // R.string 클래스의 모든 필드를 가져옴
+        val prefix = "app_" // 필터링에 사용할 접두사
+        var packageName = ""
+        for (field in fields) {
+            // 특정 접두사로 시작하는 문자열 리소스만 처리
+            if (field.name.startsWith(prefix)) {
+                val savedAppName = field.name.removePrefix(prefix).replace("_", " ") // 접두사를 제거한 이름
+                if(savedAppName == appName) {
+                    packageName = context.getString(field!!.getInt(null))
+                    break
+                }
+            }
+        }
+        return packageName
+    }
+
+    override suspend fun isAppInstalled(appName: String): String {
+        val packageName = getPackageNameBy(appName)
         val packageManager = context.packageManager
         val packages = packageManager.getInstalledPackages(PackageManager.GET_META_DATA)
         // 패키지 목록을 필터링
         return packages.firstOrNull { pkg ->
             try {
                 val label = packageManager.getApplicationLabel(pkg.applicationInfo).toString()
-                label.contains(appName, ignoreCase = true)
+                label.contains(packageName, ignoreCase = true)
             } catch (e: Exception) {
                 Log.d("error","not found")
                 false
             }
         }?.packageName.toString()   // null일 경우 "null" String반환
-
     }
 
     override suspend fun getAppIcon(appName: String): ImageBitmap {
         return try {
+            val packageName = getPackageNameBy(appName)
             val packageManager = context.packageManager
-            val packageName = findAppByName(appName)
             val appInfo = packageManager.getApplicationInfo(packageName, 0)
-            Log.d("appInfoImpl", packageName)
             val drawable = packageManager.getApplicationIcon(appInfo)
             drawableToImageBitmap(drawable)
         } catch (e: Exception) {
@@ -80,36 +100,20 @@ class AppFetchingInfoImpl @Inject constructor(
         }
     }
 
-    /*
-    override suspend fun getDailyUsage(appName: String, numberAgo: Int): Triple<Int,String,Int> {
-        val usageStatsManager =
-            context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        val startTime = dateFactory.returnTheDayStart(numberAgo)
-        val endTIme = dateFactory.returnTheDayEnd(startTime)
-        val usageStats = usageStatsManager.queryUsageStats(
-            UsageStatsManager.INTERVAL_DAILY,
-            startTime,
-            endTIme
-        )
-
-        val packageName = findAppByName(appName)
-        val appUsage = usageStats.filter { it.packageName == packageName }
-        var totalUsageTime = 0L
-        appUsage.forEach {
-            totalUsageTime += it.totalTimeVisible
-        }
-        Log.d("daily Hour", "$startTime ~ $endTIme : $totalUsageTime")
-        Log.d("time", dateFactory.returnStringDate(startTime))
-        return Triple(((totalUsageTime / 1000 / 60).toInt()), dateFactory.returnStringDate(startTime),dateFactory.returnDayOfWeek(startTime) )
-    }
-     */
-
-    override suspend fun getHourlyUsage(appName: String, numberAgo: Int): Triple<List<Int>, String, Int> {
+    override suspend fun getHourlyUsage(appName: String, numberAgo: Int, isInitialSetting: Boolean): Triple<List<Int>, String, Int> {
         val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-        val startTime = dateFactory.returnTheDayStart(numberAgo)
-        val endTime = dateFactory.returnTheDayEnd(startTime)
-        val packageName = findAppByName(appName)
+        val startTime = if(numberAgo == 0 && !isInitialSetting) {
+            dateFactory.returnRightBeforeFixedTime()
+        }else{
+            dateFactory.returnTheDayStart(numberAgo)
+        }
+        val endTime = if(numberAgo == 0 && !isInitialSetting) {
+            startTime + (1000 * 60 * 60 * 2)        // 한시간 후
+            }else{
+            dateFactory.returnTheDayEnd(startTime)
+        }
+        val packageName = getPackageNameBy(appName)
 
         val usageEvents = usageStatsManager.queryEvents(startTime, endTime)
 
@@ -132,9 +136,15 @@ class AppFetchingInfoImpl @Inject constructor(
                     }
                     UsageEvents.Event.ACTIVITY_PAUSED -> {
                         if (isAppInForeground) {
-                            val endHour = (event.timeStamp - startTime) / (1000 * 60 * 60)
-                            if (endHour < 24) {
-                                hourlyUsage[endHour.toInt()] += (event.timeStamp - lastEventTime)
+                            val isInclude = dateFactory.getIncludedHourlyMark(lastEventTime, event.timeStamp)
+                            if(isInclude != null){
+                                val beforeHour = dateFactory.returnTheHour(lastEventTime)
+                                val afterHour = dateFactory.returnTheHour(event.timeStamp)
+                                hourlyUsage[beforeHour] += isInclude - lastEventTime
+                                hourlyUsage[afterHour] += event.timeStamp - isInclude
+                            }else{
+                                val arrHour = dateFactory.returnTheHour(event.timeStamp)
+                                hourlyUsage[arrHour] += (event.timeStamp - lastEventTime)
                             }
                             isAppInForeground = false
                         }
@@ -145,16 +155,20 @@ class AppFetchingInfoImpl @Inject constructor(
 
         //
         if (isAppInForeground && powerManager.isInteractive) {
-            val endHour = (endTime - startTime) / (1000 * 60 * 60)
-            if (endHour < 24) {
-                hourlyUsage[endHour.toInt()] += (endTime - lastEventTime)
+            if(numberAgo == 0 && !isInitialSetting){
+                val endHour = dateFactory.returnTheHour(endTime)
+                hourlyUsage[endHour] += (endTime - lastEventTime)
+            }else{
+                val endHour = ((endTime - startTime) / (1000 * 60 )).toInt()
+                if (endHour < 24) {
+                    hourlyUsage[endHour] += (endTime - lastEventTime)
+                }
             }
         }
 
-        Log.d("hourly Usage", "$startTime ~ $endTime : ${hourlyUsage.map { it / 1000 / 60 }}")
-        Log.d("time", dateFactory.returnStringDate(startTime))
+        Log.d("hourly Usage", "$packageName : $startTime ~ $endTime : ${hourlyUsage.map { it / 1000 }}")
 
-        val hourlyUsageInMinutes = hourlyUsage.map { (it / 1000 / 60).toInt() }
+        val hourlyUsageInMinutes = hourlyUsage.map { (it / 1000 ).toInt() }
 
         return Triple(hourlyUsageInMinutes, dateFactory.returnStringDate(startTime), dateFactory.returnDayOfWeek(startTime))
     }
@@ -164,7 +178,7 @@ class AppFetchingInfoImpl @Inject constructor(
         val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
         val startTime = dateFactory.returnTheDayStart(numberAgo)
         val endTime = dateFactory.returnTheDayEnd(startTime)
-        val packageName = findAppByName(appName)
+        val packageName = getPackageNameBy(appName)
 
         // Query usage events for the given time range
         val usageEvents = usageStatsManager.queryEvents(startTime, endTime)
@@ -202,7 +216,7 @@ class AppFetchingInfoImpl @Inject constructor(
         Log.d("daily Hour", "$startTime ~ $endTime : $totalUsageTime")
         Log.d("time", dateFactory.returnStringDate(startTime))
 
-        return Triple((totalUsageTime / 1000 / 60).toInt(), dateFactory.returnStringDate(startTime), dateFactory.returnDayOfWeek(startTime))
+        return Triple((totalUsageTime / 1000 ).toInt(), dateFactory.returnStringDate(startTime), dateFactory.returnDayOfWeek(startTime))
     }
 
     override suspend fun getWeeklyAvgUsage(appName: String, numberAgo: Int): Pair<Int,String> {
@@ -216,14 +230,14 @@ class AppFetchingInfoImpl @Inject constructor(
             endTIme
         )
 
-        val packageName = findAppByName(appName)
+        val packageName = getPackageNameBy(appName)
         val appUsage = usageStats.filter { it.packageName == packageName }
         var totalUsageTime = 0L
         appUsage.forEach {
             totalUsageTime += it.totalTimeInForeground
         }
         Log.d("weekly Hour", "$startTime ~ $endTIme : $totalUsageTime")
-        return Pair((totalUsageTime / 7 / 1000 / 60).toInt(),dateFactory.returnStringDate(startTime))
+        return Pair((totalUsageTime / 7 / 1000 ).toInt(),dateFactory.returnStringDate(startTime))
     }
 
     override suspend fun getMonthlyAvgUsage(appName: String, numberAgo: Int): Pair<Int, String> {
@@ -236,7 +250,7 @@ class AppFetchingInfoImpl @Inject constructor(
             dateFactory.returnMonthEndFrom(numberAgo)
         )
 
-        val packageName = findAppByName(appName)
+        val packageName = getPackageNameBy(appName)
         val appUsage = usageStats.filter { it.packageName == packageName }
         var totalUsageTime = 0L
         appUsage.forEach {
@@ -244,7 +258,7 @@ class AppFetchingInfoImpl @Inject constructor(
         }
         val totalDays = dateFactory.returnLastMonthEndDate(dateFactory.returnMonthStartFrom(numberAgo))
         Log.d("month Hour", totalUsageTime.toString())
-        return Pair((totalUsageTime / totalDays / 1000 / 60).toInt(),dateFactory.returnStringDate(monthStartFromTime))
+        return Pair((totalUsageTime / totalDays / 1000 ).toInt(),dateFactory.returnStringDate(monthStartFromTime))
     }
 }
 

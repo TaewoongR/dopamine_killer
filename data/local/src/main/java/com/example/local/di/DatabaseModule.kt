@@ -3,7 +3,6 @@ package com.example.local.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.local.dailyInfo.DailyInfoDAO
 import com.example.local.dailyUsage.DailyDAO
 import com.example.local.horulyUsage.HourlyDAO
 import com.example.local.monthlyUsage.MonthlyDAO
@@ -30,11 +29,6 @@ object DataModule {
             DopamineDatabase::class.java,
             "DopamineData.db"
         ).fallbackToDestructiveMigration().build()
-    }
-
-    @Provides
-    fun provideDailyInfoDAO(database: DopamineDatabase): DailyInfoDAO {
-        return database.dailyInfoDAO()
     }
 
     @Provides

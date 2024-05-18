@@ -93,6 +93,6 @@ class OverviewViewModel @Inject constructor(
                 }
             )
         }
+        viewModelScope.launch { coreDomain.updateHourlyDailyUsage() }
     }
-
 }

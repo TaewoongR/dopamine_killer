@@ -7,32 +7,15 @@ import androidx.room.Entity
 data class HourlyEntity(
     val appName: String,
     val date: String,
-    val dayOfWeek: Int = 0, // Calendar 라이브러리 일 = 1, 토 = 7
-    val hour00: Int,
-    val hour01: Int,
-    val hour02: Int,
-    val hour03: Int,
-    val hour04: Int,
-    val hour05: Int,
-    val hour06: Int,
-    val hour07: Int,
-    val hour08: Int,
-    val hour09: Int,
-    val hour10: Int,
-    val hour11: Int,
-    val hour12: Int,
-    val hour13: Int,
-    val hour14: Int,
-    val hour15: Int,
-    val hour16: Int,
-    val hour17: Int,
-    val hour18: Int,
-    val hour19: Int,
-    val hour20: Int,
-    val hour21: Int,
-    val hour22: Int,
-    val hour23: Int,
+    val dayOfWeek: Int,
+    val hour00: Int = 0, val hour01: Int = 0, val hour02: Int = 0, val hour03: Int = 0,
+    val hour04: Int = 0, val hour05: Int = 0, val hour06: Int = 0, val hour07: Int = 0,
+    val hour08: Int = 0, val hour09: Int = 0, val hour10: Int = 0, val hour11: Int = 0,
+    val hour12: Int = 0, val hour13: Int = 0, val hour14: Int = 0, val hour15: Int = 0,
+    val hour16: Int = 0, val hour17: Int = 0, val hour18: Int = 0, val hour19: Int = 0,
+    val hour20: Int = 0, val hour21: Int = 0, val hour22: Int = 0, val hour23: Int = 0
 )
+
 
 fun HourlyEntity.asExternalModel() = HourlyUsage(
     appName = appName,
