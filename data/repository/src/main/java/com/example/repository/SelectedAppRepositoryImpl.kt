@@ -1,5 +1,6 @@
 package com.example.repository
 
+import android.util.Log
 import com.example.local.selectedApp.SelectedAppDAO
 import com.example.local.selectedApp.SelectedAppEntity
 import com.example.service.AppFetchingInfo
@@ -38,6 +39,7 @@ class SelectedAppRepositoryImpl @Inject constructor(
     override suspend fun updatedInstalled(appNameList: List<String>, isInitial: Boolean) {
         appNameList.forEach {
             val packageName = appFetchingInfo.getPackageNameBy(it)
+            Log.d("updateInstalled", "$it : $packageName")
             if(isInitial || !selectedAppDAO.isEntityExist(it)) {
                 selectedAppDAO.upsert(
                     SelectedAppEntity(

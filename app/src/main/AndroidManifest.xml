@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.dopamine_killer">
 
     <!--UsageStatsManager 접근 허용-->
     <uses-permission-sdk-23 android:name="android.permission.PACKAGE_USAGE_STATS" />
@@ -8,6 +9,9 @@
     <uses-permission-sdk-23 android:name="android.permission.QUERY_ALL_PACKAGES"/>
 
     <uses-permission-sdk-23 android:name="android.permission.INTERNET"/>
+
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+
 
     <application
         android:name=".Application"
@@ -32,6 +36,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!--WorkManager 허용-->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="remove">
+        </provider>
     </application>
 
 </manifest>

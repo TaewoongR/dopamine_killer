@@ -98,7 +98,6 @@ class DailyRepositoryImpl @Inject constructor(
             withContext(Dispatchers.IO) {
                 // 기존의 HourlyEntity를 데이터베이스에서 가져오기
                 val existingHourlyEntity = hourlySource.getHourlyEntity(app, date)
-                val savedHour = currentHour - 1
                 // 새로운 HourlyEntity를 생성하고 현재 시간대 필드 업데이트
                 val updatedHourlyEntity = when (currentHour) {
                     0 -> existingHourlyEntity.copy(

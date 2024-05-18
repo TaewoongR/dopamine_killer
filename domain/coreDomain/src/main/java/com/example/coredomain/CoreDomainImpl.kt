@@ -51,15 +51,12 @@ class CoreDomainImpl @Inject constructor(
     override suspend fun updatePeriodicInstalledApp() {
         withContext(Dispatchers.IO) {
             val appNameList = mutableListOf<String>()
+            val prefix = "app_" // 필터링에 사용할 접두사
             val fields = R.string::class.java.fields // R.string 클래스의 모든 필드를 가져옴
             for (field in fields) {
-                try {
-                    val packageName = appFetchingRepository.isAppInstalled(field.name)
-                    if(packageName != "null"){
-                        appNameList.add(field.name)
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace() // 예외 처리
+                if (field.name.startsWith(prefix)) {
+                    val savedAppName = field.name.removePrefix(prefix).replace("_", " ") // 접두사를 제거한 이름
+                    appNameList.add(savedAppName)
                 }
             }
             selectedAppRepository.updatedInstalled(appNameList, false)

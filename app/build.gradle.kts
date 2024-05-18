@@ -72,6 +72,7 @@ dependencies {
     implementation(project(":ui:analysis"))
     implementation(project(":ui:navigation"))
     implementation(project(":domain:coreDomain"))
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -84,6 +85,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.android.testing)
     ksp(libs.hilt.compiler)
+    ksp(libs.androidx.hilt.compiler)
 
     //compose viewmodel
     implementation(libs.androidx.lifecycle.runtimeCompose)
@@ -93,4 +95,5 @@ dependencies {
 
     //workmanager
     implementation(libs.androidx.work)
+    implementation(libs.androidx.hilt.work)
 }

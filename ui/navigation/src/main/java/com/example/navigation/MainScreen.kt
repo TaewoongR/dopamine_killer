@@ -38,8 +38,8 @@ fun MainScreen() {
 
     // LaunchedEffect를 사용하여 토큰 상태를 다시 확인하고 적절한 화면으로 네비게이션
     LaunchedEffect(Unit) {
-        PreferenceUtils.resetSetup(context)         // 테스트 재시작시 필요
-        TokenManager.clearToken(context)            // 테스트 재시작시 필요
+        //PreferenceUtils.resetSetup(context)         // 테스트 재시작시 필요
+        //TokenManager.clearToken(context)            // 테스트 재시작시 필요
         val currentToken = TokenManager.getToken(context)
         if (currentToken != null) {
             navController.navigate("bot_nav_bar") {
