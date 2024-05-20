@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import kotlinx.coroutines.launch
 
 @Composable
@@ -248,7 +247,7 @@ fun setButton(totalWidth: Dp, viewModel: GoalSettingViewModel, uiState: GoalSett
                 scope.launch {
                     viewModel.saveAppSettings(uiState.goalList)  // ViewModel에 전체 상태 전송
                     navController.navigate("bot_nav_bar") { // 대상 루트로 변경하세요
-                        popUpTo(navController.graph.findStartDestination().id) {
+                        popUpTo(0) {
                             inclusive = true
                         }
                         launchSingleTop = true

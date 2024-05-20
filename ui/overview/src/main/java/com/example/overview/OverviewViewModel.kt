@@ -1,5 +1,6 @@
 package com.example.overview
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.coredomain.CoreDomain
@@ -65,6 +66,7 @@ class OverviewViewModel @Inject constructor(
             }
 
             // appsUsageList에서 랜덤한 항목 하나를 선택하고 매핑
+            Log.d("loadData", "Ongoing list size: ${ongoingList.size}")
             val record = ongoingList.random()
             val randomAppUsage =
                 coreDomain.getAllSelectedAppUsage()

@@ -1,4 +1,4 @@
-package com.example.navigation.initialSetting
+package com.example.myinfo
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -42,26 +42,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.myinfo.AppSettingData
-import com.example.myinfo.SelectedAppEditViewModel
-import com.example.navigation.MainViewModel
 import kotlinx.coroutines.launch
 
-val backgroundColor: Color = Color(android.graphics.Color.parseColor("#EFEFEF"))
 val keyColor: Color = Color(android.graphics.Color.parseColor("#FF9A62"))
 
 @Composable
-fun AppSettingScreen(
+fun SelectedAppEditScreen(
     navController: NavController,
-    viewModel: SelectedAppEditViewModel = hiltViewModel(),
-    mainViewModel: MainViewModel = hiltViewModel()
+    viewModel: SelectedAppEditViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    com.example.myinfo.appSelection(uiState, viewModel, navController)
+    appSelection(uiState, viewModel, navController)
 }
 
 @Composable
-fun appSelection(uiState: AppSettingUiState, viewModel: SelectedAppEditViewModel, navController: NavController) {
+fun appSelection(uiState: SelectedAppEditUiState, viewModel: SelectedAppEditViewModel, navController: NavController) {
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val totalWidth = screenWidth * 0.85f
@@ -175,7 +170,7 @@ fun ToggleButton(totalWidth: Dp, isButtonEnabled: Boolean, onToggleChange: (Bool
 }
 
 @Composable
-fun setButton(totalWidth: Dp, viewModel: SelectedAppEditViewModel, uiState: AppSettingUiState, navController: NavController){
+fun setButton(totalWidth: Dp, viewModel: SelectedAppEditViewModel, uiState: SelectedAppEditUiState, navController: NavController){
     val scope = rememberCoroutineScope()
     Box(
         modifier = Modifier

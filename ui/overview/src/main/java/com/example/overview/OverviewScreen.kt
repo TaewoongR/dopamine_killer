@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,9 +42,12 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 
@@ -99,7 +103,7 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
 
                 val percent = overviewUiState.analysisData.dailyTime.toFloat() / overviewUiState.analysisData.goalTime.toFloat()
 
-                DonutGraph(percent = percent, modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState.analysisData)
+                DonutGraph(percent = percent, modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState)
                 Spacer(modifier = Modifier.width(10.dp))
                 barGraphOverview(modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState.analysisData)
             }
@@ -119,7 +123,7 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
 }
 
 @Composable
-fun DonutGraph(percent: Float, modifier: Modifier, size: Dp, analysisData: AnalysisData) {
+fun DonutGraph(percent: Float, modifier: Modifier, size: Dp, overviewUiState: OverviewUiState) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val squareSize = (size.value * 0.24f)// 아이콘 크기 설정
 
@@ -134,8 +138,8 @@ fun DonutGraph(percent: Float, modifier: Modifier, size: Dp, analysisData: Analy
             onDraw = {
                 val boxSize = Size(size.toPx(), size.toPx())
                 val center = Offset(boxSize.width / 2, boxSize.height / 2)
-                val radius = (boxSize.minDimension / 2) * 0.6f // 도넛 반지름
-                val strokeWidth = screenWidth.toPx() * 0.08f
+                val radius = (boxSize.minDimension / 2) * 0.7f // 도넛 반지름
+                val strokeWidth = screenWidth.toPx() * 0.06f
                 val startAngle = 0f // 3시 방향 각도 시작
                 val sweepAngle = minOf(percent, 1f) * 360f
 
@@ -162,12 +166,18 @@ fun DonutGraph(percent: Float, modifier: Modifier, size: Dp, analysisData: Analy
                 )
             }
         )
-        IconImage(
-            modifier = Modifier,
-            imageBitmap = analysisData.appIcon,
-            size = squareSize.dp,
-            cornerRadius = 8.dp
-        )
+        Column (horizontalAlignment = Alignment.CenterHorizontally) {
+            IconImage(
+                modifier = Modifier,
+                imageBitmap = overviewUiState.analysisData.appIcon,
+                size = squareSize.dp,
+                cornerRadius = 8.dp
+            )
+            val minute = overviewUiState.recordList.firstOrNull {
+                it.appName == overviewUiState.analysisData.appName
+            }?.goalTime.toString()
+            Text(text = "${minute}분", style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 16.sp))
+        }
     }
 }
 

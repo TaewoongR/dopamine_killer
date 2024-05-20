@@ -8,10 +8,11 @@ plugins {
 
 android{
     compileSdk = 34
-    namespace = "com.example.local"
+    namespace = "com.example.network"
 
     defaultConfig {
         minSdk = 29
+        targetSdk = 34
     }
 
     buildTypes {
@@ -53,6 +54,8 @@ dependencies {
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.kotlin.serialization)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.gson)
 
     //okhttp
     implementation(libs.okhttp.logging)

@@ -24,12 +24,10 @@ class Application : Application(), Configuration.Provider {
             .setWorkerFactory(workerFactory)
             .build()
 
-
     override fun onCreate() {
         super.onCreate()
 
-        // Hilt가 자동으로 WorkManager를 초기화
-
+        // Hilt가 WorkManager를 자동으로 초기화
         // 정시에 반복 작업 예약
         scheduleHourlyDailyUsageUpdate()
         scheduleWeeklyUsageUpdate()
@@ -45,7 +43,7 @@ class Application : Application(), Configuration.Provider {
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "HourlyDailyUsageUpdate",
-            ExistingPeriodicWorkPolicy.UPDATE,
+            ExistingPeriodicWorkPolicy.KEEP,  // 중복 예약 방지
             hourlyWorkRequest
         )
     }
@@ -60,7 +58,7 @@ class Application : Application(), Configuration.Provider {
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "WeeklyUsageUpdate",
-            ExistingPeriodicWorkPolicy.UPDATE,
+            ExistingPeriodicWorkPolicy.KEEP,  // 중복 예약 방지
             weeklyWorkRequest
         )
     }

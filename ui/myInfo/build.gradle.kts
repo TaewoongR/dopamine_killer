@@ -11,6 +11,7 @@ android{
 
     defaultConfig {
         minSdk = 29
+        targetSdk = 34
     }
 
     compileOptions {
@@ -40,6 +41,7 @@ dependencies {
     implementation(project(":data:local"))
     implementation(project(":data:repository"))
     implementation(project(":ui:service"))
+    implementation(project(":domain:coreDomain"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

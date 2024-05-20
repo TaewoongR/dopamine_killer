@@ -46,7 +46,7 @@ fun MainScreen() {
                 popUpTo(0) { inclusive = true }
             }
         } else {
-            navController.navigate("auth_selection_route") {
+            navController.navigate("permission_screen") {
                 popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
             }
         }

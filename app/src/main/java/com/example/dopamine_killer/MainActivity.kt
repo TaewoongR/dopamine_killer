@@ -45,4 +45,16 @@ class MainActivity : ComponentActivity() {
             updateHourlyDailyRequest
         )
     }
+
+    private fun schedulePostNetworkHourly() {
+        val updateNetworkHourlyRequest = OneTimeWorkRequestBuilder<CoreWorker>()
+            .setInputData(workDataOf("TASK_TYPE" to "POST_NETWORK_HOURLY"))
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniqueWork(
+            "PostNetworkHourly",
+            ExistingWorkPolicy.REPLACE,
+            updateNetworkHourlyRequest
+        )
+    }
 }

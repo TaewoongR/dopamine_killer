@@ -1,11 +1,10 @@
-package com.example.navigation.initialSetting
+package com.example.myinfo
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.coredomain.CoreDomain
-import com.example.myinfo.AppSettingData
-import com.example.navigation.R
+import com.example.local.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,19 +14,18 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AppSettingViewModel @Inject constructor(
+class SelectedAppEditViewModel @Inject constructor(
     private val coreDomain: CoreDomain,
     @ApplicationContext val context: Context
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(AppSettingUiState())
-    val uiState: StateFlow<AppSettingUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(SelectedAppEditUiState())
+    val uiState: StateFlow<SelectedAppEditUiState> = _uiState.asStateFlow()
 
     init {
         updateUiState()
     }
 
     private fun updateUiState() {
-        //viewModelScope.launch { coreDomain.clearAllDatabase() } // 테스트 시 데이터베이스 초기화
         val appNameList = mutableListOf<String>()
         viewModelScope.launch {
             val appObjectList = mutableListOf<AppSettingData>()
@@ -50,7 +48,7 @@ class AppSettingViewModel @Inject constructor(
                 }
             }
             // 업데이트된 appList로 uiState 업데이트
-            _uiState.value = AppSettingUiState(appList = appObjectList.toList())
+            _uiState.value = SelectedAppEditUiState(appList = appObjectList.toList())
         }
         viewModelScope.launch { coreDomain.updateInitialInstalledApp(appNameList) }
         viewModelScope.launch { coreDomain.initialUpdate(appNameList) }

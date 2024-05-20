@@ -3,7 +3,7 @@ package com.example.navigation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.coredomain.CoreDomain
-import com.example.navigation.initialSetting.AppSettingData
+import com.example.myinfo.AppSettingData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

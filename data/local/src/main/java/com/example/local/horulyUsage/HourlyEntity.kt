@@ -15,34 +15,3 @@ data class HourlyEntity(
     val hour16: Int = 0, val hour17: Int = 0, val hour18: Int = 0, val hour19: Int = 0,
     val hour20: Int = 0, val hour21: Int = 0, val hour22: Int = 0, val hour23: Int = 0
 )
-
-
-fun HourlyEntity.asExternalModel() = HourlyUsage(
-    appName = appName,
-    date = date,
-    dayOfWeek = dayOfWeek,
-    hour00 = hour00,
-    hour01 = hour01,
-    hour02 = hour02,
-    hour03 = hour03,
-    hour04 = hour04,
-    hour05 = hour05,
-    hour06 = hour06,
-    hour07 = hour07,
-    hour08 = hour08,
-    hour09 = hour09,
-    hour10 = hour10,
-    hour11 = hour11,
-    hour12 = hour12,
-    hour13 = hour13,
-    hour14 = hour14,
-    hour15 = hour15,
-    hour16 = hour16,
-    hour17 = hour17,
-    hour18 = hour18,
-    hour19 = hour19,
-    hour20 = hour20,
-    hour21 = hour21,
-    hour22 = hour22,
-    hour23 = hour23,
-)

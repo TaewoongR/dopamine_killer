@@ -18,4 +18,6 @@ interface CoreDomain {
     suspend fun getAppIconForAppSetting(appName: String): ImageBitmap?
     suspend fun getAppIcon(appName: String): ImageBitmap
     suspend fun clearAllDatabase()
+
+    suspend fun postNetworkHourly()
 }

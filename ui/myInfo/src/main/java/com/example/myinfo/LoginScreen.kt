@@ -48,8 +48,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.myInfo.R
-import com.example.myinfo.api.ApiService
+import com.example.local.R
+import com.example.myinfo.api.LoginApiService
 import com.example.myinfo.api.UserLogin
 import com.example.myinfo.util.TokenManager
 import retrofit2.Call
@@ -99,7 +99,7 @@ fun LoginScreen(navController: NavController, navigateToMainScreen: () -> Unit) 
                 // 로그인 로직 처리
                 isLoading = true
                 val userLogin = UserLogin(username, password)
-                ApiService.userApi.loginUser(userLogin).enqueue(object : Callback<Map<String, String>> {
+                LoginApiService.userApi.loginUser(userLogin).enqueue(object : Callback<Map<String, String>> {
                     override fun onResponse(call: Call<Map<String, String>>, response: Response<Map<String, String>>) {
                         isLoading = false
                         if (response.isSuccessful && response.body() != null) {

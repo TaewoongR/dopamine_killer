@@ -7,10 +7,11 @@ plugins {
 
 android{
     compileSdk = 34
-    namespace = "com.example.local"
+    namespace = "com.example.coreDomain"
 
     defaultConfig {
         minSdk = 29
+        targetSdk = 34
     }
 
     compileOptions {

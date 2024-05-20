@@ -32,7 +32,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.myinfo.api.ApiService
+import com.example.myinfo.api.LoginApiService
 import com.example.myinfo.api.UserSignup
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -228,7 +228,7 @@ fun SignUpScreen(navController: NavController) {
                     gender = gender,
                     job = job
                 )
-                ApiService.userApi.signupUser(userSignup).enqueue(object :
+                LoginApiService.userApi.signupUser(userSignup).enqueue(object :
                     Callback<Map<String, String>> {
                     override fun onResponse(call: Call<Map<String, String>>, response: Response<Map<String, String>>) {
                         isLoading = false

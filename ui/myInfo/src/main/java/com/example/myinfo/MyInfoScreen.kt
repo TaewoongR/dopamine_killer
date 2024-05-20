@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.myinfo.api.ApiService
+import com.example.myinfo.api.LoginApiService
 import com.example.myinfo.util.TokenManager
 import retrofit2.Call
 import retrofit2.Callback
@@ -78,6 +78,21 @@ fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clickable {
+                        navController.navigate("main_screen")
+                    }
+                    .height(totalWidth * 0.16f),
+                contentAlignment = Alignment.Center) {
+                Text(
+                    text = "앱 선택 수정",
+                    textAlign = TextAlign.Center,
+                    style = TextStyle(fontSize = 16.sp)
+                )
+            }
+            HorizontalDivider(color = Color.LightGray, thickness = 0.6.dp, modifier = Modifier.width(totalWidth * 0.8f))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
                     .height(totalWidth * 0.16f),
                 contentAlignment = Alignment.Center) {
                 Text(
@@ -91,7 +106,7 @@ fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        navController.navigate("main_screen") { // 대상 루트로 변경하세요
+                        navController.navigate("main_screen") {
                             TokenManager.clearToken(context)
                             popUpTo(0) {
                                 inclusive = true
@@ -116,7 +131,7 @@ fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController) {
 
                         if (token != null) {
                             // 회원탈퇴 API 호출
-                            val call = ApiService.userApi.deleteUser("Bearer $token", username)
+                            val call = LoginApiService.userApi.deleteUser("Bearer $token", username)
                             call.enqueue(object : Callback<Map<String, String>> {
                                 override fun onResponse(
                                     call: Call<Map<String, String>>,
