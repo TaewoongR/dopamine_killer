@@ -1,9 +1,7 @@
 package com.example.repository
 
 import com.example.local.record.RecordDAO
-import com.example.local.record.RecordData
 import com.example.local.record.RecordEntity
-import com.example.local.record.asExternalModel
 import com.example.service.DateFactoryForData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -42,16 +40,12 @@ class GoalRepositoryImpl @Inject constructor(
         recordDao.failGoal(appName, date)
     }
 
-    override suspend fun getOnGoingList(): List<RecordData> {
-        val list = recordDao.getOnGoingList()
-        return list.map { it.asExternalModel() }
+    override suspend fun getOnGoingList(): List<RecordEntity> {
+        return recordDao.getOnGoingList()
     }
 
-    override suspend fun getAllList(): List<RecordData> {
-        mutex.withLock {
-            val list = recordDao.getAllList()
-            return list.map { it.asExternalModel() }
-        }
+    override suspend fun getAllList(): List<RecordEntity> {
+        return recordDao.getAllList()
     }
 
     override suspend fun deleteGoal() {

@@ -5,6 +5,7 @@ import com.example.local.R
 import com.example.repository.DailyRepository
 import com.example.repository.GoalRepository
 import com.example.repository.MonthlyRepository
+import com.example.repository.NetworkRepository
 import com.example.repository.SelectedAppRepository
 import com.example.repository.WeeklyRepository
 import com.example.service.AppFetchingInfo
@@ -22,7 +23,8 @@ class CoreDomainImpl @Inject constructor(
     private val monthlyRepository: MonthlyRepository,
     private val selectedAppRepository: SelectedAppRepository,
     private val goalRepository: GoalRepository,
-    private val dateFactory: DateFactoryForData
+    private val dateFactory: DateFactoryForData,
+    private val networkRepository: NetworkRepository
 ) : CoreDomain {
 
     private val mutex = Mutex()
@@ -148,5 +150,9 @@ class CoreDomainImpl @Inject constructor(
             goalRepository.deleteGoal()
             selectedAppRepository.deleteSelected()
         }
+    }
+
+    override suspend fun postNetworkHourly() {
+        networkRepository.updateEntireNetworkHourly()
     }
 }

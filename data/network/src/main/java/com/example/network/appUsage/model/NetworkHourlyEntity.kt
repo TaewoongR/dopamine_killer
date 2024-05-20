@@ -4,8 +4,8 @@ import com.example.local.horulyUsage.HourlyEntity
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class NetworkAppUsageEntity(
-    val id: String,
+data class NetworkHourlyEntity(
+    val userName: String = "testing",
     val appName: String,
     val date: String,
     val dayOfWeek: Int = 0, // Calendar 라이브러리 일 = 1, 토 = 7
@@ -35,7 +35,38 @@ data class NetworkAppUsageEntity(
     val hour23: Int,
 )
 
-fun NetworkAppUsageEntity.asEntity() = HourlyEntity(
+fun NetworkHourlyEntity.asEntity() = HourlyEntity(
+    appName = appName,
+    date = date,
+    dayOfWeek = dayOfWeek,
+    hour00 = hour00,
+    hour01 = hour01,
+    hour02 = hour02,
+    hour03 = hour03,
+    hour04 = hour04,
+    hour05 = hour05,
+    hour06 = hour06,
+    hour07 = hour07,
+    hour08 = hour08,
+    hour09 = hour09,
+    hour10 = hour10,
+    hour11 = hour11,
+    hour12 = hour12,
+    hour13 = hour13,
+    hour14 = hour14,
+    hour15 = hour15,
+    hour16 = hour16,
+    hour17 = hour17,
+    hour18 = hour18,
+    hour19 = hour19,
+    hour20 = hour20,
+    hour21 = hour21,
+    hour22 = hour22,
+    hour23 = hour23,
+)
+
+fun HourlyEntity.asNetworkHourlyEntity() = NetworkHourlyEntity(
+    userName = "testing",
     appName = appName,
     date = date,
     dayOfWeek = dayOfWeek,

@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.myinfo.api.ApiService
+import com.example.myinfo.api.LoginApiService
 import com.example.myinfo.util.TokenManager
 import retrofit2.Call
 import retrofit2.Callback
@@ -116,7 +116,7 @@ fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController) {
 
                         if (token != null) {
                             // 회원탈퇴 API 호출
-                            val call = ApiService.userApi.deleteUser("Bearer $token", username)
+                            val call = LoginApiService.userApi.deleteUser("Bearer $token", username)
                             call.enqueue(object : Callback<Map<String, String>> {
                                 override fun onResponse(
                                     call: Call<Map<String, String>>,

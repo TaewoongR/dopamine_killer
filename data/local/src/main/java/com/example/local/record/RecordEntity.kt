@@ -11,11 +11,3 @@ data class RecordEntity(
     val howLong: Int = 0,
     val onGoing: Boolean = true
 )
-
-fun RecordEntity.asExternalModel() = RecordData(
-    appName = appName,
-    date = date,
-    goalTime = goalTime,
-    howLong = howLong,
-    onGoing = onGoing
-)
