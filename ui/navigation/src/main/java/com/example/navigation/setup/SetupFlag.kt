@@ -1,8 +1,8 @@
-package com.example.navigation.util
+package com.example.navigation.setup
 
 import android.content.Context
 
-object PreferenceUtils {
+object SetupFlag {
 
     private const val INITIAL_SETUP = "dopamine_killer_prefs"
     private const val SETUP_COMPLETE_KEY = "SetupComplete"

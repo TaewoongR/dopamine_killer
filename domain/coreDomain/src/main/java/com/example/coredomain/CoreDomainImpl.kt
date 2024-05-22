@@ -132,7 +132,7 @@ class CoreDomainImpl @Inject constructor(
     }
 
     override suspend fun getAppIconForAppSetting(appName: String): ImageBitmap?{
-        if (appFetchingRepository.isAppInstalled(appFetchingRepository.getPackageNameBy(appName)) != "null") {
+        if (appFetchingRepository.isAppInstalled(appFetchingRepository.getPackageNameBy(appName))) {
             return appFetchingRepository.getAppIcon(appName)
         } else
             return null

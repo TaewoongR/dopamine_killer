@@ -40,11 +40,11 @@ class CoreWorker @AssistedInject constructor(
                     }
                     "UPDATE_INSTALLED_APP" -> {
                         Log.d(TAG, "Updating installed apps")
-                        updateInstalledApp()
-                        coreDomain.postNetworkHourly()
+                        coreDomain.updatePeriodicInstalledApp()
                     }
                     "POST_NETWORK_HOURLY" -> {
                         Log.d(TAG, "Posting network hourly")
+                        coreDomain.postNetworkHourly()
                     }
                     else -> {
                         Log.d(TAG, "Executing default task")

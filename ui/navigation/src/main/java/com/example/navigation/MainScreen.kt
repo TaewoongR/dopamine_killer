@@ -7,31 +7,28 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.local.user.UserTokenStore
 import com.example.myinfo.AuthSelectionScreen
 import com.example.myinfo.LoginScreen
 import com.example.myinfo.SignUpScreen
-import com.example.myinfo.util.TokenManager
 import com.example.navigation.botNav.BotNavBar
 import com.example.navigation.initialSetting.AppSettingScreen
 import com.example.navigation.initialSetting.GoalSettingScreen
 import com.example.navigation.initialSetting.PermissionScreen
-import com.example.navigation.util.PreferenceUtils
+import com.example.navigation.setup.SetupFlag
 
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
     val context = LocalContext.current
-    val mainViewModel: MainViewModel = hiltViewModel()
 
     val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
     val mode = appOps.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), context.packageName)
     val hasPermission = remember { mutableStateOf(false) }
-    var token = remember { mutableStateOf(TokenManager.getToken(context)) }
 
     // 기본 startDestination을 설정합니다.
     val startDestination = "placeholder_start" // 임시로 플레이스홀더 설정
@@ -40,13 +37,13 @@ fun MainScreen() {
     LaunchedEffect(Unit) {
         //PreferenceUtils.resetSetup(context)         // 테스트 재시작시 필요
         //TokenManager.clearToken(context)            // 테스트 재시작시 필요
-        val currentToken = TokenManager.getToken(context)
+        val currentToken = UserTokenStore.getToken(context)
         if (currentToken != null) {
             navController.navigate("bot_nav_bar") {
                 popUpTo(0) { inclusive = true }
             }
         } else {
-            navController.navigate("permission_screen") {
+            navController.navigate("auth_selection_route") {
                 popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
             }
         }
@@ -63,7 +60,7 @@ fun MainScreen() {
         composable("login_route"){
             val navigateToScreen: () -> Unit = {
                 if (mode == AppOpsManager.MODE_ALLOWED) {
-                    if (PreferenceUtils.isSetupComplete(context)) {
+                    if (SetupFlag.isSetupComplete(context)) {
                         navController.navigate("bot_nav_bar") {
                             popUpTo(0) { inclusive = true }
                         }
@@ -94,7 +91,7 @@ fun MainScreen() {
             AppSettingScreen(navController)
         }
         composable("goal_setting") {
-            PreferenceUtils.saveSetupComplete(context)
+            SetupFlag.saveSetupComplete(context)
             GoalSettingScreen(navController)
         }
         composable("bot_nav_bar") {

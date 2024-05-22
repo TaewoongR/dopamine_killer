@@ -4,8 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.coredomain.CoreDomain
-import com.example.myinfo.AppSettingData
-import com.example.navigation.R
+import com.example.local.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,8 +51,6 @@ class AppSettingViewModel @Inject constructor(
             // 업데이트된 appList로 uiState 업데이트
             _uiState.value = AppSettingUiState(appList = appObjectList.toList())
         }
-        viewModelScope.launch { coreDomain.updateInitialInstalledApp(appNameList) }
-        viewModelScope.launch { coreDomain.initialUpdate(appNameList) }
     }
 
     fun updateToggleState(appName: String, isEnabled: Boolean) {

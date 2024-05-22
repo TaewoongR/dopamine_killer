@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.myinfo.api.LoginApiService
-import com.example.myinfo.util.TokenManager
+import com.example.local.user.UserTokenStore
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -79,7 +79,11 @@ fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        navController.navigate("main_screen")
+                        navController.navigate("selected_app_edit"){
+                            popUpTo("myinfo_route"){
+                                inclusive = false
+                            }
+                        }
                     }
                     .height(totalWidth * 0.16f),
                 contentAlignment = Alignment.Center) {
@@ -107,7 +111,7 @@ fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController) {
                     .fillMaxWidth()
                     .clickable {
                         navController.navigate("main_screen") {
-                            TokenManager.clearToken(context)
+                            UserTokenStore.clearToken(context)
                             popUpTo(0) {
                                 inclusive = true
                             }
@@ -126,7 +130,7 @@ fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        val token = TokenManager.getToken(context)
+                        val token = UserTokenStore.getToken(context)
                         val username = "현재_사용자_이름" // 실제로 현재 사용자의 이름을 넣어야 합니다.
 
                         if (token != null) {
@@ -140,7 +144,7 @@ fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController) {
                                     if (response.isSuccessful) {
                                         // 토큰 삭제 및 로그인 화면으로 네비게이션
                                         navController.navigate("main_screen") { // 대상 루트로 변경하세요
-                                            TokenManager.clearToken(context)
+                                            UserTokenStore.clearToken(context)
                                             popUpTo(0) {
                                                 inclusive = true
                                             }

@@ -1,9 +1,10 @@
 package com.example.network.appUsage.di
 
-import com.example.network.BuildConfig
 import com.example.network.appUsage.NetworkDataSource
 import com.example.network.appUsage.RetrofitNetwork
 import com.example.network.appUsage.retrofit.RetrofitNetworkApi
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,17 +24,23 @@ object NetworkModule {
     fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
         .addInterceptor(
             HttpLoggingInterceptor().apply {
-                level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
+                level = HttpLoggingInterceptor.Level.BODY
             }
         )
         .build()
 
     @Provides
     @Singleton
-    fun provideRetrofit(client: OkHttpClient): Retrofit = Retrofit.Builder()
+    fun provideGson(): Gson = GsonBuilder()
+        .setLenient()
+        .create()
+
+    @Provides
+    @Singleton
+    fun provideRetrofit(client: OkHttpClient, gson: Gson): Retrofit = Retrofit.Builder()
         .baseUrl("http://3.35.218.220:8080")
         .client(client)
-        .addConverterFactory(GsonConverterFactory.create())
+        .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
 
     @Provides

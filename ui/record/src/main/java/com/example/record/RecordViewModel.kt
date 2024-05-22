@@ -4,11 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recorddomain.ReDomain
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,19 +18,10 @@ class RecordViewModel @Inject constructor(
     val uiState: StateFlow<RecordUiState> = _uiState.asStateFlow()
 
     init {
-        updateUiState()
+        loadRecordData()
     }
 
-    private fun updateUiState() {
-        viewModelScope.launch {
-            while (isActive) { // isActive는 현재 코루틴이 활성 상태인지 확인합니다.
-                loadData()
-                delay(10000) // 1000ms = 10초
-            }
-        }
-    }
-
-    fun loadData() {
+    fun loadRecordData() {
         viewModelScope.launch {
             val recordList = reDomain.getRecordList()
 

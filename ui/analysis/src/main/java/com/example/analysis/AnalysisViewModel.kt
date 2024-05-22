@@ -20,16 +20,10 @@ class AnalysisViewModel @Inject constructor(
     val uiState: StateFlow<AnalysisUiState> = _uiState.asStateFlow()
 
     init {
-        updateUiState()
+        loadAnalysisData()
     }
 
-    private fun updateUiState() {
-        viewModelScope.launch {
-            loadData()
-        }
-    }
-
-    fun loadData() {
+    fun loadAnalysisData() {
         viewModelScope.launch {
             val appsUsageList = coreDomain.getAllSelectedAppUsage()  // 비동기 작업을 기다림
             val appList = appsUsageList.map { appUsage ->

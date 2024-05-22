@@ -3,6 +3,7 @@ package com.example.recorddomain
 import com.example.local.record.RecordDAO
 import com.example.local.record.RecordEntity
 import com.example.repository.GoalRepository
+import com.example.repository.SelectedAppRepository
 import com.example.service.AppFetchingInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -11,7 +12,8 @@ import javax.inject.Inject
 class ReDomainImpl @Inject constructor(
     private val recordDAO: RecordDAO,
     private val appRepository: AppFetchingInfo,
-    private val goalRepository: GoalRepository
+    private val goalRepository: GoalRepository,
+    private val selectedAppRepository: SelectedAppRepository
 ):ReDomain {
 
 
@@ -44,5 +46,22 @@ class ReDomainImpl @Inject constructor(
                 )
             }
         }
+    }
+
+    override suspend fun getInstalledSelected(): List<Pair<String, Boolean>> {
+        val installedApps = selectedAppRepository.getAllInstalled()
+        // 선택된 앱 목록을 가져옴
+        val selectedApps = selectedAppRepository.getAllSelected().toSet()
+
+        // 설치된 앱 목록을 순회하며 선택 여부를 확인하고 Pair로 변환
+        val result = installedApps.map { app ->
+            app to (app in selectedApps)
+        }
+
+        return result
+    }
+
+    override suspend fun updateSelected(selectedList: List<String>) {
+        selectedAppRepository.updateSelected(selectedList)
     }
 }

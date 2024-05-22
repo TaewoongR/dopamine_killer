@@ -54,20 +54,19 @@ class AppFetchingInfoImpl @Inject constructor(
         return packageName
     }
 
-    override suspend fun isAppInstalled(appName: String): String {
-        val packageName = getPackageNameBy(appName)
+    override suspend fun isAppInstalled(packageName: String): Boolean {
         val packageManager = context.packageManager
         val packages = packageManager.getInstalledPackages(PackageManager.GET_META_DATA)
         // 패키지 목록을 필터링
-        return packages.firstOrNull { pkg ->
+        val isExist = packages.firstOrNull { pkg ->
             try {
-                val label = packageManager.getApplicationLabel(pkg.applicationInfo).toString()
-                label.contains(packageName, ignoreCase = true)
+                pkg.packageName == packageName
             } catch (e: Exception) {
                 Log.d("error","not found")
                 false
             }
-        }?.packageName.toString()   // null일 경우 "null" String반환
+        }
+        return isExist != null
     }
 
     override suspend fun getAppIcon(appName: String): ImageBitmap {

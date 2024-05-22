@@ -42,6 +42,7 @@ dependencies {
     implementation(project(":data:repository"))
     implementation(project(":ui:service"))
     implementation(project(":domain:coreDomain"))
+    implementation(project(":domain:RecordDomain"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -2,7 +2,6 @@ package com.example.navigation.initialSetting
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.ImageBitmapConfig
-import com.example.myinfo.AppSettingData
 
 data class AppSettingUiState(
     val appList: List<AppSettingData> = listOf()

@@ -42,9 +42,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.myinfo.AppSettingData
-import com.example.myinfo.SelectedAppEditViewModel
-import com.example.navigation.MainViewModel
 import kotlinx.coroutines.launch
 
 val backgroundColor: Color = Color(android.graphics.Color.parseColor("#EFEFEF"))
@@ -53,15 +50,14 @@ val keyColor: Color = Color(android.graphics.Color.parseColor("#FF9A62"))
 @Composable
 fun AppSettingScreen(
     navController: NavController,
-    viewModel: SelectedAppEditViewModel = hiltViewModel(),
-    mainViewModel: MainViewModel = hiltViewModel()
+    viewModel: AppSettingViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    com.example.myinfo.appSelection(uiState, viewModel, navController)
+    appSelection(uiState, viewModel, navController)
 }
 
 @Composable
-fun appSelection(uiState: AppSettingUiState, viewModel: SelectedAppEditViewModel, navController: NavController) {
+fun appSelection(uiState: AppSettingUiState, viewModel: AppSettingViewModel, navController: NavController) {
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val totalWidth = screenWidth * 0.85f
@@ -93,19 +89,19 @@ fun appSelection(uiState: AppSettingUiState, viewModel: SelectedAppEditViewModel
                 ) {
                     Spacer(modifier = Modifier.height(totalWidth * 0.06f))
                     for (i in 0 until uiState.appList.size) {
-                        IndividualApp(totalWidth, uiState.appList[i], viewModel)
+                        IndividualAppSetting(totalWidth, uiState.appList[i], viewModel)
                     }
                 }
             }
         }
         Box(modifier = Modifier.offset(y = totalWidth * 1f)){
-            setButton(totalWidth, viewModel, uiState, navController)
+            AppSetButton(totalWidth, viewModel, uiState, navController)
         }
     }
 }
 
 @Composable
-fun IndividualApp(totalWidth: Dp, appData: AppSettingData, viewModel: SelectedAppEditViewModel) {
+fun IndividualAppSetting(totalWidth: Dp, appData: AppSettingData, viewModel: AppSettingViewModel) {
     val squareSize = (totalWidth - 10.dp) / 2 * 0.24f
     val icon = appData.icon
     Row(
@@ -129,7 +125,7 @@ fun IndividualApp(totalWidth: Dp, appData: AppSettingData, viewModel: SelectedAp
         Text(text = appData.appName, style = TextStyle(fontSize = 14.sp))
 
         Spacer(modifier = Modifier.weight(1f))
-        ToggleButton(
+        ToggleButtonSet(
             totalWidth = totalWidth,
             isButtonEnabled = appData.isButtonEnabled,
             onToggleChange = {isEnabled ->
@@ -140,7 +136,7 @@ fun IndividualApp(totalWidth: Dp, appData: AppSettingData, viewModel: SelectedAp
 }
 
 @Composable
-fun ToggleButton(totalWidth: Dp, isButtonEnabled: Boolean, onToggleChange: (Boolean) -> Unit) {
+fun ToggleButtonSet(totalWidth: Dp, isButtonEnabled: Boolean, onToggleChange: (Boolean) -> Unit) {
     val circlePosition by animateFloatAsState(targetValue = if (isButtonEnabled) 1f else 0f,
         label = "FloatAnimation"
     )
@@ -175,7 +171,7 @@ fun ToggleButton(totalWidth: Dp, isButtonEnabled: Boolean, onToggleChange: (Bool
 }
 
 @Composable
-fun setButton(totalWidth: Dp, viewModel: SelectedAppEditViewModel, uiState: AppSettingUiState, navController: NavController){
+fun AppSetButton(totalWidth: Dp, viewModel: AppSettingViewModel, uiState: AppSettingUiState, navController: NavController){
     val scope = rememberCoroutineScope()
     Box(
         modifier = Modifier

@@ -51,7 +51,7 @@ import androidx.navigation.NavController
 import com.example.local.R
 import com.example.myinfo.api.LoginApiService
 import com.example.myinfo.api.UserLogin
-import com.example.myinfo.util.TokenManager
+import com.example.local.user.UserTokenStore
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -105,7 +105,7 @@ fun LoginScreen(navController: NavController, navigateToMainScreen: () -> Unit) 
                         if (response.isSuccessful && response.body() != null) {
                             response.body()?.get("token")?.let { token ->
                                 Log.d("LoginScreen", "Login success with token: $token")
-                                TokenManager.saveToken(context, token)
+                                UserTokenStore.saveToken(context, token)
                                 navigateToMainScreen()
                             } ?: run {
                                 errorMessage = "로그인 실패: 토큰이 반환되지 않았습니다."

@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.ImageBitmapConfig
 
 data class OverviewUiState(
     val analysisData: AnalysisData = AnalysisData(),
-    val recordList: List<RecordData> = listOf(),
+    val recordList: List<RecordData> = listOf()
 )
 data class AnalysisData(
     val appName: String = "",
@@ -18,10 +18,10 @@ data class AnalysisData(
 )
 
 data class RecordData(
-    val appName: String,
+    val appName: String = "",
     val appIcon: ImageBitmap = ImageBitmap(1,1, ImageBitmapConfig.Alpha8),
-    val date: String,
-    val goalTime: Int,
-    val howLong: Int,
-    val onGoing: Boolean
+    val date: String = "",
+    val goalTime: Int = 0,
+    val howLong: Int = 0,
+    val onGoing: Boolean = false
 )

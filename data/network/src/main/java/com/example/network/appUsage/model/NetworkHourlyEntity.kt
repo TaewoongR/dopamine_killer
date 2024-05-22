@@ -5,7 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class NetworkHourlyEntity(
-    val userName: String = "testing",
     val appName: String,
     val date: String,
     val dayOfWeek: Int = 0, // Calendar 라이브러리 일 = 1, 토 = 7
@@ -33,6 +32,7 @@ data class NetworkHourlyEntity(
     val hour21: Int,
     val hour22: Int,
     val hour23: Int,
+    val userName: String = "testing",
 )
 
 fun NetworkHourlyEntity.asEntity() = HourlyEntity(
@@ -66,7 +66,6 @@ fun NetworkHourlyEntity.asEntity() = HourlyEntity(
 )
 
 fun HourlyEntity.asNetworkHourlyEntity() = NetworkHourlyEntity(
-    userName = "testing",
     appName = appName,
     date = date,
     dayOfWeek = dayOfWeek,
@@ -94,4 +93,5 @@ fun HourlyEntity.asNetworkHourlyEntity() = NetworkHourlyEntity(
     hour21 = hour21,
     hour22 = hour22,
     hour23 = hour23,
+    userName = "testing",
 )

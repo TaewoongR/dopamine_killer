@@ -23,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -57,7 +58,9 @@ fun OverviewScreen(
     viewModel: OverviewViewModel = hiltViewModel(),
 ) {
     val overviewUiState by viewModel.uiState.collectAsState()
-
+    LaunchedEffect(navController.currentBackStackEntry) {
+        viewModel.loadOverviewData()
+    }
     MyScreenContent(overviewUiState)
 }
 
@@ -101,7 +104,12 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
                 Log.d("goalTIme", overviewUiState.analysisData.goalTime.toString())
                 Log.d("dailyTIme", overviewUiState.analysisData.dailyTime.toString())
 
-                val percent = overviewUiState.analysisData.dailyTime.toFloat() / overviewUiState.analysisData.goalTime.toFloat()
+                val percent = try{
+                    overviewUiState.analysisData.dailyTime.toFloat() / overviewUiState.analysisData.goalTime.toFloat()
+                }catch(e: Exception){
+                    0f
+                }
+
 
                 DonutGraph(percent = percent, modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState)
                 Spacer(modifier = Modifier.width(10.dp))
@@ -173,10 +181,8 @@ fun DonutGraph(percent: Float, modifier: Modifier, size: Dp, overviewUiState: Ov
                 size = squareSize.dp,
                 cornerRadius = 8.dp
             )
-            val minute = overviewUiState.recordList.firstOrNull {
-                it.appName == overviewUiState.analysisData.appName
-            }?.goalTime.toString()
-            Text(text = "${minute}분", style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 16.sp))
+            val minute = overviewUiState.analysisData.goalTime
+            Text(text = if(minute != 0)"${minute}분" else "미지정", style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 16.sp))
         }
     }
 }

@@ -39,6 +39,7 @@ class Application : Application(), Configuration.Provider {
         val hourlyWorkRequest = PeriodicWorkRequestBuilder<CoreWorker>(1, TimeUnit.HOURS)
             .setInitialDelay(delay, TimeUnit.MILLISECONDS)
             .setInputData(workDataOf("TASK_TYPE" to "UPDATE_HOURLY_DAILY_USAGE"))
+            .addTag("HourlyDailyUsage")
             .build()
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
@@ -54,6 +55,7 @@ class Application : Application(), Configuration.Provider {
         val weeklyWorkRequest = PeriodicWorkRequestBuilder<CoreWorker>(7, TimeUnit.DAYS)
             .setInitialDelay(delay, TimeUnit.MILLISECONDS)
             .setInputData(workDataOf("TASK_TYPE" to "UPDATE_WEEKLY_USAGE"))
+            .addTag("WeeklyDailyUsage")
             .build()
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(

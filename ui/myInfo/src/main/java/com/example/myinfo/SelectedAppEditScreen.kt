@@ -52,11 +52,11 @@ fun SelectedAppEditScreen(
     viewModel: SelectedAppEditViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    appSelection(uiState, viewModel, navController)
+    appEdit(uiState, viewModel, navController)
 }
 
 @Composable
-fun appSelection(uiState: SelectedAppEditUiState, viewModel: SelectedAppEditViewModel, navController: NavController) {
+fun appEdit(uiState: SelectedAppEditUiState, viewModel: SelectedAppEditViewModel, navController: NavController) {
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val totalWidth = screenWidth * 0.85f
@@ -100,7 +100,7 @@ fun appSelection(uiState: SelectedAppEditUiState, viewModel: SelectedAppEditView
 }
 
 @Composable
-fun IndividualApp(totalWidth: Dp, appData: AppSettingData, viewModel: SelectedAppEditViewModel) {
+fun IndividualApp(totalWidth: Dp, appData: AppEditSettingData, viewModel: SelectedAppEditViewModel) {
     val squareSize = (totalWidth - 10.dp) / 2 * 0.24f
     val icon = appData.icon
     Row(
@@ -128,7 +128,7 @@ fun IndividualApp(totalWidth: Dp, appData: AppSettingData, viewModel: SelectedAp
             totalWidth = totalWidth,
             isButtonEnabled = appData.isButtonEnabled,
             onToggleChange = {isEnabled ->
-                viewModel.updateToggleState(appData.appName, isEnabled)
+                viewModel.updateEditToggleState(appData.appName, isEnabled)
             }
         )
     }
@@ -179,9 +179,9 @@ fun setButton(totalWidth: Dp, viewModel: SelectedAppEditViewModel, uiState: Sele
             .background(keyColor, shape = RoundedCornerShape(12.dp))
             .clickable {
                 scope.launch { // 코루틴 시작
-                    viewModel.updateSelectedApps(uiState.appList)  // 데이터 저장 함수 비동기 호출
-                    navController.navigate("goal_setting") { // 데이터 저장 완료 후 화면 전환
-                        popUpTo("goal_setting") {
+                    viewModel.updateEditSelectedApps(uiState.appList)  // 데이터 저장 함수 비동기 호출
+                    navController.navigate("myinfo_route") { // 데이터 저장 완료 후 화면 전환
+                        popUpTo("selected_app_edit") {
                             inclusive = true
                         }
                         launchSingleTop = true

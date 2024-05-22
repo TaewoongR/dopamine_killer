@@ -1,9 +1,9 @@
-package com.example.myinfo.util
+package com.example.local.user
 
 import android.content.Context
 import android.content.SharedPreferences
 
-object TokenManager {
+object UserTokenStore {
     private const val PREF_NAME = "dopamine_killer_prefs"
     private const val TOKEN_KEY = "token"
 

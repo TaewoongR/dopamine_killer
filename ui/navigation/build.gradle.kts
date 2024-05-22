@@ -11,7 +11,6 @@ android{
 
     defaultConfig {
         minSdk = 29
-        targetSdk = 34
     }
 
     compileOptions {
@@ -38,6 +37,7 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.material3)
+    implementation(project(":data:local"))
     implementation(project(":ui:service"))
     implementation(project(":ui:analysis"))
     implementation(project(":ui:overview"))
@@ -61,7 +61,6 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     //compose viewmodel
-    implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.androidx.lifecycle.viewModelCompose)
 
     //compose navigation

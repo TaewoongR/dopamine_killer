@@ -18,8 +18,8 @@ class WeeklyRepositoryImpl @Inject constructor(
     private val selectedAppRepository: SelectedAppRepository
 ) : WeeklyRepository {
 
-    override suspend fun getWeeklyUsageFrom(appName: String, monthAgo: Int): Pair<Int, String> {
-        val dateString = dateFactory.returnStringDate(dateFactory.returnWeekStartFrom(monthAgo))
+    override suspend fun getWeeklyUsageFrom(appName: String, weekAgo: Int): Pair<Int, String> {
+        val dateString = dateFactory.returnStringDate(dateFactory.returnWeekStartFrom(weekAgo))
         val entity = withContext(Dispatchers.IO) { weeklySource.get(appName, dateString) }
         return Pair(entity.weeklyUsage, entity.date)
     }
