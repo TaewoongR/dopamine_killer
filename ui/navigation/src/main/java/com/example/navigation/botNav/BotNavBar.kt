@@ -23,9 +23,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.analysis.AnalysisScreen
 import com.example.myinfo.MyInfoScreen
-import com.example.navigation.MainScreen
 import com.example.myinfo.SelectedAppEditScreen
+import com.example.navigation.MainScreen
 import com.example.overview.OverviewScreen
+import com.example.record.GoalCreateScreen
 import com.example.record.RecordScreen
 import com.example.reward.RewardScreen
 
@@ -119,6 +120,9 @@ fun BotNavBar() {
             }
             composable("selected_app_edit"){
                 SelectedAppEditScreen(navController)
+            }
+            composable("goal_create_screen"){
+                GoalCreateScreen(navController,)
             }
         }
     }

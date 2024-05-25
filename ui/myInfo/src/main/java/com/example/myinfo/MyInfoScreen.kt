@@ -94,7 +94,7 @@ fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController) {
                     .height(totalWidth * 0.16f),
                 contentAlignment = Alignment.Center) {
                 Text(
-                    text = "앱 선택 수정",
+                    text = "앱 선택",
                     textAlign = TextAlign.Center,
                     style = TextStyle(fontSize = 16.sp)
                 )

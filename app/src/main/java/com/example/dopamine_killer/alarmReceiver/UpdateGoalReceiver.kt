@@ -10,7 +10,7 @@ import java.util.Calendar
 
 class UpdateGoalReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == "UPDATE_PERIODIC_GOAL_ACTION") {
+        if (intent.action == "UPDATE_PERIODIC_GOAL") {
             val serviceIntent = Intent(context, UpdateGoalService::class.java)
             context.startForegroundService(serviceIntent)
         }

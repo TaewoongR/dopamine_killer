@@ -79,5 +79,4 @@ internal class RetrofitNetworkRepository @Inject constructor(
             }
         })
     }
-
 }

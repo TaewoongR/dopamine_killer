@@ -1,5 +1,6 @@
 package com.example.analysis
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -56,6 +57,11 @@ fun AnalysisScreen(
         viewModel.loadAnalysisData()
     }
     analysisContent(uiState)
+    BackHandler {
+        navController.navigate("overview_route") {
+            popUpTo(0) { inclusive = true }
+        }
+    }
 }
 
 @Composable

@@ -8,7 +8,6 @@ import com.example.local.horulyUsage.HourlyDAO
 import com.example.local.monthlyUsage.MonthlyDAO
 import com.example.local.record.RecordDAO
 import com.example.local.selectedApp.SelectedAppDAO
-import com.example.local.user.UserDAO
 import com.example.local.weeklyUsage.WeeklyDAO
 import dagger.Module
 import dagger.Provides
@@ -54,11 +53,6 @@ object DataModule {
     @Provides
     fun provideSelectedAppDAO(database: DopamineDatabase): SelectedAppDAO {
         return database.selectedAppDAO()
-    }
-
-    @Provides
-    fun provideUserDAO(database: DopamineDatabase): UserDAO {
-        return database.userDAO()
     }
 
     @Provides

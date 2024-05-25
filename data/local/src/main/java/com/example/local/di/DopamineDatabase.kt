@@ -12,8 +12,6 @@ import com.example.local.record.RecordDAO
 import com.example.local.record.RecordEntity
 import com.example.local.selectedApp.SelectedAppDAO
 import com.example.local.selectedApp.SelectedAppEntity
-import com.example.local.user.UserDAO
-import com.example.local.user.UserEntity
 import com.example.local.weeklyUsage.WeeklyDAO
 import com.example.local.weeklyUsage.WeeklyEntity
 
@@ -24,10 +22,9 @@ import com.example.local.weeklyUsage.WeeklyEntity
         MonthlyEntity::class,
         RecordEntity::class,
         SelectedAppEntity::class,
-        UserEntity::class,
         WeeklyEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class DopamineDatabase : RoomDatabase() {
@@ -36,6 +33,5 @@ abstract class DopamineDatabase : RoomDatabase() {
     abstract fun monthlyDAO(): MonthlyDAO
     abstract fun recordDAO(): RecordDAO
     abstract fun selectedAppDAO(): SelectedAppDAO
-    abstract fun userDAO(): UserDAO
     abstract fun weeklyDAO(): WeeklyDAO
 }

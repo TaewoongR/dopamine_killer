@@ -1,7 +1,6 @@
 package com.example.dopamine_killer.workManager
 
 import android.content.Context
-import android.content.pm.PackageManager
 import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
@@ -69,16 +68,6 @@ class CoreWorker @AssistedInject constructor(
                 Log.e(TAG, "Task failed", e)
                 Result.failure()
             }
-        }
-    }
-
-    private suspend fun updateInstalledApp() {
-        try {
-            val packageInfo = applicationContext.packageManager.getPackageInfo("com.example.dopamine_killer", 0)
-            Log.d(TAG, "Package found: ${packageInfo.packageName}")
-            withContext(Dispatchers.IO) {coreDomain.updatePeriodicInstalledApp()}
-        } catch (e: PackageManager.NameNotFoundException) {
-            Log.e(TAG, "Package not found: com.example.dopamine_killer", e)
         }
     }
 

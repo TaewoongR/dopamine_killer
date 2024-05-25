@@ -1,5 +1,6 @@
 package com.example.reward
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -51,7 +52,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 
 val backgroundColor: Color = Color(android.graphics.Color.parseColor("#EFEFEF"))
-val keyColor: Color = Color(android.graphics.Color.parseColor("#FF9A62"))
 
 @Composable
 fun RewardScreen(
@@ -65,6 +65,11 @@ fun RewardScreen(
     }
 
     rewardContent(uiState, viewModel)
+    BackHandler {
+        navController.navigate("overview_route") {
+            popUpTo(0) { inclusive = true }
+        }
+    }
 }
 
 @Composable
