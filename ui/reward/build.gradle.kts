@@ -41,6 +41,7 @@ dependencies {
     implementation(project(":data:local"))
     implementation(project(":data:repository"))
     implementation(project(":ui:service"))
+    implementation(project(":domain:rewardDomain"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -56,4 +57,8 @@ dependencies {
 
     //compose viewmodel
     implementation(libs.androidx.lifecycle.viewModelCompose)
+
+    //coil
+    implementation(libs.coil)
+    implementation(libs.coil.compose)
 }

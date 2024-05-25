@@ -19,6 +19,7 @@
             <option value="$PROJECT_DIR$/domain/AnalysisDomain" />
             <option value="$PROJECT_DIR$/domain/RecordDomain" />
             <option value="$PROJECT_DIR$/domain/coreDomain" />
+            <option value="$PROJECT_DIR$/domain/rewardDomain" />
             <option value="$PROJECT_DIR$/ui" />
             <option value="$PROJECT_DIR$/ui/analysis" />
             <option value="$PROJECT_DIR$/ui/myInfo" />

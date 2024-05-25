@@ -1,5 +1,6 @@
 package com.example.network.appUsage
 
+import android.content.ContentValues.TAG
 import android.util.Log
 import com.example.local.dailyUsage.DailyEntity
 import com.example.local.horulyUsage.HourlyEntity
@@ -15,7 +16,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class RetrofitNetwork @Inject constructor(
+internal class RetrofitNetworkRepository @Inject constructor(
     private val retrofitNetworkApi: RetrofitNetworkApi,
 ) : NetworkDataSource {
 
@@ -35,6 +36,27 @@ internal class RetrofitNetwork @Inject constructor(
     override fun postWeeklyData(weeklyEntity: WeeklyEntity) {
         // Implement and call the postData function as needed
         // Example: postData(retrofitNetworkApi.postWeekly(weeklyEntity.asNetworkWeeklyEntity()), "Weekly")
+    }
+
+    override suspend fun getBadge(username: String): List<Triple<String, String, String>> {
+        return try {
+            val badges = retrofitNetworkApi.getBadges(username)
+            Log.d(TAG, "Received badges: $badges")
+            if (badges.isNotEmpty()) {
+                badges.map {
+                    Triple(
+                        it.badge.name,
+                        it.badge.description,
+                        it.badge.image_url
+                    )
+                }
+            } else {
+                emptyList()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to fetch badges", e)
+            emptyList()
+        }
     }
 
     private fun postData(call: Call<String>, dataType: String) {
@@ -57,4 +79,5 @@ internal class RetrofitNetwork @Inject constructor(
             }
         })
     }
+
 }
