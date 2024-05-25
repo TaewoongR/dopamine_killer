@@ -11,7 +11,7 @@ import android.os.PowerManager
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import com.example.data.service.R
+import com.example.local.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -108,7 +108,7 @@ class AppFetchingInfoImpl @Inject constructor(
             dateFactory.returnTheDayStart(numberAgo)
         }
         val endTime = if(numberAgo == 0 && !isInitialSetting) {
-            startTime + (1000 * 60 * 60 * 2)        // 한시간 후
+            startTime + (2 * 60 * 60 * 1000)
             }else{
             dateFactory.returnTheDayEnd(startTime)
         }
@@ -152,7 +152,6 @@ class AppFetchingInfoImpl @Inject constructor(
             }
         }
 
-        //
         if (isAppInForeground && powerManager.isInteractive) {
             if(numberAgo == 0 && !isInitialSetting){
                 val endHour = dateFactory.returnTheHour(endTime)

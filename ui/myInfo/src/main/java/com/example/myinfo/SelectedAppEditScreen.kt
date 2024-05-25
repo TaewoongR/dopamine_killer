@@ -65,7 +65,8 @@ fun appEdit(uiState: SelectedAppEditUiState, viewModel: SelectedAppEditViewModel
     Box(
         modifier = Modifier
             .background(backgroundColor)
-            .fillMaxSize(),
+            .fillMaxSize()
+            .padding(bottom = 80.dp),
         contentAlignment = Center
     ) {
         Column(
@@ -79,17 +80,18 @@ fun appEdit(uiState: SelectedAppEditUiState, viewModel: SelectedAppEditViewModel
             Box(
                 modifier = Modifier
                     .width(totalWidth)
-                    .aspectRatio(1f / 1.6f)
+                    .aspectRatio(1f / 1.3f)
                     .background(Color.White, shape = RoundedCornerShape(16.dp))
             ) {
                 Column(
                     modifier = Modifier
                         .verticalScroll(scrollState)
                 ) {
-                    Spacer(modifier = Modifier.height(totalWidth * 0.06f))
+                    Spacer(modifier = Modifier.height(totalWidth * 0.03f))
                     for (i in 0 until uiState.appList.size) {
                         IndividualApp(totalWidth, uiState.appList[i], viewModel)
                     }
+                    Spacer(modifier = Modifier.height(totalWidth * 0.03f))
                 }
             }
         }
@@ -180,10 +182,8 @@ fun setButton(totalWidth: Dp, viewModel: SelectedAppEditViewModel, uiState: Sele
             .clickable {
                 scope.launch { // 코루틴 시작
                     viewModel.updateEditSelectedApps(uiState.appList)  // 데이터 저장 함수 비동기 호출
-                    navController.navigate("myinfo_route") { // 데이터 저장 완료 후 화면 전환
-                        popUpTo("selected_app_edit") {
-                            inclusive = true
-                        }
+                    navController.navigate("myinfo_route") {
+                        popUpTo("selected_app_edit") { inclusive = true }
                         launchSingleTop = true
                     }
                 }

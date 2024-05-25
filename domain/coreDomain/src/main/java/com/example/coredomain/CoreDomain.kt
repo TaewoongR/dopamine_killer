@@ -10,14 +10,15 @@ interface CoreDomain {
     suspend fun updateHourlyDailyUsage()
     suspend fun updateWeeklyUsage()
     suspend fun updateMonthlyUsage()
-
+    suspend fun updateRecord(accessOrPeriodic: Int)
     suspend fun deleteUndetectedUsageObj()
 
     suspend fun getAllSelectedAppUsage(): List<FourUsageDomainData>   // 월, 주, 어제, 오늘 사용 시간
-
     suspend fun getAppIconForAppSetting(appName: String): ImageBitmap?
     suspend fun getAppIcon(appName: String): ImageBitmap
     suspend fun clearAllDatabase()
 
     suspend fun postNetworkHourly()
+    suspend fun postNetworkDaily()
+
 }

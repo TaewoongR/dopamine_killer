@@ -58,7 +58,9 @@ class CoreDomainImpl @Inject constructor(
             for (field in fields) {
                 if (field.name.startsWith(prefix)) {
                     val savedAppName = field.name.removePrefix(prefix).replace("_", " ") // 접두사를 제거한 이름
-                    appNameList.add(savedAppName)
+                    if(appFetchingRepository.isAppInstalled(appFetchingRepository.getPackageNameBy(savedAppName))) {
+                        appNameList.add(savedAppName)
+                    }
                 }
             }
             selectedAppRepository.updatedInstalled(appNameList, false)
@@ -99,6 +101,28 @@ class CoreDomainImpl @Inject constructor(
                 monthlyList.add(Triple(it, dateFactory.returnStringDate(dateFactory.returnTheDayStart(endDateOfMonth)),totalMonthlyHour))
             }
             monthlyRepository.periodicMonthlyUpdate(monthlyList)
+        }
+    }
+
+    override suspend fun updateRecord(accessOrPeriodic: Int) {  // 0-접속시 1-자동처리
+        withContext(Dispatchers.IO) {
+            val onGoingList = goalRepository.getOnGoingList().map{ Triple(it.appName,it.goalTime, it.date) }
+            val realUsageList = onGoingList.map {
+                Pair(
+                    it.first,
+                    dailyRepository.getDailyUsageFrom(it.first , accessOrPeriodic).first
+                )
+            }
+            for (i in onGoingList.indices) {
+                val appName = onGoingList[i].first
+                val goalTime = onGoingList[i].second
+                val realUsage = realUsageList[i].second
+                val date = onGoingList[i].third
+
+                if (realUsage > goalTime) {
+                    goalRepository.failGoal(appName, date)
+                }
+            }
         }
     }
 
@@ -154,5 +178,9 @@ class CoreDomainImpl @Inject constructor(
 
     override suspend fun postNetworkHourly() {
         networkRepository.updateEntireNetworkHourly()
+    }
+
+    override suspend fun postNetworkDaily() {
+        networkRepository.updateEntireNetworkDaily()
     }
 }

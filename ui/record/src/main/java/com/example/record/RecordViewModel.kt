@@ -68,4 +68,10 @@ class RecordViewModel @Inject constructor(
             )
         }
     }
+
+    fun deleteRecord(record: Pair<String, String>){
+        viewModelScope.launch {
+            reDomain.deleteGoal(record)
+        }
+    }
 }

@@ -22,7 +22,7 @@ class SelectedAppRepositoryImpl @Inject constructor(
         return withContext(Dispatchers.IO){selectedAppDAO.getAllSelectedAppList()}
     }
 
-    override suspend fun updateSelected(appList: List<String>) {   // abstract 함수에서 Boolean은 이미 선언됨
+    override suspend fun updateSelected(appList: List<String>) {
         val list = withContext(Dispatchers.IO){selectedAppDAO.getAllInstalledAppList()}
         withContext(Dispatchers.IO){selectedAppDAO.clearAll()}
         list.forEach {
@@ -36,7 +36,7 @@ class SelectedAppRepositoryImpl @Inject constructor(
                 )
             }
         }
-        for (name in appList) {
+        appList.forEach{name->
             withContext(Dispatchers.IO){
                 selectedAppDAO.upsert(
                     SelectedAppEntity(
@@ -85,7 +85,7 @@ class SelectedAppRepositoryImpl @Inject constructor(
                         SelectedAppEntity(
                             appName = it,
                             packageName = packageName,
-                            isSelected = false
+                            isSelected = true
                         )
                     )
                 }

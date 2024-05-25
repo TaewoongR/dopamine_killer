@@ -20,4 +20,5 @@ interface DateFactoryForData{
     fun returnMonthStartFrom(numberAgo: Int): Long
     fun returnMonthEndFrom(numberAgo: Int): Long
     fun getIncludedHourlyMark(startMillis: Long, endMillis: Long): Long?
+    fun calculateDayPassed(stringDate: String): Int
 }

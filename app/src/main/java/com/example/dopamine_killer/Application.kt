@@ -2,11 +2,14 @@ package com.example.dopamine_killer
 
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.BackoffPolicy
 import androidx.work.Configuration
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import androidx.work.workDataOf
+import com.example.dopamine_killer.alarmReceiver.scheduleUpdatePeriodicGoal
 import com.example.dopamine_killer.workManager.CoreWorker
 import dagger.hilt.android.HiltAndroidApp
 import java.util.Calendar
@@ -31,6 +34,7 @@ class Application : Application(), Configuration.Provider {
         // 정시에 반복 작업 예약
         scheduleHourlyDailyUsageUpdate()
         scheduleWeeklyUsageUpdate()
+        scheduleUpdatePeriodicGoal(this)
     }
 
     private fun scheduleHourlyDailyUsageUpdate() {
@@ -40,6 +44,11 @@ class Application : Application(), Configuration.Provider {
             .setInitialDelay(delay, TimeUnit.MILLISECONDS)
             .setInputData(workDataOf("TASK_TYPE" to "UPDATE_HOURLY_DAILY_USAGE"))
             .addTag("HourlyDailyUsage")
+            .setBackoffCriteria(
+                BackoffPolicy.EXPONENTIAL,
+                WorkRequest.MIN_BACKOFF_MILLIS,
+                TimeUnit.MILLISECONDS
+            )
             .build()
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
@@ -56,6 +65,11 @@ class Application : Application(), Configuration.Provider {
             .setInitialDelay(delay, TimeUnit.MILLISECONDS)
             .setInputData(workDataOf("TASK_TYPE" to "UPDATE_WEEKLY_USAGE"))
             .addTag("WeeklyDailyUsage")
+            .setBackoffCriteria(
+                BackoffPolicy.EXPONENTIAL,
+                WorkRequest.MIN_BACKOFF_MILLIS,
+                TimeUnit.MILLISECONDS
+            )
             .build()
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(

@@ -48,6 +48,12 @@ class ReDomainImpl @Inject constructor(
         }
     }
 
+    override suspend fun deleteGoal(goal: Pair<String, String>) {
+        withContext(Dispatchers.IO) {
+            recordDAO.delete(goal.first, goal.second)   //
+        }
+    }
+
     override suspend fun getInstalledSelected(): List<Pair<String, Boolean>> {
         val installedApps = selectedAppRepository.getAllInstalled()
         // 선택된 앱 목록을 가져옴

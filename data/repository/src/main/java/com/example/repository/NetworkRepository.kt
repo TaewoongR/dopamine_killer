@@ -4,4 +4,5 @@ interface NetworkRepository {
     suspend fun updateEntireNetworkHourly()
     suspend fun updateTodayNetworkHourly()
     suspend fun updateYesterdayAtMidnight()
+    suspend fun updateEntireNetworkDaily()
 }

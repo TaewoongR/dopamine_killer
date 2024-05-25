@@ -17,16 +17,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,8 +46,11 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 
@@ -77,39 +88,91 @@ fun RecordContent(uiState: RecordUiState, viewModel: RecordViewModel, navControl
             .fillMaxSize()
             .background(color = backgroundColor)
     ){
-        Column(
+        LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-        ) {
-            Spacer(modifier = Modifier.height(86.dp))
-            MostApps(modifier = Modifier, totalWidth = totalWidth, uiState.descendingList)
-            Spacer(modifier = Modifier.height(18.dp))
-            Box(modifier = Modifier
-                .width(totalWidth)
-                .background(Color.White, shape = RoundedCornerShape(16.dp))) {
-                Column {
-                    for (i in 0 until uiState.ongoingList.size)        // 진행중인 개수
-                        ongoingRecords(
-                            modifier = Modifier,
-                            aspectRatio = 1 / 0.1875f,
-                            totalWidth = totalWidth,
-                            index = i,
-                            ongoingList = uiState.ongoingList
+            modifier = Modifier.fillMaxSize()
+        ){
+            item {
+                Spacer(modifier = Modifier.height(86.dp))
+                MostApps(modifier = Modifier, totalWidth = totalWidth, uiState.descendingList)
+                Spacer(modifier = Modifier.height(18.dp))
+            }
+
+            item {
+                Row(modifier = Modifier
+                    .width(totalWidth)
+                    .padding(end = totalWidth * 0.02f),
+                    horizontalArrangement = Arrangement.End) {
+                    IconButton(onClick = {},
+                        modifier = Modifier
+                            .size(totalWidth * 0.1f)
+                            .background(Color.White, RoundedCornerShape(8.dp, 8.dp))) {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = "추가",
+                            tint = Color.DarkGray
                         )
-                    for (i in 0 until uiState.finishedList.size)
-                        finishedRecords(
-                            modifier = Modifier,
-                            aspectRatio = 1/0.1875f,
-                            totalWidth = totalWidth,
-                            index = i,
-                            finishedList = uiState.finishedList
-                        )
+                    }
                 }
             }
-            Spacer(modifier = Modifier.height(100.dp))
+
+            if (uiState.ongoingList.isEmpty() && uiState.finishedList.isEmpty()) {
+                item {
+                    EmptyState(modifier = Modifier.fillMaxWidth(), totalWidth = totalWidth)
+                }
+            } else {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .width(totalWidth)
+                            .background(Color.White, shape = RoundedCornerShape(16.dp))
+                    ) {
+                        Column {
+                            if (uiState.ongoingList.isNotEmpty()) {
+                                for (i in 0 until uiState.ongoingList.size) {      // 진행중인 개수
+                                    val thisUiState = uiState.ongoingList[i]
+                                    ongoingRecords(
+                                        modifier = Modifier,
+                                        aspectRatio = 1 / 0.1875f,
+                                        totalWidth = totalWidth,
+                                        index = i,
+                                        ongoingList = uiState.ongoingList,
+                                        onDelete = {
+                                            viewModel.deleteRecord(
+                                                Pair(
+                                                    thisUiState.appName,
+                                                    thisUiState.date
+                                                )
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                            if (uiState.finishedList.isNotEmpty()) {
+                                for (i in 0 until uiState.finishedList.size) {
+                                    val thisUiState = uiState.ongoingList[i]
+                                    finishedRecords(
+                                        modifier = Modifier,
+                                        aspectRatio = 1 / 0.1875f,
+                                        totalWidth = totalWidth,
+                                        index = i,
+                                        finishedList = uiState.finishedList,
+                                        onDelete = {
+                                            viewModel.deleteRecord(
+                                                Pair(
+                                                    thisUiState.appName,
+                                                    thisUiState.date
+                                                )
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            item{Spacer(modifier = Modifier.height(100.dp))}
         }
     }
 }
@@ -187,8 +250,9 @@ fun MostApps(modifier: Modifier, totalWidth: Dp, descendingList: List<Descending
 }
 
 @Composable
-fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int, ongoingList: List<OngoingRecord>){
+fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int, ongoingList: List<OngoingRecord>, onDelete: () -> Unit){
     val squareSize = (totalWidth - 10.dp) / 2 * 0.24f
+    var expanded by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -246,13 +310,28 @@ fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
                 tint = Color.Gray,
                 modifier = Modifier.size(24.dp)
             )
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                offset = DpOffset(x = totalWidth * 0.68f, y = 0.dp),
+                modifier = Modifier.background(Color.White)
+            ) {
+                DropdownMenuItem(
+                    text = { Text("삭제") },
+                    modifier = Modifier.background(Color.White),
+                    onClick = {
+                        onDelete ()
+                        expanded = false }
+                )
+            }
         }
     }
 }
 
 @Composable
-fun finishedRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int, finishedList: List<FinishedRecord>){
+fun finishedRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int, finishedList: List<FinishedRecord>, onDelete: () -> Unit){
     val squareSize = (totalWidth - 10.dp) / 2 * 0.24f
+    var expanded by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -310,7 +389,41 @@ fun finishedRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, inde
                 tint = Color.Gray,
                 modifier = Modifier.size(24.dp)
             )
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                offset = DpOffset(x = totalWidth * 0.68f, y = 0.dp),
+                modifier = Modifier.background(Color.White)
+            ) {
+                DropdownMenuItem(
+                    text = { Text("삭제") },
+                    modifier = Modifier.background(Color.White),
+                    onClick = {
+                        onDelete ()
+                        expanded = false }
+                )
+            }
         }
+    }
+}
+
+@Composable
+fun EmptyState(modifier: Modifier, totalWidth: Dp) {
+    Box(
+        modifier = modifier
+            .padding(horizontal = totalWidth * 0.1f)
+            .fillMaxWidth()
+            .height(totalWidth * 1.2f)
+            .background(Color.White, shape = RoundedCornerShape(16.dp, 0.dp, 16.dp, 16.dp)),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "표시할 기록이 없습니다.",
+            style = TextStyle(
+                fontSize = 18.sp,
+                color = Color.Gray
+            )
+        )
     }
 }
 

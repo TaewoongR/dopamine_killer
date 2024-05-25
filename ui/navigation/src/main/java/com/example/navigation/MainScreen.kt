@@ -38,8 +38,12 @@ fun MainScreen() {
         //PreferenceUtils.resetSetup(context)         // 테스트 재시작시 필요
         //TokenManager.clearToken(context)            // 테스트 재시작시 필요
         val currentToken = UserTokenStore.getToken(context)
-        if (currentToken != null) {
+        if (currentToken != null && SetupFlag.isSetupComplete(context)) {
             navController.navigate("bot_nav_bar") {
+                popUpTo(0) { inclusive = true }
+            }
+        }else if(currentToken != null && !SetupFlag.isSetupComplete(context)){
+            navController.navigate("permission_screen"){
                 popUpTo(0) { inclusive = true }
             }
         } else {
@@ -91,8 +95,9 @@ fun MainScreen() {
             AppSettingScreen(navController)
         }
         composable("goal_setting") {
-            SetupFlag.saveSetupComplete(context)
-            GoalSettingScreen(navController)
+            val isSettingComplete: () -> Unit = {SetupFlag.saveSetupComplete(context)}
+            GoalSettingScreen(navController, isSettingComplete)
+
         }
         composable("bot_nav_bar") {
             BotNavBar()

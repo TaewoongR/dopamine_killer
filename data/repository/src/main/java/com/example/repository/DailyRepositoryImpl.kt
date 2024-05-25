@@ -7,7 +7,6 @@ import com.example.local.horulyUsage.HourlyEntity
 import com.example.service.AppFetchingInfo
 import com.example.service.DateFactoryForData
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,16 +22,13 @@ class DailyRepositoryImpl @Inject constructor(
 
     override suspend fun getDailyUsageFrom(appName: String, dayAgo: Int): Triple<Int, String, Int> {
         val dateString = dateFactory.returnStringDate(dateFactory.returnTheDayStart(dayAgo))
-        repeat(5) {
-            try {
-                val entity = dailySource.get(appName, dateString)
-                if (entity.appName != "") {
-                    return Triple(entity.dailyUsage, entity.date, entity.dayOfWeek)
-                }
-            } catch (e: NullPointerException) {
-                // 로그 출력 등 예외 처리
+        try {
+            val entity = dailySource.get(appName, dateString)
+            if (entity.appName != "") {
+                return Triple(entity.dailyUsage, entity.date, entity.dayOfWeek)
             }
-            delay(500L) // 재시도 전 대기
+        } catch (e: NullPointerException) {
+
         }
         return Triple(0, dateString, -1)
     }

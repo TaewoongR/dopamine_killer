@@ -1,10 +1,11 @@
 package com.example.network.appUsage
 
 import android.util.Log
+import com.example.local.dailyUsage.DailyEntity
 import com.example.local.horulyUsage.HourlyEntity
 import com.example.local.monthlyUsage.MonthlyEntity
 import com.example.local.weeklyUsage.WeeklyEntity
-import com.example.network.appUsage.model.NetworkDailyEntity
+import com.example.network.appUsage.model.asNetworkDailyEntity
 import com.example.network.appUsage.model.asNetworkHourlyEntity
 import com.example.network.appUsage.retrofit.RetrofitNetworkApi
 import retrofit2.Call
@@ -19,36 +20,41 @@ internal class RetrofitNetwork @Inject constructor(
 ) : NetworkDataSource {
 
     override fun postHourlyData(hourlyEntity: HourlyEntity) {
-        val call: Call<String> = retrofitNetworkApi.postHourly(hourlyEntity.asNetworkHourlyEntity())
+        postData(retrofitNetworkApi.postHourly(hourlyEntity.asNetworkHourlyEntity()), "Hourly")
+    }
+
+    override fun postDailyData(dailyEntity: DailyEntity) {
+        postData(retrofitNetworkApi.postDaily(dailyEntity.asNetworkDailyEntity()), "Daily")
+    }
+
+    override fun postMonthlyData(monthlyEntity: MonthlyEntity) {
+        // Implement and call the postData function as needed
+        // Example: postData(retrofitNetworkApi.postMonthly(monthlyEntity.asNetworkMonthlyEntity()), "Monthly")
+    }
+
+    override fun postWeeklyData(weeklyEntity: WeeklyEntity) {
+        // Implement and call the postData function as needed
+        // Example: postData(retrofitNetworkApi.postWeekly(weeklyEntity.asNetworkWeeklyEntity()), "Weekly")
+    }
+
+    private fun postData(call: Call<String>, dataType: String) {
         call.enqueue(object : Callback<String> {
             override fun onResponse(call: Call<String>, response: Response<String>) {
                 if (response.isSuccessful) {
                     val responseBody: String? = response.body()
                     if (responseBody != null) {
-                        Log.d("RetrofitNetwork", "Request successful. Response body: $responseBody")
+                        Log.d("RetrofitNetwork", "$dataType Request successful. Response body: $responseBody")
                     } else {
-                        Log.d("RetrofitNetwork", "Request successful but response body is null")
+                        Log.d("RetrofitNetwork", "$dataType Request successful but response body is null")
                     }
                 } else {
-                    Log.d("RetrofitNetwork", "Request failed. Error response: ${response.errorBody()?.string()}")
+                    Log.d("RetrofitNetwork", "$dataType Request failed. Error response: ${response.errorBody()?.string()}")
                 }
             }
 
             override fun onFailure(call: Call<String>, t: Throwable) {
-                Log.d("RetrofitNetwork", "Request failed. Throwable: ${t.message}")
+                Log.d("RetrofitNetwork", "$dataType Request failed. Throwable: ${t.message}")
             }
         })
-    }
-
-    override fun postDailyData(dailyEntity: NetworkDailyEntity) {
-        TODO("Not yet implemented")
-    }
-
-    override fun postMonthlyData(monthlyEntity: MonthlyEntity) {
-        TODO("Not yet implemented")
-    }
-
-    override fun postWeeklyData(weeklyEntity: WeeklyEntity) {
-        TODO("Not yet implemented")
     }
 }

@@ -29,7 +29,7 @@ class GoalSettingViewModel @Inject constructor(
         updateUiState()
     }
 
-    private fun updateUiState() {
+    fun updateUiState() {
         viewModelScope.launch {
             val goalInfoList = mutableListOf<GoalInfo>()
             val selectedList = anDomain.getEntireSelectedApp()
@@ -64,7 +64,7 @@ class GoalSettingViewModel @Inject constructor(
                     GoalDataDomain(
                         appName = it.appName,
                         date = it.date,
-                        goalTime = it.goalTime
+                        goalTime = it.goalTime * 60     // 초 단위로 저장
                     )
                 )
             }

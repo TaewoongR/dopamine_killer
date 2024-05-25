@@ -9,4 +9,7 @@
     <string name="app_TikTok">com.ss.android.ugc.trill</string>
     <string name="app_넷플릭스">com.netflix.mediaclient</string>
     <string name="app_Disney">com.disney.disneyplus</string>
+    <string name="app_카카오페이지">com.kakao.page</string>
+    <string name="app_카카오웹툰">net.daum.android.webtoon</string>
+    <string name="app_시리즈">com.nhn.android.nbooks</string>
 </resources>

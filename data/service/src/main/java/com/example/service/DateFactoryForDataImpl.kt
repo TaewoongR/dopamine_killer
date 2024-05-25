@@ -2,6 +2,7 @@ package com.example.service
 
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -186,5 +187,24 @@ class DateFactoryForDataImpl @Inject constructor(): DateFactoryForData{
         }
 
         return null // No full hour mark within the given timespan
+    }
+
+    override fun calculateDayPassed(stringDate: String): Int {
+        // 입력된 날짜 형식에 맞는 SimpleDateFormat 생성
+        val dateFormat = SimpleDateFormat("yyyyMMdd", Locale.getDefault())
+
+        // 오늘 날짜
+        val today = Calendar.getInstance()
+
+        // 입력된 날짜
+        val inputDate = Calendar.getInstance().apply {
+            time = dateFormat.parse(stringDate) ?: throw IllegalArgumentException("Invalid date format")
+        }
+
+        // 오늘 날짜와 입력된 날짜의 차이를 계산
+        val differenceInMillis = today.timeInMillis - inputDate.timeInMillis
+        val differenceInDays = differenceInMillis / (24 * 60 * 60 * 1000)
+
+        return differenceInDays.toInt()
     }
 }

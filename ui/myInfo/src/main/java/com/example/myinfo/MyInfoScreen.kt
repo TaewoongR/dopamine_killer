@@ -1,5 +1,6 @@
 package com.example.myinfo
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -27,8 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.myinfo.api.LoginApiService
 import com.example.local.user.UserTokenStore
+import com.example.myinfo.api.LoginApiService
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -43,6 +44,12 @@ fun MyInfoScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     settingsContent(uiState, navController)
+    // Back button handler
+    BackHandler {
+        navController.navigate("overview_route") {
+            popUpTo("overview_route") { inclusive = true }
+        }
+    }
 }
 
 @Composable
@@ -79,10 +86,9 @@ fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        navController.navigate("selected_app_edit"){
-                            popUpTo("myinfo_route"){
-                                inclusive = false
-                            }
+                        navController.navigate("selected_app_edit") {
+                            popUpTo("myinfo_route") { inclusive = false }
+                            launchSingleTop = true
                         }
                     }
                     .height(totalWidth * 0.16f),

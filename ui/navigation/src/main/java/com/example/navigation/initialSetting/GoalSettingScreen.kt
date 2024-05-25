@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -50,15 +51,19 @@ import kotlinx.coroutines.launch
 @Composable
 fun GoalSettingScreen(
     navController: NavController,
+    isSettingComplete: () -> Unit,
     viewModel: GoalSettingViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    goalSetContent(uiState, viewModel, navController)
+    LaunchedEffect(navController.currentBackStackEntry) {
+        viewModel.updateUiState()
+    }
+    goalSetContent(uiState, viewModel, navController, isSettingComplete)
 }
 
 
 @Composable
-fun goalSetContent(uiState: GoalSettingUiState, viewModel: GoalSettingViewModel, navController:NavController) {
+fun goalSetContent(uiState: GoalSettingUiState, viewModel: GoalSettingViewModel, navController:NavController, isSettingComplete: () -> Unit) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val totalWidth = screenWidth * 0.85f
     val minuteMarks = (0..12).map { it * 5 }
@@ -102,7 +107,7 @@ fun goalSetContent(uiState: GoalSettingUiState, viewModel: GoalSettingViewModel,
             }
         }
         Box(modifier = Modifier.offset(y = totalWidth * 1f)){
-            setButton(totalWidth = totalWidth, viewModel = viewModel, uiState = uiState, navController = navController) // 텍스트 변경?
+            setButton(totalWidth = totalWidth, viewModel = viewModel, uiState = uiState, navController = navController, isSettingComplete) // 텍스트 변경?
         }
     }
 }
@@ -236,7 +241,7 @@ fun MinuteSlider(
 }
 
 @Composable
-fun setButton(totalWidth: Dp, viewModel: GoalSettingViewModel, uiState: GoalSettingUiState, navController: NavController){
+fun setButton(totalWidth: Dp, viewModel: GoalSettingViewModel, uiState: GoalSettingUiState, navController: NavController, isSettingComplete: () -> Unit){
     val scope = rememberCoroutineScope()
     Box(
         modifier = Modifier
@@ -246,6 +251,7 @@ fun setButton(totalWidth: Dp, viewModel: GoalSettingViewModel, uiState: GoalSett
             .clickable {
                 scope.launch {
                     viewModel.saveAppSettings(uiState.goalList)  // ViewModel에 전체 상태 전송
+                    isSettingComplete()
                     navController.navigate("bot_nav_bar") { // 대상 루트로 변경하세요
                         popUpTo(0) {
                             inclusive = true

@@ -39,7 +39,9 @@ class MainActivity: ComponentActivity() {
         }
         scheduleUpdateHourlyDaily()
         scheduleUpdateInstalledApp()
-        schedulePostNetworkHourly()
+        scheduleUpdateAccessGoal()
+        //schedulePostNetworkHourly()
+        //schedulePostNetworkDaily()
     }
 
     private suspend fun initialUpdate(){
@@ -91,6 +93,18 @@ class MainActivity: ComponentActivity() {
         )
     }
 
+    private fun scheduleUpdateAccessGoal() {
+        val updateGoalRequest = OneTimeWorkRequestBuilder<CoreWorker>()
+            .setInputData(workDataOf("TASK_TYPE" to "UPDATE_ACCESS_GOAL"))
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniqueWork(
+            "UpdateAccessGoal",
+            ExistingWorkPolicy.REPLACE,
+            updateGoalRequest
+        )
+    }
+
     private fun schedulePostNetworkHourly() {
         val updateNetworkHourlyRequest = OneTimeWorkRequestBuilder<CoreWorker>()
             .setInputData(workDataOf("TASK_TYPE" to "POST_NETWORK_HOURLY"))
@@ -100,6 +114,18 @@ class MainActivity: ComponentActivity() {
             "PostNetworkHourly",
             ExistingWorkPolicy.REPLACE,
             updateNetworkHourlyRequest
+        )
+    }
+
+    private fun schedulePostNetworkDaily() {
+        val updateNetworkDailyRequest = OneTimeWorkRequestBuilder<CoreWorker>()
+            .setInputData(workDataOf("TASK_TYPE" to "POST_NETWORK_DAILY"))
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniqueWork(
+            "PostNetworkDaily",
+            ExistingWorkPolicy.REPLACE,
+            updateNetworkDailyRequest
         )
     }
 }

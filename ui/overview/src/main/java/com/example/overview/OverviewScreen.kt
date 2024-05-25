@@ -181,7 +181,7 @@ fun DonutGraph(percent: Float, modifier: Modifier, size: Dp, overviewUiState: Ov
                 size = squareSize.dp,
                 cornerRadius = 8.dp
             )
-            val minute = overviewUiState.analysisData.goalTime
+            val minute = overviewUiState.analysisData.goalTime / 60
             Text(text = if(minute != 0)"${minute}분" else "미지정", style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 16.sp))
         }
     }
