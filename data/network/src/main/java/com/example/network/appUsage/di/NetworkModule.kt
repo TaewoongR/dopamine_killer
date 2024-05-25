@@ -1,7 +1,7 @@
 package com.example.network.appUsage.di
 
 import com.example.network.appUsage.NetworkDataSource
-import com.example.network.appUsage.RetrofitNetwork
+import com.example.network.appUsage.RetrofitNetworkRepository
 import com.example.network.appUsage.retrofit.RetrofitNetworkApi
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -52,5 +52,5 @@ object NetworkModule {
     @Singleton
     fun provideNetworkDataSource(
         retrofitNetworkApi: RetrofitNetworkApi
-    ): NetworkDataSource = RetrofitNetwork(retrofitNetworkApi)
+    ): NetworkDataSource = RetrofitNetworkRepository(retrofitNetworkApi)
 }

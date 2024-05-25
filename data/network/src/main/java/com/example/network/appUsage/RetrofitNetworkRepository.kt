@@ -5,6 +5,7 @@ import com.example.local.dailyUsage.DailyEntity
 import com.example.local.horulyUsage.HourlyEntity
 import com.example.local.monthlyUsage.MonthlyEntity
 import com.example.local.weeklyUsage.WeeklyEntity
+import com.example.network.appUsage.model.BadgeResponse
 import com.example.network.appUsage.model.asNetworkDailyEntity
 import com.example.network.appUsage.model.asNetworkHourlyEntity
 import com.example.network.appUsage.retrofit.RetrofitNetworkApi
@@ -15,7 +16,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class RetrofitNetwork @Inject constructor(
+internal class RetrofitNetworkRepository @Inject constructor(
     private val retrofitNetworkApi: RetrofitNetworkApi,
 ) : NetworkDataSource {
 
@@ -35,6 +36,29 @@ internal class RetrofitNetwork @Inject constructor(
     override fun postWeeklyData(weeklyEntity: WeeklyEntity) {
         // Implement and call the postData function as needed
         // Example: postData(retrofitNetworkApi.postWeekly(weeklyEntity.asNetworkWeeklyEntity()), "Weekly")
+    }
+
+    override fun getBadge() {
+        val call = retrofitNetworkApi.getBadges("testing")  // 추후 userEntity 구성 후 작성
+        call.enqueue(object : Callback<List<BadgeResponse>> {
+            override fun onResponse(call: Call<List<BadgeResponse>>, response: Response<List<BadgeResponse>>) {
+                if (response.isSuccessful) {
+                    val badges = response.body()
+                    // badges를 사용한 작업 수행
+                    badges?.forEach { badge ->
+                        println("Badge ID: ${badge.id}, Description: ${badge.badgeInfo.description}, Image URL: ${badge.badgeInfo.imageUrl}")
+                    }
+                } else {
+                    // 오류 처리
+                    println("Error: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<List<BadgeResponse>>, t: Throwable) {
+                // 네트워크 오류 처리
+                println("Failure: ${t.message}")
+            }
+        })
     }
 
     private fun postData(call: Call<String>, dataType: String) {
@@ -57,4 +81,5 @@ internal class RetrofitNetwork @Inject constructor(
             }
         })
     }
+
 }

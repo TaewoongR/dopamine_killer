@@ -10,5 +10,5 @@ interface NetworkDataSource {
     fun postDailyData(dailyEntity: DailyEntity)
     fun postWeeklyData(weeklyEntity: WeeklyEntity)
     fun postMonthlyData(monthlyEntity: MonthlyEntity)
-
+    fun getBadge()
 }
