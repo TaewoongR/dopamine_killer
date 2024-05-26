@@ -12,7 +12,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.local.user.UserTokenStore
-import com.example.myinfo.AuthSelectionScreen
 import com.example.myinfo.LoginScreen
 import com.example.myinfo.SignUpScreen
 import com.example.navigation.botNav.BotNavBar
@@ -47,7 +46,7 @@ fun MainScreen() {
                 popUpTo(0) { inclusive = true }
             }
         } else {
-            navController.navigate("auth_selection_route") {
+            navController.navigate("login_route") {
                 popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
             }
         }
@@ -57,9 +56,6 @@ fun MainScreen() {
     NavHost(navController = navController, startDestination = startDestination) {
         composable("placeholder_start"){
             // LaunchedEffect를 사용하여 토큰 상태를 다시 확인하고 적절한 화면으로 네비게이션
-        }
-        composable("auth_selection_route"){
-            AuthSelectionScreen(navController)
         }
         composable("login_route"){
             val navigateToScreen: () -> Unit = {

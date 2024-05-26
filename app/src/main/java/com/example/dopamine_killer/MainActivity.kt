@@ -1,6 +1,7 @@
 package com.example.dopamine_killer
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
@@ -34,12 +35,13 @@ class MainActivity: ComponentActivity() {
         // 코루틴 스코프 내에서 suspend 함수를 호출
         if (!SetupFlag.isSetupComplete(this)) {
             lifecycleScope.launch {
+                Log.d("initial", "initial update")
                 initialUpdate()
             }
         }
-        scheduleUpdateHourlyDaily()
-        scheduleUpdateInstalledApp()
-        scheduleUpdateAccessGoal()
+        updateHourlyDailyAtRunning()
+        updateInstalledAppAtRunning()
+        updateAccessGoalAtRunning()
         //schedulePostNetworkHourly()
         //schedulePostNetworkDaily()
     }
@@ -69,7 +71,7 @@ class MainActivity: ComponentActivity() {
     }
 
 
-    private fun scheduleUpdateInstalledApp() {
+    private fun updateInstalledAppAtRunning() {
         val updateInstalledAppRequest = OneTimeWorkRequestBuilder<CoreWorker>()
             .setInputData(workDataOf("TASK_TYPE" to "UPDATE_INSTALLED_APP"))
             .build()
@@ -81,7 +83,7 @@ class MainActivity: ComponentActivity() {
         )
     }
 
-    private fun scheduleUpdateHourlyDaily() {
+    private fun updateHourlyDailyAtRunning() {
         val updateHourlyDailyRequest = OneTimeWorkRequestBuilder<CoreWorker>()
             .setInputData(workDataOf("TASK_TYPE" to "UPDATE_HOURLY_DAILY_USAGE"))
             .build()
@@ -93,7 +95,7 @@ class MainActivity: ComponentActivity() {
         )
     }
 
-    private fun scheduleUpdateAccessGoal() {
+    private fun updateAccessGoalAtRunning() {
         val updateGoalRequest = OneTimeWorkRequestBuilder<CoreWorker>()
             .setInputData(workDataOf("TASK_TYPE" to "UPDATE_ACCESS_GOAL"))
             .build()

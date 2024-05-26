@@ -13,8 +13,8 @@ interface DailyDAO {
     @Query("SELECT * FROM daily_usage WHERE appName = :appName AND date = :date")
     fun get(appName: String, date: String): DailyEntity
 
-    @Query("DELETE FROM daily_usage WHERE dailyUsage = 0")
-    fun delete()
+    @Query("DELETE FROM daily_usage WHERE date =:date")
+    fun deleteOnDate(date: String)
 
     @Upsert
     fun upsert(dailyEntity: DailyEntity)

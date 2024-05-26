@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -57,9 +58,6 @@ import androidx.navigation.NavController
 val backgroundColor: Color = Color(android.graphics.Color.parseColor("#EFEFEF"))
 val keyColor: Color = Color(android.graphics.Color.parseColor("#FF9A62"))
 val subColor: Color = Color(android.graphics.Color.parseColor("#73A66A"))
-val vagueText: Color = Color(android.graphics.Color.parseColor("#777777"))
-val vagueColor: Color = Color(android.graphics.Color.parseColor("#F0F0F0"))
-
 
 @Composable
 fun RecordScreen(
@@ -153,7 +151,7 @@ fun RecordContent(uiState: RecordUiState, viewModel: RecordViewModel, navControl
                             }
                             if (uiState.finishedList.isNotEmpty()) {
                                 for (i in 0 until uiState.finishedList.size) {
-                                    val thisUiState = uiState.ongoingList[i]
+                                    val thisUiState = uiState.finishedList[i]
                                     finishedRecords(
                                         modifier = Modifier,
                                         aspectRatio = 1 / 0.26f,
@@ -245,24 +243,30 @@ fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
                     contentDescription = "메뉴",
                     tint = Color.Gray
                 )
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    offset = DpOffset(x = 0.dp, y = 0.dp),
+                    modifier = Modifier
+                        .background(Color.White)
+                        .width(totalWidth * 0.2f)
+                ) {
+                    DropdownMenuItem(
+                        {Box(modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .background(Color.White),
+                            contentAlignment = Alignment.Center){
+                            Text("삭제")
+                        }},
+                        onClick = {
+                            onDelete()
+                            expanded = false
+                        }
+                    )
+                }
             }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                offset = DpOffset(x = (16).dp, y = 0.dp), // 클릭 아이콘 바로 밑에 위치
-                modifier = Modifier
-                    .background(Color.White)
-                    .width(totalWidth * 0.3f) // 메뉴 크기 조정
-            ){
-                DropdownMenuItem(
-                    text = { Text("삭제") },
-                    modifier = Modifier.background(Color.White),
-                    onClick = {
-                        onDelete ()
-                        expanded = false
-                    }
-                )
-            }
+
         }
         Text(
             text = ongoingList[index].date.run{ "${this.substring(0, 4)}/${this.substring(4, 6)}/${this.substring(6, 8)}"},
@@ -330,26 +334,34 @@ fun finishedRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, inde
                     )
                 }
             }
-            Icon(
-                imageVector = Icons.Filled.MoreVert,
-                contentDescription = "메뉴", // 접근성을 위한 설명
-                tint = Color.Gray,
-                modifier = Modifier.size(24.dp)
-            )
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                offset = DpOffset(x = totalWidth * 0.68f, y = 0.dp),
-                modifier = Modifier.background(Color.White)
-            ) {
-                DropdownMenuItem(
-                    text = { Text("삭제") },
-                    modifier = Modifier.background(Color.White),
-                    onClick = {
-                        onDelete ()
-                        expanded = false
-                    }
+            IconButton(onClick = {expanded = ! expanded}, modifier = Modifier.width(24.dp)) {
+                Icon(
+                    imageVector = Icons.Filled.MoreVert,
+                    contentDescription = "메뉴",
+                    tint = Color.Gray
                 )
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    offset = DpOffset(x = 0.dp, y = 0.dp),
+                    modifier = Modifier
+                        .background(Color.White)
+                        .width(totalWidth * 0.2f)
+                ) {
+                    DropdownMenuItem(
+                        {Box(modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .background(Color.White),
+                            contentAlignment = Alignment.Center){
+                            Text("삭제")
+                        }},
+                        onClick = {
+                            onDelete()
+                            expanded = false
+                        }
+                    )
+                }
             }
         }
         Text(

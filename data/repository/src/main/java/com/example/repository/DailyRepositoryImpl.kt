@@ -85,7 +85,42 @@ class DailyRepositoryImpl @Inject constructor(
 
     override suspend fun periodicHourlyDailyUpdate() {
         val appNameList = selectedAppRepository.getAllInstalled()
-        val currentHour = dateFactory.returnTheHour(dateFactory.returnToday())
+        appNameList.forEach {appName ->
+            for(i in 0..1) {   // 1~9일 전
+                val usageNDate = appInfo.getHourlyUsage(appName, i)
+                withContext(Dispatchers.IO) {
+                    hourlySource.upsert(
+                        HourlyEntity(
+                            appName = appName,
+                            date = usageNDate.second,
+                            dayOfWeek = usageNDate.third,
+                            hour00 = usageNDate.first[0], hour01 = usageNDate.first[1],
+                            hour02 = usageNDate.first[2], hour03 = usageNDate.first[3],
+                            hour04 = usageNDate.first[4], hour05 = usageNDate.first[5],
+                            hour06 = usageNDate.first[6], hour07 = usageNDate.first[7],
+                            hour08 = usageNDate.first[8], hour09 = usageNDate.first[9],
+                            hour10 = usageNDate.first[10], hour11 = usageNDate.first[11],
+                            hour12 = usageNDate.first[12], hour13 = usageNDate.first[13],
+                            hour14 = usageNDate.first[14], hour15 = usageNDate.first[15],
+                            hour16 = usageNDate.first[16], hour17 = usageNDate.first[17],
+                            hour18 = usageNDate.first[18], hour19 = usageNDate.first[19],
+                            hour20 = usageNDate.first[20], hour21 = usageNDate.first[21],
+                            hour22 = usageNDate.first[22], hour23 = usageNDate.first[23]
+                        )
+                    )
+                    dailySource.upsert(
+                        DailyEntity(
+                            appName = appName,
+                            date = usageNDate.second,
+                            dayOfWeek = usageNDate.third,
+                            dailyUsage = usageNDate.first.sum()
+                        )
+                    )
+                }
+            }
+        }
+        appInfo.getAppNameList()
+        /*
         appNameList.forEach {app ->
             val usageNDate = withContext(Dispatchers.IO) {appInfo.getHourlyUsage(app,0, false)}
             val hourlyUsage = usageNDate.first
@@ -254,11 +289,13 @@ class DailyRepositoryImpl @Inject constructor(
                 }
             }
         }
+
+         */
     }
 
 
-    override suspend fun deleteUndetected() {
-        dailySource.delete()
+    override suspend fun deleteOnDate(date:String) {
+        dailySource.deleteOnDate(date)
     }
 
     override suspend fun deleteHourlyDaily() {

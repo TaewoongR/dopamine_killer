@@ -84,7 +84,7 @@ fun BotNavBar() {
                                 // NavHost에서 정의한 루트와 연결된 함수로 이동
                                 navController.navigate(navigationItem.route) {
                                     popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
+                                        saveState = false
                                     }
                                     launchSingleTop = true
                                     restoreState = true

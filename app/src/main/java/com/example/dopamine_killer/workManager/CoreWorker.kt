@@ -39,6 +39,7 @@ class CoreWorker @AssistedInject constructor(
                     }
                     "UPDATE_INSTALLED_APP" -> {
                         Log.d(TAG, "Updating installed apps")
+                        coreDomain.deleteUndetectedUsageObj("20240525")
                         coreDomain.updatePeriodicInstalledApp()
                     }
                     "UPDATE_PERIODIC_GOAL" -> {

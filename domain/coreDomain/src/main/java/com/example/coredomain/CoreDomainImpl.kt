@@ -126,11 +126,9 @@ class CoreDomainImpl @Inject constructor(
         }
     }
 
-    override suspend fun deleteUndetectedUsageObj() {
+    override suspend fun deleteUndetectedUsageObj(date:String) {
         withContext(Dispatchers.IO) {
-            dailyRepository.deleteUndetected()
-            weeklyRepository.deleteUndetected()
-            monthlyRepository.deleteUndetected()
+            dailyRepository.deleteOnDate(date)
         }
     }
 
