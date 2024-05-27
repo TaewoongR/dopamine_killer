@@ -37,7 +37,7 @@ class WeeklyRepositoryImpl @Inject constructor(
 
     override suspend fun initialWeeklyUpdate(appNameList: List<String>) {
         appNameList.forEach { appName ->
-            for (i in 1..3) {   // 1~3주 전
+            for (i in 1..2) {   // 1~2주 전
                 val usageNDate = appInfo.getWeeklyAvgUsage(appName, i)
                 withContext(Dispatchers.IO) {
                     weeklySource.upsert(

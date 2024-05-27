@@ -118,6 +118,7 @@ fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController) {
                     .clickable {
                         navController.navigate("main_screen") {
                             UserTokenStore.clearToken(context)
+                            UserTokenStore.clearUserId(context)
                             popUpTo(0) {
                                 inclusive = true
                             }
@@ -151,6 +152,7 @@ fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController) {
                                         // 토큰 삭제 및 로그인 화면으로 네비게이션
                                         navController.navigate("main_screen") { // 대상 루트로 변경하세요
                                             UserTokenStore.clearToken(context)
+                                            UserTokenStore.clearUserId(context)
                                             popUpTo(0) {
                                                 inclusive = true
                                             }

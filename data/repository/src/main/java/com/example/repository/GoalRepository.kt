@@ -7,7 +7,7 @@ interface GoalRepository {
 
     suspend fun deleteGoal(appName: String, date: String)
 
-    suspend fun succeedGoal(appName: String, date: String)
+    suspend fun succeedGoal(appName: String, date: String, howLong: Int)
 
     suspend fun failGoal(appName: String, date: String)
 

@@ -126,6 +126,7 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
                 }
             }
             rewardOverview(modifier = Modifier, aspectRatio = 1f/0.6f, totalWidth = totalWidth)
+            aiOverview(modifier = Modifier, aspectRatio = 1f/0.6f, totalWidth = totalWidth, flaskApiResponse = overviewUiState.flaskApiResponse)
         }
     }
 }
@@ -256,7 +257,9 @@ fun recordOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
             .background(color = Color.White, shape = RoundedCornerShape(16.dp))
     ) {
         Row(
-            modifier = Modifier.fillMaxSize().padding(end = totalWidth * 0.02f),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(end = totalWidth * 0.02f),
             verticalAlignment = Alignment.CenterVertically // 앱 아이콘, 째깐둥이 수직 중앙 정렬
         ) {
             IconImage(
@@ -273,7 +276,7 @@ fun recordOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
                         .padding(end = totalWidth * 0.012f) // 째깐둥이 사이 간격 조절
                         .size(totalWidth * 0.020f, totalWidth * 0.032f) // 째깐둥이 크기
                         .background(
-                            if(recordList[index].onGoing) subColor else Color.LightGray,
+                            if (recordList[index].onGoing) subColor else Color.LightGray,
                             shape = RoundedCornerShape(99.dp)
                         )
                 )
@@ -341,6 +344,30 @@ fun IconImage(
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
+    }
+}
+
+@Composable
+fun aiOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, flaskApiResponse: String?){
+    Box(
+        modifier = Modifier
+            .width(totalWidth)
+            .aspectRatio(aspectRatio)
+            .background(color = Color.White, shape = RoundedCornerShape(16.dp))
+    ) {
+        flaskApiResponse?.let { response ->
+            Text(
+                text = response,
+                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black),
+                modifier = Modifier.padding(16.dp)
+            )
+        } ?: run {
+            Text(
+                text = "Loading...",
+                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Gray),
+                modifier = Modifier.padding(16.dp)
+            )
+        }
     }
 }
 

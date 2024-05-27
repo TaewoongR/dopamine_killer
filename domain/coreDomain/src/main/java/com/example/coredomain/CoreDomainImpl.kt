@@ -1,5 +1,6 @@
 package com.example.coredomain
 
+import android.content.Context
 import androidx.compose.ui.graphics.ImageBitmap
 import com.example.local.R
 import com.example.repository.DailyRepository
@@ -107,20 +108,29 @@ class CoreDomainImpl @Inject constructor(
     override suspend fun updateRecord(accessOrPeriodic: Int) {  // 0-접속시 1-자동처리
         withContext(Dispatchers.IO) {
             val onGoingList = goalRepository.getOnGoingList().map{ Triple(it.appName,it.goalTime, it.date) }
-            val realUsageList = onGoingList.map {
+            val realUsageYesterdayList = onGoingList.map {
                 Pair(
                     it.first,
-                    dailyRepository.getDailyUsageFrom(it.first , accessOrPeriodic).first
+                    dailyRepository.getDailyUsageFrom(it.first , 1).first
+                )
+            }
+            val realUsageTodayList = onGoingList.map {
+                Pair(
+                    it.first,
+                    dailyRepository.getDailyUsageFrom(it.first , 0).first
                 )
             }
             for (i in onGoingList.indices) {
                 val appName = onGoingList[i].first
                 val goalTime = onGoingList[i].second
-                val realUsage = realUsageList[i].second
+                val realUsageYesterday = realUsageYesterdayList[i].second
+                val realUsageToday = realUsageTodayList[i].second
                 val date = onGoingList[i].third
 
-                if (realUsage > goalTime) {
+                if (realUsageYesterday > goalTime || realUsageToday > goalTime) {
                     goalRepository.failGoal(appName, date)
+                }else{
+                    goalRepository.succeedGoal(appName, date, dateFactory.calculateDayPassed(date))
                 }
             }
         }
@@ -174,11 +184,15 @@ class CoreDomainImpl @Inject constructor(
         }
     }
 
-    override suspend fun postNetworkHourly() {
-        networkRepository.updateEntireNetworkHourly()
+    override suspend fun postNetworkHourly(context: Context) {
+        networkRepository.updateEntireNetworkHourly(context)
     }
 
-    override suspend fun postNetworkDaily() {
-        networkRepository.updateEntireNetworkDaily()
+    override suspend fun postNetworkDaily(context: Context) {
+        networkRepository.updateEntireNetworkDaily(context)
+    }
+
+    override suspend fun postNetworkWeekly(context: Context) {
+        networkRepository.updateEntireNetworkWeekly(context)
     }
 }

@@ -63,10 +63,11 @@ class SelectedAppRepositoryImpl @Inject constructor(
             }
         }else{
             val selected = try{
-                selectedAppDAO.getAllSelectedAppList()
+                selectedAppDAO.getAllSelectedAppList().filter { it in appNameList }
             }catch(e: NullPointerException){
                 listOf()
             }
+
             selectedAppDAO.clearAll()
             appNameList.forEach {
                 val packageName = appFetchingInfo.getPackageNameBy(it)

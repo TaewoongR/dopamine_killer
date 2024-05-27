@@ -1,6 +1,7 @@
 package com.example.network.appUsage
 
 import android.content.ContentValues.TAG
+import android.content.Context
 import android.util.Log
 import com.example.local.dailyUsage.DailyEntity
 import com.example.local.horulyUsage.HourlyEntity
@@ -8,7 +9,9 @@ import com.example.local.monthlyUsage.MonthlyEntity
 import com.example.local.weeklyUsage.WeeklyEntity
 import com.example.network.appUsage.model.asNetworkDailyEntity
 import com.example.network.appUsage.model.asNetworkHourlyEntity
+import com.example.network.appUsage.model.asNetworkWeeklyEntity
 import com.example.network.appUsage.retrofit.RetrofitNetworkApi
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -20,22 +23,22 @@ internal class RetrofitNetworkRepository @Inject constructor(
     private val retrofitNetworkApi: RetrofitNetworkApi,
 ) : NetworkDataSource {
 
-    override fun postHourlyData(hourlyEntity: HourlyEntity) {
-        postData(retrofitNetworkApi.postHourly(hourlyEntity.asNetworkHourlyEntity()), "Hourly")
+    override fun postHourlyData(hourlyEntity: HourlyEntity, context: Context) {
+        postData(retrofitNetworkApi.postHourly(hourlyEntity.asNetworkHourlyEntity(context)), "Hourly")
+
     }
 
-    override fun postDailyData(dailyEntity: DailyEntity) {
-        postData(retrofitNetworkApi.postDaily(dailyEntity.asNetworkDailyEntity()), "Daily")
+    override fun postDailyData(dailyEntity: DailyEntity, context: Context) {
+        postData(retrofitNetworkApi.postDaily(dailyEntity.asNetworkDailyEntity(context)), "Daily")
     }
 
-    override fun postMonthlyData(monthlyEntity: MonthlyEntity) {
+    override fun postWeeklyData(weeklyEntity: WeeklyEntity, context: Context) {
+        postData(retrofitNetworkApi.postWeekly(weeklyEntity.asNetworkWeeklyEntity(context)), "Weekly")
+    }
+
+    override fun postMonthlyData(monthlyEntity: MonthlyEntity, context: Context) {
         // Implement and call the postData function as needed
-        // Example: postData(retrofitNetworkApi.postMonthly(monthlyEntity.asNetworkMonthlyEntity()), "Monthly")
-    }
-
-    override fun postWeeklyData(weeklyEntity: WeeklyEntity) {
-        // Implement and call the postData function as needed
-        // Example: postData(retrofitNetworkApi.postWeekly(weeklyEntity.asNetworkWeeklyEntity()), "Weekly")
+        // Example: postData(retrofitNetworkApi.postWeekly(weeklyEntity.asNetworkWeeklyEntity()), "Monthly")
     }
 
     override suspend fun getBadge(username: String): List<Triple<String, String, String>> {
@@ -56,6 +59,20 @@ internal class RetrofitNetworkRepository @Inject constructor(
         } catch (e: Exception) {
             Log.e(TAG, "Failed to fetch badges", e)
             emptyList()
+        }
+    }
+
+    override suspend fun getFlaskApiResponse(token: String): String {
+        return try {
+            val response: Response<ResponseBody> = retrofitNetworkApi.getFlaskResponse(token)
+            if (response.isSuccessful) {
+                response.body()?.string() ?: "Error: Empty response body"
+            } else {
+                "Error: ${response.errorBody()?.string()}"
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to fetch Flask API response", e)
+            "Error: ${e.message}"
         }
     }
 

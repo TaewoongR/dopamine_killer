@@ -1,5 +1,6 @@
 package com.example.coredomain
 
+import android.content.Context
 import androidx.compose.ui.graphics.ImageBitmap
 
 interface CoreDomain {
@@ -18,7 +19,7 @@ interface CoreDomain {
     suspend fun getAppIcon(appName: String): ImageBitmap
     suspend fun clearAllDatabase()
 
-    suspend fun postNetworkHourly()
-    suspend fun postNetworkDaily()
-
+    suspend fun postNetworkHourly(context: Context)
+    suspend fun postNetworkDaily(context: Context)
+    suspend fun postNetworkWeekly(context: Context)
 }

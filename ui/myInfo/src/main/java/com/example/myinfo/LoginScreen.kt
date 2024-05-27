@@ -246,6 +246,7 @@ fun loginButton(totalWidth: Dp, username: String, password: String, navControlle
                                         ?.let { token ->
                                             Log.d("LoginScreen", "Login success with token: $token")
                                             UserTokenStore.saveToken(context, token)
+                                            UserTokenStore.saveUserId(context, username)
                                             navigateToMainScreen()
                                         } ?: run {
                                         errorMessage = "로그인 실패: 토큰이 반환되지 않았습니다."

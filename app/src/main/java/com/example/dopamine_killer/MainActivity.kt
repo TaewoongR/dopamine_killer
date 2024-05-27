@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
@@ -39,11 +41,7 @@ class MainActivity: ComponentActivity() {
                 initialUpdate()
             }
         }
-        updateHourlyDailyAtRunning()
-        updateInstalledAppAtRunning()
-        updateAccessGoalAtRunning()
-        //schedulePostNetworkHourly()
-        //schedulePostNetworkDaily()
+        lifecycle.addObserver(MainActivityLifecycleObserver())
     }
 
     private suspend fun initialUpdate(){
@@ -129,5 +127,30 @@ class MainActivity: ComponentActivity() {
             ExistingWorkPolicy.REPLACE,
             updateNetworkDailyRequest
         )
+    }
+
+    private fun schedulePostNetworkWeekly() {
+        val updateNetworkWeeklyRequest = OneTimeWorkRequestBuilder<CoreWorker>()
+            .setInputData(workDataOf("TASK_TYPE" to "POST_NETWORK_WEEKLY"))
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniqueWork(
+            "PostNetworkDaily",
+            ExistingWorkPolicy.REPLACE,
+            updateNetworkWeeklyRequest
+        )
+    }
+
+    inner class MainActivityLifecycleObserver : DefaultLifecycleObserver {
+        override fun onStart(owner: LifecycleOwner) {
+            super.onStart(owner)
+            Log.d("MainActivity", "App moved to foreground")
+            updateHourlyDailyAtRunning()
+            updateInstalledAppAtRunning()
+            updateAccessGoalAtRunning()
+            schedulePostNetworkHourly()
+            schedulePostNetworkDaily()
+            schedulePostNetworkWeekly()
+        }
     }
 }

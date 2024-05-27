@@ -39,7 +39,6 @@ class CoreWorker @AssistedInject constructor(
                     }
                     "UPDATE_INSTALLED_APP" -> {
                         Log.d(TAG, "Updating installed apps")
-                        coreDomain.deleteUndetectedUsageObj("20240525")
                         coreDomain.updatePeriodicInstalledApp()
                     }
                     "UPDATE_PERIODIC_GOAL" -> {
@@ -52,11 +51,15 @@ class CoreWorker @AssistedInject constructor(
                     }
                     "POST_NETWORK_HOURLY" -> {
                         Log.d(TAG, "Posting network hourly")
-                        coreDomain.postNetworkHourly()
+                        coreDomain.postNetworkHourly(applicationContext)
                     }
                     "POST_NETWORK_DAILY" -> {
-                        Log.d(TAG, "Posting network dailyly")
-                        coreDomain.postNetworkDaily()
+                        Log.d(TAG, "Posting network daily")
+                        //coreDomain.postNetworkDaily(applicationContext)
+                    }
+                    "POST_NETWORK_WEEKLY" -> {
+                        Log.d(TAG, "Posting network weekly")
+                        //coreDomain.postNetworkWeekly(applicationContext)
                     }
                     else -> {
                         Log.d(TAG, "Executing default task")

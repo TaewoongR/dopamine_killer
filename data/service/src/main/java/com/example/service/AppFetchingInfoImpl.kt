@@ -66,7 +66,7 @@ class AppFetchingInfoImpl @Inject constructor(
                 false
             }
         }
-        return isExist != null
+        return isExist?.packageName == packageName
     }
 
     override suspend fun getAppIcon(appName: String): ImageBitmap {

@@ -5,9 +5,12 @@ import com.example.network.appUsage.model.NetworkDailyEntity
 import com.example.network.appUsage.model.NetworkHourlyEntity
 import com.example.network.appUsage.model.NetworkMonthlyEntity
 import com.example.network.appUsage.model.NetworkWeeklyEntity
+import okhttp3.ResponseBody
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 
@@ -26,4 +29,7 @@ interface RetrofitNetworkApi {
 
     @GET(value = "/api/badges/{username}")
     suspend fun getBadges(@Path("username") username: String): List<BadgeResponse>
+
+    @GET(value ="/flask-api")
+    suspend fun getFlaskResponse(@Header("Authorization") token: String): Response<ResponseBody>
 }

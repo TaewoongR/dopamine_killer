@@ -38,17 +38,15 @@ class MonthlyRepositoryImpl @Inject constructor(
 
     override suspend fun initialMonthlyUpdate(appNameList: List<String>) {
         appNameList.forEach {appName ->
-            for(i in 1..2) {   // 1~3달 전
-                val usageNDate = appInfo.getMonthlyAvgUsage(appName, i)
-                withContext(Dispatchers.IO){
-                    monthlySource.upsert(
-                        MonthlyEntity(
-                            appName = appName,
-                            date = usageNDate.second.substring(0,6),
-                            monthlyUsage = usageNDate.first
-                        )
+            val usageNDate = appInfo.getMonthlyAvgUsage(appName, 1)
+            withContext(Dispatchers.IO){
+                monthlySource.upsert(
+                    MonthlyEntity(
+                        appName = appName,
+                        date = usageNDate.second.substring(0,6),
+                        monthlyUsage = usageNDate.first
                     )
-                }
+                )
             }
         }
     }

@@ -2,6 +2,7 @@ package com.example.repository
 
 import com.example.local.record.RecordDAO
 import com.example.local.record.RecordEntity
+import com.example.service.AppFetchingInfo
 import com.example.service.DateFactoryForData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -11,7 +12,8 @@ import javax.inject.Inject
 
 class GoalRepositoryImpl @Inject constructor(
     private val recordDao: RecordDAO,
-    private val dateFactory: DateFactoryForData
+    private val dateFactory: DateFactoryForData,
+    private val dateFactoryForData: DateFactoryForData
 ): GoalRepository{
     private val mutex = Mutex()
 
@@ -32,8 +34,8 @@ class GoalRepositoryImpl @Inject constructor(
         recordDao.delete(appName, date)
     }
 
-    override suspend fun succeedGoal(appName: String, date: String) {
-        recordDao.succeedGoal(appName, date)
+    override suspend fun succeedGoal(appName: String, date: String, howLong: Int) {
+        recordDao.succeedGoal(appName, date, howLong)
     }
 
     override suspend fun failGoal(appName: String, date: String) {

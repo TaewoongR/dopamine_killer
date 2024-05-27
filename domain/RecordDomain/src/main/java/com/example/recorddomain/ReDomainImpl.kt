@@ -5,6 +5,7 @@ import com.example.local.record.RecordEntity
 import com.example.repository.GoalRepository
 import com.example.repository.SelectedAppRepository
 import com.example.service.AppFetchingInfo
+import com.example.service.DateFactoryForData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -13,7 +14,8 @@ class ReDomainImpl @Inject constructor(
     private val recordDAO: RecordDAO,
     private val appRepository: AppFetchingInfo,
     private val goalRepository: GoalRepository,
-    private val selectedAppRepository: SelectedAppRepository
+    private val selectedAppRepository: SelectedAppRepository,
+    private val dateFactoryForData: DateFactoryForData
 ):ReDomain {
 
 

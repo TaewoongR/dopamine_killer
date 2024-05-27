@@ -1,6 +1,9 @@
 package com.example.network.appUsage.model
 
+
+import android.content.Context
 import com.example.local.horulyUsage.HourlyEntity
+import com.example.local.user.UserTokenStore
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -32,7 +35,7 @@ data class NetworkHourlyEntity(
     val hour21: Int,
     val hour22: Int,
     val hour23: Int,
-    val userName: String = "testing",
+    val user_name: String,
 )
 
 fun NetworkHourlyEntity.asEntity() = HourlyEntity(
@@ -65,7 +68,7 @@ fun NetworkHourlyEntity.asEntity() = HourlyEntity(
     hour23 = hour23,
 )
 
-fun HourlyEntity.asNetworkHourlyEntity() = NetworkHourlyEntity(
+fun HourlyEntity.asNetworkHourlyEntity(context: Context) = NetworkHourlyEntity(
     appName = appName,
     date = date,
     dayOfWeek = dayOfWeek,
@@ -93,5 +96,5 @@ fun HourlyEntity.asNetworkHourlyEntity() = NetworkHourlyEntity(
     hour21 = hour21,
     hour22 = hour22,
     hour23 = hour23,
-    userName = "testing",
+    user_name = UserTokenStore.getUserId(context),
 )

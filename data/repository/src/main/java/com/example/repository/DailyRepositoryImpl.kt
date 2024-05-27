@@ -80,7 +80,6 @@ class DailyRepositoryImpl @Inject constructor(
                 }
             }
         }
-        appInfo.getAppNameList()
     }
 
     override suspend fun periodicHourlyDailyUpdate() {
@@ -119,7 +118,6 @@ class DailyRepositoryImpl @Inject constructor(
                 }
             }
         }
-        appInfo.getAppNameList()
         /*
         appNameList.forEach {app ->
             val usageNDate = withContext(Dispatchers.IO) {appInfo.getHourlyUsage(app,0, false)}

@@ -45,6 +45,7 @@ dependencies {
     implementation(project(":domain:AnalysisDomain"))
     implementation(project(":domain:RecordDomain"))
     implementation(project(":domain:RecordDomain"))
+    implementation(project(":data:network"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

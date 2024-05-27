@@ -3,6 +3,7 @@ package com.example.overview
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.coredomain.CoreDomain
+import com.example.network.appUsage.NetworkDataSource
 import com.example.recorddomain.ReDomain
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,6 +16,7 @@ import javax.inject.Inject
 class OverviewViewModel @Inject constructor(
     private val coreDomain: CoreDomain,
     private val reDomain: ReDomain,
+    private val networkDatasource: NetworkDataSource
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(OverviewUiState())
     val uiState: StateFlow<OverviewUiState> = _uiState.asStateFlow()
@@ -78,6 +80,13 @@ class OverviewViewModel @Inject constructor(
                 }
                 _uiState.value = OverviewUiState(analysisData, recordDataList)
             }
+        }
+    }
+
+    fun loadFlaskApiResponse(token: String){
+        viewModelScope.launch {
+            val response = networkDatasource.getFlaskApiResponse("Bearer $token")
+            _uiState.value = _uiState.value.copy(flaskApiResponse = response)
         }
     }
 }

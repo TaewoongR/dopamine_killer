@@ -5,7 +5,8 @@ import androidx.compose.ui.graphics.ImageBitmapConfig
 
 data class OverviewUiState(
     val analysisData: AnalysisData = AnalysisData(),
-    val recordList: List<RecordData> = listOf()
+    val recordList: List<RecordData> = listOf(),
+    val flaskApiResponse: String? = null
 )
 data class AnalysisData(
     val appName: String = "",

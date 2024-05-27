@@ -2,6 +2,7 @@ package com.example.local.user
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 
 object UserTokenStore {
     private const val PREF_NAME = "dopamine_killer_prefs"
@@ -28,9 +29,9 @@ object UserTokenStore {
         return getPreferences(context).getString(TOKEN_KEY, null)
     }
 
-    fun getUserId(context: Context): String?{
-        return getPreferences(context).getString(USER_ID, null)
-
+    fun getUserId(context: Context): String{
+        Log.d("username", getPreferences(context).getString(USER_ID, null).toString())
+        return getPreferences(context).getString(USER_ID, null).toString()
     }
 
     fun clearToken(context: Context) {
