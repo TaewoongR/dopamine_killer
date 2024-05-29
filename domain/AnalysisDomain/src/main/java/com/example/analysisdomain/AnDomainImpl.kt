@@ -37,4 +37,8 @@ class AnDomainImpl @Inject constructor(
         }
         return list
     }
+
+    override suspend fun getTodayUsage(appName: String): Int {
+        return withContext(Dispatchers.IO){dailyRepository.getDailyUsageFrom(appName, 0).first}
+    }
 }

@@ -4,9 +4,13 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -26,6 +30,8 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,9 +43,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
@@ -49,8 +57,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 
@@ -58,6 +69,8 @@ import androidx.navigation.NavController
 val backgroundColor: Color = Color(android.graphics.Color.parseColor("#EFEFEF"))
 val keyColor: Color = Color(android.graphics.Color.parseColor("#FF9A62"))
 val subColor: Color = Color(android.graphics.Color.parseColor("#73A66A"))
+val vagueText: Color = Color(android.graphics.Color.parseColor("#777777"))
+
 
 @Composable
 fun RecordScreen(
@@ -136,15 +149,12 @@ fun RecordContent(uiState: RecordUiState, viewModel: RecordViewModel, navControl
                                         index = i,
                                         ongoingList = uiState.ongoingList,
                                         onDelete = {
-                                            viewModel.deleteRecord(
+                                            viewModel.deleteOngoingRecord(
                                                 Pair(
                                                     thisUiState.appName,
                                                     thisUiState.date
                                                 )
                                             )
-                                            navController.navigate("record_route") {
-                                                popUpTo("record_route") { inclusive = true }
-                                            }
                                         }
                                     )
                                 }
@@ -159,15 +169,12 @@ fun RecordContent(uiState: RecordUiState, viewModel: RecordViewModel, navControl
                                         index = i,
                                         finishedList = uiState.finishedList,
                                         onDelete = {
-                                            viewModel.deleteRecord(
+                                            viewModel.deleteFinishedRecord(
                                                 Pair(
                                                     thisUiState.appName,
                                                     thisUiState.date
                                                 )
                                             )
-                                            navController.navigate("record_route") {
-                                                popUpTo("record_route") { inclusive = true }
-                                            }
                                         }
                                     )
                                 }
@@ -204,76 +211,130 @@ fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
                 size = squareSize,
                 cornerRadius = 8.dp
             )
-
-            // 최대 20개까지, int 값만큼 째깐둥이를 그림
-            for (k in 1..minOf(ongoingList[index].howLong / 5, 18)){
-                Box(
-                    modifier = Modifier
-                        .padding(end = totalWidth * 0.012f) // 째깐둥이 사이 간격 조절
-                        .size(totalWidth * 0.020f, totalWidth * 0.032f) // 째깐둥이 크기
-                        .background(subColor, shape = RoundedCornerShape(99.dp))
-                )
-            }
-            Spacer(modifier = Modifier.weight(1f))
-
-            Canvas(modifier = Modifier) {
-                val days = ongoingList[index].howLong.toString()
-
-                drawIntoCanvas {
-                    val textPaint = Paint().asFrameworkPaint().apply {
-                        isAntiAlias = true
-                        textSize = (totalWidth * 0.06f).toPx()
-                        color = Color.DarkGray.toArgb()
+            Column {
+                Spacer(modifier = Modifier.height(totalWidth * 0.04f))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // 최대 20개까지, int 값만큼 째깐둥이를 그림
+                    if (ongoingList[index].howLong == 0) {
+                        Box(
+                            modifier = Modifier.size(totalWidth, totalWidth * 0.06f)
+                                .background(Color.Transparent)
+                        )
                     }
-                    val textWidth = textPaint.measureText(days)
-                    val fontMetrics = textPaint.fontMetrics
-                    val textHeight = fontMetrics.descent - fontMetrics.ascent
+                    for (k in 1..minOf(ongoingList[index].howLong, 80)) {
+                        Box(
+                            modifier = Modifier
+                                .padding(end = totalWidth * 0.012f)
+                                .size(totalWidth * 0.020f, totalWidth * 0.06f)
+                                .background(keyColor, shape = RoundedCornerShape(99.dp))
+                        )
+                    }
+                    Canvas(modifier = Modifier.weight(1f)) { // 날짜 카운트 텍스트 추가
+                        val days = ongoingList[index].howLong.toString() + "일" // "일" 추가
 
-                    it.nativeCanvas.drawText(
-                        days,
-                        size.width - textWidth - totalWidth.value * 0.04f ,
-                        (size.height / 2) + (textHeight / 2) - fontMetrics.descent,
-                        textPaint
-                    )
-                }
-            }
-            IconButton(onClick = {expanded = ! expanded}, modifier = Modifier.width(24.dp)) {
-                Icon(
-                    imageVector = Icons.Filled.MoreVert,
-                    contentDescription = "메뉴",
-                    tint = Color.Gray
-                )
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    offset = DpOffset(x = 0.dp, y = 0.dp),
-                    modifier = Modifier
-                        .background(Color.White)
-                        .width(totalWidth * 0.2f)
-                ) {
-                    DropdownMenuItem(
-                        {Box(modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-                            .background(Color.White),
-                            contentAlignment = Alignment.Center){
-                            Text("삭제")
-                        }},
-                        onClick = {
-                            onDelete()
-                            expanded = false
+                        drawIntoCanvas {
+                            val textPaint = Paint().asFrameworkPaint().apply {
+                                isAntiAlias = true
+                                textSize = (totalWidth * 0.04f).toPx()
+                                color = Color.Black.toArgb()
+                            }
+                            val textWidth = textPaint.measureText(days)
+                            val fontMetrics = textPaint.fontMetrics
+                            val textHeight = fontMetrics.descent - fontMetrics.ascent
+
+                            it.nativeCanvas.drawText(
+                                days,
+                                size.width - textWidth - 30, // 위치 수정
+                                (size.height / 2) + (textHeight / 2) - fontMetrics.descent,
+                                textPaint
+                            )
                         }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(totalWidth * 0.02f))
+                val dailyUsage = (ongoingList[index].todayUsage / 60)
+                val goalUsage = (ongoingList[index].goalTime / 60)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    LinearProgressIndicator(
+                        progress = { dailyUsage.toFloat() / goalUsage.toFloat() },
+                        modifier = Modifier
+                            .width(totalWidth * 0.686f)
+                            .height(totalWidth * 0.03f)
+                            .clip(RoundedCornerShape(4.dp)),
+                        color = keyColor,
+                        trackColor = vagueText.copy(0.2f),
+                        strokeCap = StrokeCap.Round,
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(), // Ensure the Row fills the width of its parent
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        modifier = Modifier.padding(start = 1.dp),
+                        text = dailyUsage.toString() + "분",
+                        style = TextStyle(Color.Gray, fontSize = 10.sp)
+                    )
+                    Text(
+                        modifier = Modifier.padding(end = 27.dp),
+                        text = goalUsage.toString() + "분",
+                        style = TextStyle(Color.Gray, fontSize = 10.sp)
                     )
                 }
             }
-
         }
+        IconButton(
+            onClick = { expanded = !expanded },
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(bottom = 60.dp, end = 20.dp)
+                .width(12.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.MoreVert,
+                contentDescription = "메뉴",
+                tint = Color.Gray
+            )
+            if (expanded) {
+                Popup(
+                    alignment = Alignment.Center,
+                    offset = IntOffset(x = 20, y = 60),
+                    properties = PopupProperties(focusable = true),
+                    onDismissRequest = { expanded = false }
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .background(Color.White, shape = RoundedCornerShape(8.dp))
+                            .width(totalWidth * 0.14f)
+                            .padding(8.dp)
+                    ) {
+                        Column {
+                            Text(
+                                text = "삭제",
+                                style = TextStyle(Color.Black, fontSize = 10.sp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        onDelete()
+                                        expanded = false
+                                    }
+                                    .padding(vertical = 8.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
         Text(
             text = ongoingList[index].date.run{ "${this.substring(0, 4)}/${this.substring(4, 6)}/${this.substring(6, 8)}"},
             modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(end = totalWidth * 0.05f, top = totalWidth * 0.024f),
-            style = TextStyle(Color.Gray, fontSize = 12.sp)
+                .align(Alignment.TopStart)
+                .padding(start = totalWidth * 0.04f, top = totalWidth * 0.03f),
+            style = TextStyle(Color.Gray, fontSize = 9.sp)
         )
     }
 }
@@ -334,7 +395,7 @@ fun finishedRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, inde
                     )
                 }
             }
-            IconButton(onClick = {expanded = ! expanded}, modifier = Modifier.width(24.dp)) {
+            IconButton(onClick = {expanded = ! expanded}, modifier = Modifier.width(50.dp).padding(top=5.dp)) {
                 Icon(
                     imageVector = Icons.Filled.MoreVert,
                     contentDescription = "메뉴",
@@ -346,7 +407,7 @@ fun finishedRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, inde
                     offset = DpOffset(x = 0.dp, y = 0.dp),
                     modifier = Modifier
                         .background(Color.White)
-                        .width(totalWidth * 0.2f)
+                        .width(totalWidth * 0.1f)
                 ) {
                     DropdownMenuItem(
                         {Box(modifier = Modifier
@@ -354,7 +415,7 @@ fun finishedRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, inde
                             .fillMaxHeight()
                             .background(Color.White),
                             contentAlignment = Alignment.Center){
-                            Text("삭제")
+                            Text(text = "삭제", style = TextStyle(Color.Gray, fontSize = 10.sp))
                         }},
                         onClick = {
                             onDelete()

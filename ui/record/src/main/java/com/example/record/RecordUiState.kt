@@ -24,6 +24,7 @@ data class OngoingRecord(
     val date: String,
     val goalTime: Int,
     val howLong: Int,
+    val todayUsage: Int,
     val onGoing: Boolean
 )
 
