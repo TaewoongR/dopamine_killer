@@ -1,5 +1,6 @@
 package com.example.record
 
+import android.graphics.Color.parseColor
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -215,44 +216,42 @@ fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
                 Spacer(modifier = Modifier.height(totalWidth * 0.04f))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     // 최대 20개까지, int 값만큼 째깐둥이를 그림
-                    if (ongoingList[index].howLong == 0) {
-                        Box(
-                            modifier = Modifier.size(totalWidth, totalWidth * 0.06f)
-                                .background(Color.Transparent)
-                        )
-                    }
-                    for (k in 1..minOf(ongoingList[index].howLong, 80)) {
-                        Box(
-                            modifier = Modifier
-                                .padding(end = totalWidth * 0.012f)
-                                .size(totalWidth * 0.020f, totalWidth * 0.06f)
-                                .background(keyColor, shape = RoundedCornerShape(99.dp))
-                        )
-                    }
-                    Canvas(modifier = Modifier.weight(1f)) { // 날짜 카운트 텍스트 추가
-                        val days = ongoingList[index].howLong.toString() + "일" // "일" 추가
-
-                        drawIntoCanvas {
-                            val textPaint = Paint().asFrameworkPaint().apply {
-                                isAntiAlias = true
-                                textSize = (totalWidth * 0.04f).toPx()
-                                color = Color.Black.toArgb()
-                            }
-                            val textWidth = textPaint.measureText(days)
-                            val fontMetrics = textPaint.fontMetrics
-                            val textHeight = fontMetrics.descent - fontMetrics.ascent
-
-                            it.nativeCanvas.drawText(
-                                days,
-                                size.width - textWidth - 30, // 위치 수정
-                                (size.height / 2) + (textHeight / 2) - fontMetrics.descent,
-                                textPaint
+                    val howLong = ongoingList[index].howLong
+                    Row(
+                        modifier = Modifier
+                            .width(totalWidth * 0.635f)
+                            .border(1.dp, vagueText.copy(0.1f), shape = RoundedCornerShape(4.dp))
+                            .background(vagueText.copy(0.2f), shape = RoundedCornerShape(4.dp))
+                    ) {
+                        Box(modifier.padding(start = totalWidth * 0.0035f))
+                        for (k in 1..if(howLong == 0) 1 else if (howLong % 18 == 0) 18 else if (howLong > 90) 18 else howLong % 18) {
+                            Box(
+                                modifier = Modifier
+                                    .padding(end = totalWidth * 0.0035f) // 패딩 수정
+                                    .padding(start = totalWidth * 0.0035f)
+                                    .padding(top = totalWidth * 0.003f)
+                                    .padding(bottom = totalWidth * 0.003f)
+                                    .size(totalWidth * 0.028f, totalWidth * 0.05f)
+                                    .background(
+                                        color = when (howLong) {
+                                            0 -> Color.Transparent
+                                            in 1..18 -> Color(parseColor("#A5D6A7"))
+                                            in 19..36 -> Color(parseColor("#99CD82"))
+                                            in 37..54 -> Color(parseColor("#8BC34A"))
+                                            in 55..72 -> Color(parseColor("#6FBF40"))
+                                            in 73..90 -> Color(parseColor("#5FAE46"))
+                                            else -> Color(parseColor("#4CAF50"))
+                                        },
+                                        shape = RoundedCornerShape(3.dp)
+                                    )
                             )
                         }
+                        Box(modifier.padding(end = totalWidth * 0.0035f))
                     }
+                    Text(text = "${ongoingList[index].howLong}일", Modifier.padding(start = 2.dp), fontSize = 13.sp)
                 }
 
-                Spacer(modifier = Modifier.height(totalWidth * 0.02f))
+                Spacer(modifier = Modifier.height(totalWidth * 0.03f))
                 val dailyUsage = (ongoingList[index].todayUsage / 60)
                 val goalUsage = (ongoingList[index].goalTime / 60)
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -291,7 +290,7 @@ fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(bottom = 60.dp, end = 20.dp)
-                .width(12.dp)
+                .width(15.dp)
         ) {
             Icon(
                 imageVector = Icons.Filled.MoreVert,
@@ -301,12 +300,17 @@ fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
             if (expanded) {
                 Popup(
                     alignment = Alignment.Center,
-                    offset = IntOffset(x = 20, y = 60),
+                    offset = IntOffset(x = 85, y = 25),
                     properties = PopupProperties(focusable = true),
                     onDismissRequest = { expanded = false }
                 ) {
                     Box(
                         modifier = Modifier
+                            .border(
+                                width = 0.2.dp,
+                                color = Color.Gray,
+                                shape = RoundedCornerShape(8.dp)
+                            ) // 테두리 색 추가
                             .background(Color.White, shape = RoundedCornerShape(8.dp))
                             .width(totalWidth * 0.14f)
                             .padding(8.dp)
@@ -363,74 +367,93 @@ fun finishedRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, inde
                 cornerRadius = 8.dp
             )
 
-            // 최대 18개까지, int 값만큼 째깐둥이를 그림
-            for (k in 1..minOf(finishedList[index].howLong / 5, 18)) {
-                Box(
-                    modifier = Modifier
-                        .padding(end = totalWidth * 0.012f) // 째깐둥이 사이 간격 조절
-                        .size(totalWidth * 0.020f, totalWidth * 0.032f) // 째깐둥이 크기
-                        .background(Color.LightGray, shape = RoundedCornerShape(99.dp))
-                )
-            }
-            Spacer(modifier = Modifier.weight(1f))
-
-            Canvas(modifier = Modifier) {
-                val days = finishedList[index].howLong.toString()
-
-                drawIntoCanvas {
-                    val textPaint = Paint().asFrameworkPaint().apply {
-                        isAntiAlias = true
-                        textSize = (totalWidth * 0.06f).toPx()
-                        color = Color.DarkGray.toArgb()
-                    }
-                    val textWidth = textPaint.measureText(days)
-                    val fontMetrics = textPaint.fontMetrics
-                    val textHeight = fontMetrics.descent - fontMetrics.ascent
-
-                    it.nativeCanvas.drawText(
-                        days,
-                        size.width - textWidth - totalWidth.value * 0.04f ,
-                        (size.height / 2) + (textHeight / 2) - fontMetrics.descent,
-                        textPaint
+            Column {
+                val finishedPercentage: Float = finishedList[index].howLong / 90f
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    LinearProgressIndicator(
+                        progress = { finishedPercentage },
+                        modifier = Modifier
+                            .width(totalWidth * 0.635f)
+                            .height(totalWidth * 0.06f)
+                            .clip(RoundedCornerShape(5.dp)),
+                        color = vagueText.copy(0.3f),
+                        trackColor = vagueText.copy(0.2f),
+                        strokeCap = StrokeCap.Butt,
                     )
+                    Text(text = "${finishedList[index].howLong}일", Modifier.padding(start = 2.dp), fontSize = 13.sp)
                 }
-            }
-            IconButton(onClick = {expanded = ! expanded}, modifier = Modifier.width(50.dp).padding(top=5.dp)) {
-                Icon(
-                    imageVector = Icons.Filled.MoreVert,
-                    contentDescription = "메뉴",
-                    tint = Color.Gray
-                )
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    offset = DpOffset(x = 0.dp, y = 0.dp),
-                    modifier = Modifier
-                        .background(Color.White)
-                        .width(totalWidth * 0.1f)
+                Row(
+                    modifier = Modifier.width(totalWidth * 0.635f), // Ensure the Row fills the width of its parent
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    DropdownMenuItem(
-                        {Box(modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-                            .background(Color.White),
-                            contentAlignment = Alignment.Center){
-                            Text(text = "삭제", style = TextStyle(Color.Gray, fontSize = 10.sp))
-                        }},
-                        onClick = {
-                            onDelete()
-                            expanded = false
-                        }
+                    val theEl = finishedList[index]
+                    Text(
+                        modifier = Modifier.padding(start = 1.dp),
+                        text = "${(finishedPercentage * 100).toInt()}%",
+                        style = TextStyle(Color.Gray, fontSize = 10.sp)
+                    )
+                    Text(
+                        modifier = Modifier,
+                        text = "${theEl.goalTime / 60}분/90일",
+                        style = TextStyle(Color.Gray, fontSize = 10.sp)
                     )
                 }
             }
         }
-        Text(
-            text = finishedList[index].date.run{"${this.substring(0, 4)}/${this.substring(4, 6)}/${this.substring(6, 8)}"},
+        IconButton(
+            onClick = { expanded = !expanded },
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(end = totalWidth * 0.05f, top = totalWidth * 0.024f),
-            style = TextStyle(Color.Gray, fontSize = 12.sp)
+                .padding(bottom = 60.dp, end = 20.dp)
+                .width(15.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.MoreVert,
+                contentDescription = "메뉴",
+                tint = Color.Gray
+            )
+            if (expanded) {
+                Popup(
+                    alignment = Alignment.Center,
+                    offset = IntOffset(x = 85, y = 25),
+                    properties = PopupProperties(focusable = true),
+                    onDismissRequest = { expanded = false }
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .border(
+                                width = 0.2.dp,
+                                color = Color.Gray,
+                                shape = RoundedCornerShape(8.dp)
+                            ) // 테두리 색 추가
+                            .background(Color.White, shape = RoundedCornerShape(8.dp))
+                            .width(totalWidth * 0.14f)
+                            .padding(8.dp)
+                    ) {
+                        Column {
+                            Text(
+                                text = "삭제",
+                                style = TextStyle(Color.Black, fontSize = 10.sp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        onDelete()
+                                        expanded = false
+                                    }
+                                    .padding(vertical = 8.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        Text(
+            text = finishedList[index].date.run{ "${this.substring(0, 4)}/${this.substring(4, 6)}/${this.substring(6, 8)}"},
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(start = totalWidth * 0.04f, top = totalWidth * 0.03f),
+            style = TextStyle(Color.Gray, fontSize = 9.sp)
         )
     }
 }

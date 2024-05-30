@@ -70,6 +70,12 @@ class AppFetchingInfoImpl @Inject constructor(
     }
 
     override suspend fun getAppIcon(appName: String): ImageBitmap {
+        val packageName = getPackageNameBy(appName)
+        val packageManager = context.packageManager
+        val appInfo = packageManager.getApplicationInfo(packageName, 0)
+        val drawable = packageManager.getApplicationIcon(appInfo)
+        return drawableToImageBitmap(drawable)
+        /*
         return try {
             val packageName = getPackageNameBy(appName)
             val packageManager = context.packageManager
@@ -81,6 +87,7 @@ class AppFetchingInfoImpl @Inject constructor(
             Log.d("appInfoImpl","Exception: ${e::class.java.simpleName}, Message: ${e.message}")
             return bitmap.asImageBitmap()
         }
+         */
     }
 
     private fun drawableToImageBitmap(drawable: Drawable): ImageBitmap {

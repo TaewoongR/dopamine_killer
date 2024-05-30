@@ -93,6 +93,18 @@ class MainActivity: ComponentActivity() {
         )
     }
 
+    private fun updateWeeklyAtRunning() {
+        val updateWeeklyRequest = OneTimeWorkRequestBuilder<CoreWorker>()
+            .setInputData(workDataOf("TASK_TYPE" to "UPDATE_WEEKLY_USAGE"))
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniqueWork(
+            "UpdateWeeklyUsage",
+            ExistingWorkPolicy.REPLACE,
+            updateWeeklyRequest
+        )
+    }
+
     private fun updateAccessGoalAtRunning() {
         val updateGoalRequest = OneTimeWorkRequestBuilder<CoreWorker>()
             .setInputData(workDataOf("TASK_TYPE" to "UPDATE_ACCESS_GOAL"))
@@ -146,6 +158,7 @@ class MainActivity: ComponentActivity() {
             super.onStart(owner)
             Log.d("MainActivity", "App moved to foreground")
             updateHourlyDailyAtRunning()
+            updateWeeklyAtRunning()
             updateInstalledAppAtRunning()
             updateAccessGoalAtRunning()
             schedulePostNetworkHourly()

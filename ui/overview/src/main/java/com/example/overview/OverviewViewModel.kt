@@ -23,6 +23,7 @@ class OverviewViewModel @Inject constructor(
 
     init {
         loadOverviewData()
+
     }
 
     fun loadOverviewData() {

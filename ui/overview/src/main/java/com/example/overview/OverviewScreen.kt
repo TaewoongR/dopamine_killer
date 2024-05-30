@@ -5,6 +5,8 @@ import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,12 +22,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,8 +54,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 
@@ -249,6 +259,7 @@ fun barGraphOverview(modifier: Modifier, size: Dp, analysisData: AnalysisData) {
 @Composable
 fun recordOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int, recordList: List<RecordData>) {
     val squareSize = (totalWidth - 10.dp) / 2 * 0.24f
+    var expanded by remember { mutableStateOf(false) }
 
     Box(
         modifier = modifier
@@ -270,28 +281,45 @@ fun recordOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
             )
 
             // 최대 20개까지, int 값만큼 째깐둥이를 그림
-            for (k in 1..minOf(minOf(recordList[index].howLong / 5, 18))) {
-                Box(
-                    modifier = Modifier
-                        .padding(end = totalWidth * 0.012f) // 째깐둥이 사이 간격 조절
-                        .size(totalWidth * 0.020f, totalWidth * 0.032f) // 째깐둥이 크기
-                        .background(
-                            if (recordList[index].onGoing) subColor else Color.LightGray,
-                            shape = RoundedCornerShape(99.dp)
-                        )
-                )
+            val howLong = recordList[index].howLong
+            Row(
+                modifier = Modifier
+                    .width(totalWidth * 0.635f)
+                    .border(1.dp, vagueText.copy(0.2f), shape = RoundedCornerShape(4.dp))
+                    .background(vagueText.copy(0.2f), shape = RoundedCornerShape(4.dp))
+            ) {
+                Box(modifier.padding(start = totalWidth * 0.0035f))
+                for (k in 1..if (howLong == 0) 0 else if (howLong % 18 == 0) 18 else if (howLong > 90) 18 else howLong % 18) {
+                    Box(
+                        modifier = Modifier
+                            .padding(end = totalWidth * 0.0035f) // 패딩 수정
+                            .padding(start = totalWidth * 0.0035f)
+                            .padding(top = totalWidth * 0.003f)
+                            .padding(bottom = totalWidth * 0.003f)
+                            .size(totalWidth * 0.028f, totalWidth * 0.05f)
+                            .background(
+                                color = when (howLong) {
+                                    in 0..18 -> Color(android.graphics.Color.parseColor("#BEBEBE"))
+                                    in 19..36 -> Color(android.graphics.Color.parseColor("#BFCBB4"))
+                                    in 37..54 -> Color(android.graphics.Color.parseColor("#ABCC96"))
+                                    in 55..72 -> Color(android.graphics.Color.parseColor("#96CE78"))
+                                    in 73..90 -> Color(android.graphics.Color.parseColor("#82CF59"))
+                                    else -> Color(android.graphics.Color.parseColor("#73A66A"))
+                                },
+                                shape = RoundedCornerShape(3.dp)
+                            )
+                    )
+                }
+                Box(modifier.padding(end = totalWidth * 0.0035f))
             }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Canvas(modifier = Modifier) {
-                val days = recordList[index].howLong.toString()
+            Canvas(modifier = Modifier.weight(1f)) { // 날짜 카운트 텍스트 추가
+                val days = recordList[index].howLong.toString() + "일" // "일" 추가
 
                 drawIntoCanvas {
                     val textPaint = Paint().asFrameworkPaint().apply {
                         isAntiAlias = true
-                        textSize = (totalWidth * 0.06f).toPx()
-                        color = Color.DarkGray.toArgb()
+                        textSize = (totalWidth * 0.04f).toPx()
+                        color = Color.Black.toArgb()
                     }
                     val textWidth = textPaint.measureText(days)
                     val fontMetrics = textPaint.fontMetrics
@@ -299,19 +327,20 @@ fun recordOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
 
                     it.nativeCanvas.drawText(
                         days,
-                        size.width - textWidth - totalWidth.value * 0.04f ,
+                        size.width - textWidth - 30, // 위치 수정
                         (size.height / 2) + (textHeight / 2) - fontMetrics.descent,
                         textPaint
                     )
                 }
             }
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = "더보기", // 접근성을 위한 설명
-                tint = Color.Gray,
-                modifier = Modifier.size(24.dp)
-            )
         }
+        Text(
+            text = recordList[index].date.run{ "${this.substring(0, 4)}/${this.substring(4, 6)}/${this.substring(6, 8)}"},
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(end = totalWidth * 0.04f, top = totalWidth * 0.005f),
+            style = TextStyle(Color.Gray, fontSize = 9.sp)
+        )
     }
 }
 

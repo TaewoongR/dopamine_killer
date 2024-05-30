@@ -65,6 +65,7 @@ class CoreDomainImpl @Inject constructor(
                 }
             }
             selectedAppRepository.updatedInstalled(appNameList, false)
+            appFetchingRepository.getAppNameList()
         }
     }
 
