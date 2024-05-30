@@ -35,7 +35,7 @@ data class NetworkHourlyEntity(
     val hour21: Int,
     val hour22: Int,
     val hour23: Int,
-    val user_name: String,
+    val userName: String,
 )
 
 fun NetworkHourlyEntity.asEntity() = HourlyEntity(
@@ -96,5 +96,5 @@ fun HourlyEntity.asNetworkHourlyEntity(context: Context) = NetworkHourlyEntity(
     hour21 = hour21,
     hour22 = hour22,
     hour23 = hour23,
-    user_name = UserTokenStore.getUserId(context),
+    userName = UserTokenStore.getUserId(context),
 )

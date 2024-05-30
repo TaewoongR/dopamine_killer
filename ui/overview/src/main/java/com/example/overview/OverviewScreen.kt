@@ -50,6 +50,7 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -61,6 +62,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.local.user.UserTokenStore
 
 @Composable
 fun OverviewScreen(
@@ -68,8 +70,13 @@ fun OverviewScreen(
     viewModel: OverviewViewModel = hiltViewModel(),
 ) {
     val overviewUiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    val token = UserTokenStore.getToken(context) ?: ""
     LaunchedEffect(navController.currentBackStackEntry) {
         viewModel.loadOverviewData()
+    }
+    if(token.isNotEmpty()){
+        viewModel.loadFlaskApiResponse(token)
     }
     MyScreenContent(overviewUiState)
 }

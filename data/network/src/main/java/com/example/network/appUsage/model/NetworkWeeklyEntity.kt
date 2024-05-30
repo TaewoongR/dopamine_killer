@@ -8,12 +8,12 @@ data class NetworkWeeklyEntity(
     val appName: String ="",
     val date: String = "00000000",  // 주차의 시작 날짜(일요일)
     val weeklyUsage: Int = 0,
-    val user_name: String = ""
+    val userName: String = ""
 )
 
 fun WeeklyEntity.asNetworkWeeklyEntity(context: Context) = NetworkWeeklyEntity(
     appName = appName,
     date = date,
     weeklyUsage = weeklyUsage ,
-    user_name = UserTokenStore.getUserId(context)
+    userName = UserTokenStore.getUserId(context)
 )

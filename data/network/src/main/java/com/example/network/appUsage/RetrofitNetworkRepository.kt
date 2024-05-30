@@ -25,7 +25,6 @@ internal class RetrofitNetworkRepository @Inject constructor(
 
     override fun postHourlyData(hourlyEntity: HourlyEntity, context: Context) {
         postData(retrofitNetworkApi.postHourly(hourlyEntity.asNetworkHourlyEntity(context)), "Hourly")
-
     }
 
     override fun postDailyData(dailyEntity: DailyEntity, context: Context) {

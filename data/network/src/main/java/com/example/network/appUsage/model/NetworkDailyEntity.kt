@@ -9,7 +9,7 @@ data class NetworkDailyEntity(
     val date: String = "00000000",
     val dayOfWeek: Int = 0, // Calendar 라이브러리 일 = 1, 토 = 7
     val dailyUsage: Int = 0,
-    val user_name: String ="",
+    val userName: String ="",
     )
 
 fun DailyEntity.asNetworkDailyEntity(context: Context) = NetworkDailyEntity(
@@ -17,5 +17,5 @@ fun DailyEntity.asNetworkDailyEntity(context: Context) = NetworkDailyEntity(
     date = date,
     dayOfWeek = dayOfWeek,
     dailyUsage = dailyUsage,
-    user_name = UserTokenStore.getUserId(context)
+    userName = UserTokenStore.getUserId(context)
 )

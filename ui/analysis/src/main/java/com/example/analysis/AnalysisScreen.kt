@@ -4,6 +4,8 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,14 +14,21 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,10 +41,14 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -100,27 +113,63 @@ fun analysisContent(uiState: AnalysisUiState) {
 
 @Composable
 fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, stateData: AnalysisAppData) {
+    val times = listOf(
+        stateData.lastMonthAvgTime,
+        stateData.lastWeekAvgTime,
+        stateData.yesterdayTime,
+        stateData.dailyTime
+    )
+    var showTooltip by remember { mutableStateOf(false) }
+    var tooltipText by remember { mutableStateOf("") }
+    val density = LocalDensity.current
+    var tooltipOffset by remember { mutableStateOf(DpOffset(0.dp, 0.dp)) }
+
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        IconImage(modifier = Modifier
-            .offset(-totalWidth * 0.05f)
-            .align(Alignment.End),
-            imageBitmap = stateData.appIcon,
-            size = totalWidth * 0.16f,
-            cornerRadius = 8.dp)
-
         Box(
             modifier = modifier
                 .width(totalWidth)
                 .aspectRatio(aspectRatio)
                 .background(color = Color.White, shape = RoundedCornerShape(16.dp))
         ) {
+            IconImage(modifier = Modifier
+                .offset(-totalWidth * 0.82f)
+                .align(Alignment.TopEnd),
+                imageBitmap = stateData.appIcon,
+                size = totalWidth * 0.16f,
+                cornerRadius = 8.dp)
+
+            var selectedBarIndex by remember { mutableIntStateOf(-1) }
+
             Canvas(
-                modifier = Modifier.matchParentSize()
+                modifier = modifier
+                    .matchParentSize()
+                    .pointerInput(Unit) {
+                        detectTapGestures { offset ->
+                            val barWidth = (size.width * 0.36f) / 4
+                            val barSpacing = (size.width * 0.42f) / 5
+                            val startX = (size.width - ((barWidth * 4) + (barSpacing * 3))) / 2
+                            val paddingTop = size.height * 0.1f
+                            val paddingBottom = size.height * 0.2f
+
+                            times.forEachIndexed { index, barHeight ->
+                                val barStartX = startX + index * (barWidth + barSpacing)
+                                val barEndX = barStartX + barWidth
+                                if (offset.x in barStartX..barEndX) {
+                                    tooltipText = "${barHeight}분" // 시간 내용으로
+                                    showTooltip = true
+                                    val dpOffsetX = with(density) { offset.x.toDp() }
+                                    val dpOffsetY = with(density) { offset.y.toDp() }
+                                    tooltipOffset = DpOffset(dpOffsetX, dpOffsetY-210.dp) // 왠지 모르겠지만 이렇게 설정해줘야 클릭 위치에 생성됨
+                                    return@detectTapGestures
+                                }
+                            }
+                        }
+                    }
             ) {
-                val barWidth = (size.width * 0.4f) / 4 // 막대 너비
-                val barSpacing = (size.width * 0.4f) / 5 // 막대 사이 간격
+                val barWidth = (size.width * 0.36f) / 4 // 막대 너비
+                val barSpacing = (size.width * 0.42f) / 5 // 막대 사이 간격
 
                 val barColors = listOf(
                     keyColor.copy(alpha = 0.3f),
@@ -134,13 +183,6 @@ fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, sta
                     stateData.yesterdayTime,
                     stateData.dailyTime
                 ).maxOrNull() ?: 1  // 0을 방지하기 위해 최소값은 1로 설정
-
-                val times = listOf(
-                    stateData.lastMonthAvgTime,
-                    stateData.lastWeekAvgTime,
-                    stateData.yesterdayTime,
-                    stateData.dailyTime
-                )
 
                 val paddingTop = size.height * 0.16f
                 val paddingBottom = size.height * 0.2f
@@ -159,7 +201,8 @@ fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, sta
                             barWidth,
                             barHeight * (size.height - paddingTop - paddingBottom)
                         ),
-                        cornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx())
+                        cornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx()),
+
                     )
 
                     val text = when (index) {
@@ -184,6 +227,14 @@ fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, sta
                         )
                     }
                 }
+            }
+            DropdownMenu(
+                modifier = Modifier.background(Color.White, RoundedCornerShape( 12.dp )),
+                expanded = showTooltip,
+                onDismissRequest = { showTooltip = false },
+                offset = tooltipOffset
+            ) {
+                Text(text = tooltipText, modifier = Modifier.padding(8.dp))
             }
         }
     }
