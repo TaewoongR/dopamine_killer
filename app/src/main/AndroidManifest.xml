@@ -6,15 +6,17 @@
     <!--UsageStatsManager 접근 허용-->
     <uses-permission-sdk-23 android:name="android.permission.PACKAGE_USAGE_STATS" />
     <!--PackageManager 접근 허용-->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <uses-permission-sdk-23 android:name="android.permission.QUERY_ALL_PACKAGES"/>
 
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
 
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".Application"
@@ -29,6 +31,14 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:enableOnBackInvokedCallback="true"
         tools:targetApi="31">
+        <service
+            android:name=".jobScheduler.ForegroundJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="true" />
+        <service
+            android:name=".foregroundService.ForegroundService"
+            android:exported="true"
+            android:foregroundServiceType="dataSync" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -36,9 +46,9 @@
             android:theme="@style/Theme.Dopamine_killer">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
         <!--WorkManager 허용-->
         <provider
@@ -46,11 +56,10 @@
             android:authorities="${applicationId}.androidx-startup"
             tools:node="remove">
         </provider>
-        <receiver android:name=".alarmReceiver.UpdateGoalReceiver"
-            android:exported="true" />
-        <service android:name=".foregroundService.UpdateGoalService"
-            android:exported="true"
-            android:foregroundServiceType="dataSync" />
+        <receiver android:name=".alarmReceiver.UpdateUsage"
+            android:enabled="true"
+            android:exported="true">
+        </receiver>
     </application>
 
 </manifest>

@@ -1,11 +1,16 @@
 package com.example.dopamine_killer.workManager
 
+import android.app.Notification
+import android.app.NotificationManager
 import android.content.Context
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.coredomain.CoreDomain
+import com.example.dopamine_killer.R
+import com.example.dopamine_killer.alarmReceiver.NotificationUtils
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -55,11 +60,11 @@ class CoreWorker @AssistedInject constructor(
                     }
                     "POST_NETWORK_DAILY" -> {
                         Log.d(TAG, "Posting network daily")
-                        //coreDomain.postNetworkDaily(applicationContext)
+                        coreDomain.postNetworkDaily(applicationContext)
                     }
                     "POST_NETWORK_WEEKLY" -> {
                         Log.d(TAG, "Posting network weekly")
-                        //coreDomain.postNetworkWeekly(applicationContext)
+                        coreDomain.postNetworkWeekly(applicationContext)
                     }
                     else -> {
                         Log.d(TAG, "Executing default task")

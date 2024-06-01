@@ -76,7 +76,7 @@ fun OverviewScreen(
         viewModel.loadOverviewData()
     }
     if(token.isNotEmpty()){
-        viewModel.loadFlaskApiResponse(token)
+        //viewModel.loadFlaskApiResponse(token)
     }
     MyScreenContent(overviewUiState)
 }
@@ -84,13 +84,11 @@ fun OverviewScreen(
 
 val backgroundColor: Color = Color(parseColor("#EFEFEF"))
 val keyColor: Color = Color(parseColor("#FF9A62"))
-val subColor: Color = Color(parseColor("#73A66A"))
 val vagueText: Color = Color(parseColor("#777777"))
 val vagueColor: Color = Color(parseColor("#F0F0F0"))
 val brushColor: Color = Color(parseColor("#FFC2A0"))
 val brusherColor: Color = Color(parseColor("#FFF4EF"))
 
-val ongoingRecordAppStreaks = arrayOf(3, 14, 42) // 임의 연속 날짜 데이터
 
 @Composable
 fun MyScreenContent(overviewUiState: OverviewUiState) {
@@ -142,7 +140,6 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
                     recordOverview(modifier = Modifier, aspectRatio = 1f/0.1875f, totalWidth = totalWidth, i, overviewUiState.recordList)
                 }
             }
-            rewardOverview(modifier = Modifier, aspectRatio = 1f/0.6f, totalWidth = totalWidth)
             aiOverview(modifier = Modifier, aspectRatio = 1f/0.6f, totalWidth = totalWidth, flaskApiResponse = overviewUiState.flaskApiResponse)
         }
     }
@@ -349,16 +346,6 @@ fun recordOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
             style = TextStyle(Color.Gray, fontSize = 9.sp)
         )
     }
-}
-
-@Composable
-fun rewardOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp){
-    Box(
-        modifier = Modifier
-            .width(totalWidth)
-            .aspectRatio(aspectRatio)
-            .background(color = Color.White, shape = RoundedCornerShape(16.dp))
-    )
 }
 
 @Composable
