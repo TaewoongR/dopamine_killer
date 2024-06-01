@@ -134,8 +134,7 @@ fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, sta
                 .background(color = Color.White, shape = RoundedCornerShape(16.dp))
         ) {
             IconImage(modifier = Modifier
-                .offset(-totalWidth * 0.82f)
-                .align(Alignment.TopEnd),
+                .offset(totalWidth * 0.8f, totalWidth * 0.04f),
                 imageBitmap = stateData.appIcon,
                 size = totalWidth * 0.16f,
                 cornerRadius = 8.dp)
@@ -147,8 +146,8 @@ fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, sta
                     .matchParentSize()
                     .pointerInput(Unit) {
                         detectTapGestures { offset ->
-                            val barWidth = (size.width * 0.36f) / 4
-                            val barSpacing = (size.width * 0.42f) / 5
+                            val barWidth = (size.width * 0.3f) / 4
+                            val barSpacing = (size.width * 0.36f) / 5
                             val startX = (size.width - ((barWidth * 4) + (barSpacing * 3))) / 2
                             val paddingTop = size.height * 0.1f
                             val paddingBottom = size.height * 0.2f
@@ -168,8 +167,8 @@ fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, sta
                         }
                     }
             ) {
-                val barWidth = (size.width * 0.36f) / 4 // 막대 너비
-                val barSpacing = (size.width * 0.42f) / 5 // 막대 사이 간격
+                val barWidth = (size.width * 0.3f) / 4 // 막대 너비
+                val barSpacing = (size.width * 0.36f) / 5 // 막대 사이 간격
 
                 val barColors = listOf(
                     keyColor.copy(alpha = 0.3f),

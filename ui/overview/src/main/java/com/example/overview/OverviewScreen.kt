@@ -15,10 +15,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -102,7 +104,7 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
             .fillMaxSize()
             .background(color = backgroundColor)
     ) {
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
@@ -111,36 +113,46 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Log.d("goalTIme", overviewUiState.analysisData.goalTime.toString())
-                Log.d("dailyTIme", overviewUiState.analysisData.dailyTime.toString())
+            item {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Log.d("goalTIme", overviewUiState.analysisData.goalTime.toString())
+                    Log.d("dailyTIme", overviewUiState.analysisData.dailyTime.toString())
 
-                val percent = try{
-                    overviewUiState.analysisData.dailyTime.toFloat() / overviewUiState.analysisData.goalTime.toFloat()
-                }catch(e: Exception){
-                    0f
-                }
+                    val percent = try{
+                        overviewUiState.analysisData.dailyTime.toFloat() / overviewUiState.analysisData.goalTime.toFloat()
+                    }catch(e: Exception){
+                        0f
+                    }
 
 
-                DonutGraph(percent = percent, modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState)
-                Spacer(modifier = Modifier.width(10.dp))
-                barGraphOverview(modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState.analysisData)
-            }
-
-            Column(
-                verticalArrangement = Arrangement.spacedBy(2.dp),
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                for (i in 0 until minOf(3, overviewUiState.recordList.size)) {
-                    recordOverview(modifier = Modifier, aspectRatio = 1f/0.1875f, totalWidth = totalWidth, i, overviewUiState.recordList)
+                    DonutGraph(percent = percent, modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState)
+                    Spacer(modifier = Modifier.width(10.dp))
+                    barGraphOverview(modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState.analysisData)
                 }
             }
-            aiOverview(modifier = Modifier, aspectRatio = 1f/0.6f, totalWidth = totalWidth, flaskApiResponse = overviewUiState.flaskApiResponse)
+
+            item {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    for (i in 0 until minOf(3, overviewUiState.recordList.size)) {
+                        recordOverview(modifier = Modifier, aspectRatio = 1f/0.1875f, totalWidth = totalWidth, i, overviewUiState.recordList)
+                    }
+                }
+            }
+
+            item {
+                aiOverview(modifier = Modifier, aspectRatio = 1f/0.6f, totalWidth = totalWidth, flaskApiResponse = overviewUiState.flaskApiResponse)
+            }
+            item {
+                Spacer(modifier = Modifier.height(totalWidth * 0.1f))
+            }
         }
     }
 }
