@@ -24,17 +24,6 @@ class WeeklyRepositoryImpl @Inject constructor(
         return Pair(entity.weeklyUsage, entity.date)
     }
 
-    override suspend fun updateLastWeeklyUsage(appName: String) {
-        val usageNDate = appInfo.getWeeklyAvgUsage(appName, 1)
-        weeklySource.upsert(
-            WeeklyEntity(
-                appName = appName,
-                date = usageNDate.second,
-                weeklyUsage = usageNDate.first
-            )
-        )
-    }
-
     override suspend fun initialWeeklyUpdate(appNameList: List<String>) {
         appNameList.forEach { appName ->
             for (i in 1..2) {   // 1~2주 전

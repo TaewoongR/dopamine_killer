@@ -65,7 +65,6 @@ class CoreDomainImpl @Inject constructor(
                 }
             }
             selectedAppRepository.updatedInstalled(appNameList, false)
-            appFetchingRepository.getAppNameList()
         }
     }
 
@@ -128,9 +127,13 @@ class CoreDomainImpl @Inject constructor(
                 val realUsageToday = realUsageTodayList[i].second
                 val date = onGoingList[i].third
 
-                if (realUsageYesterday > goalTime || realUsageToday > goalTime) {
+                if (realUsageToday > goalTime) {
                     goalRepository.failGoal(appName, date)
-                }else{
+                }else if(date < dateFactory.returnStringDate(dateFactory.returnToday())){
+                    if(realUsageYesterday > goalTime){
+                        goalRepository.failGoal(appName, date)
+                    }
+                } else{
                     goalRepository.succeedGoal(appName, date, dateFactory.calculateDayPassed(date))
                 }
             }

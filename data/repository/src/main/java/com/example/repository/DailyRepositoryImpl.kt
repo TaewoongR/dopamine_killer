@@ -85,7 +85,7 @@ class DailyRepositoryImpl @Inject constructor(
     override suspend fun periodicHourlyDailyUpdate() {
         val appNameList = selectedAppRepository.getAllInstalled()
         appNameList.forEach {appName ->
-            for(i in 0..1) {   // 1~9일 전
+            for(i in 0..1) {
                 val usageNDate = appInfo.getHourlyUsage(appName, i)
                 withContext(Dispatchers.IO) {
                     hourlySource.upsert(

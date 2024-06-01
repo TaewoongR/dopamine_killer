@@ -1,5 +1,9 @@
 package com.example.dopamine_killer
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -7,11 +11,15 @@ import androidx.activity.compose.setContent
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.example.coredomain.CoreDomain
+import com.example.dopamine_killer.alarmReceiver.NotificationUtils
+import com.example.dopamine_killer.alarmReceiver.UpdateUsage
 import com.example.dopamine_killer.workManager.CoreWorker
 import com.example.local.R
 import com.example.navigation.MainScreen
@@ -21,6 +29,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -41,7 +50,7 @@ class MainActivity: ComponentActivity() {
                 initialUpdate()
             }
         }
-        lifecycle.addObserver(MainActivityLifecycleObserver())
+        //lifecycle.addObserver(MainActivityLifecycleObserver())
     }
 
     private suspend fun initialUpdate(){
@@ -68,102 +77,58 @@ class MainActivity: ComponentActivity() {
         withContext(Dispatchers.IO) {coreDomain.initialUpdate(appNameList)}
     }
 
+    private fun startWorkManagerChain() {
+        val workManager = WorkManager.getInstance(this)
 
-    private fun updateInstalledAppAtRunning() {
         val updateInstalledAppRequest = OneTimeWorkRequestBuilder<CoreWorker>()
             .setInputData(workDataOf("TASK_TYPE" to "UPDATE_INSTALLED_APP"))
             .build()
 
-        WorkManager.getInstance(this).enqueueUniqueWork(
-            "UpdateInstalledApp",
-            ExistingWorkPolicy.REPLACE,
-            updateInstalledAppRequest
-        )
-    }
-
-    private fun updateHourlyDailyAtRunning() {
         val updateHourlyDailyRequest = OneTimeWorkRequestBuilder<CoreWorker>()
             .setInputData(workDataOf("TASK_TYPE" to "UPDATE_HOURLY_DAILY_USAGE"))
             .build()
 
-        WorkManager.getInstance(this).enqueueUniqueWork(
-            "UpdateHourlyDailyUsage",
-            ExistingWorkPolicy.REPLACE,
-            updateHourlyDailyRequest
-        )
-    }
-
-    private fun updateWeeklyAtRunning() {
         val updateWeeklyRequest = OneTimeWorkRequestBuilder<CoreWorker>()
             .setInputData(workDataOf("TASK_TYPE" to "UPDATE_WEEKLY_USAGE"))
             .build()
 
-        WorkManager.getInstance(this).enqueueUniqueWork(
-            "UpdateWeeklyUsage",
-            ExistingWorkPolicy.REPLACE,
-            updateWeeklyRequest
-        )
-    }
-
-    private fun updateAccessGoalAtRunning() {
-        val updateGoalRequest = OneTimeWorkRequestBuilder<CoreWorker>()
+        val updateAccessGoalRequest = OneTimeWorkRequestBuilder<CoreWorker>()
             .setInputData(workDataOf("TASK_TYPE" to "UPDATE_ACCESS_GOAL"))
             .build()
 
-        WorkManager.getInstance(this).enqueueUniqueWork(
-            "UpdateAccessGoal",
-            ExistingWorkPolicy.REPLACE,
-            updateGoalRequest
-        )
-    }
-
-    private fun schedulePostNetworkHourly() {
-        val updateNetworkHourlyRequest = OneTimeWorkRequestBuilder<CoreWorker>()
+        val postNetworkHourlyRequest = OneTimeWorkRequestBuilder<CoreWorker>()
             .setInputData(workDataOf("TASK_TYPE" to "POST_NETWORK_HOURLY"))
             .build()
 
-        WorkManager.getInstance(this).enqueueUniqueWork(
-            "PostNetworkHourly",
-            ExistingWorkPolicy.REPLACE,
-            updateNetworkHourlyRequest
-        )
-    }
-
-    private fun schedulePostNetworkDaily() {
-        val updateNetworkDailyRequest = OneTimeWorkRequestBuilder<CoreWorker>()
+        val postNetworkDailyRequest = OneTimeWorkRequestBuilder<CoreWorker>()
             .setInputData(workDataOf("TASK_TYPE" to "POST_NETWORK_DAILY"))
             .build()
 
-        WorkManager.getInstance(this).enqueueUniqueWork(
-            "PostNetworkDaily",
-            ExistingWorkPolicy.REPLACE,
-            updateNetworkDailyRequest
-        )
-    }
-
-    private fun schedulePostNetworkWeekly() {
-        val updateNetworkWeeklyRequest = OneTimeWorkRequestBuilder<CoreWorker>()
+        val postNetworkWeeklyRequest = OneTimeWorkRequestBuilder<CoreWorker>()
             .setInputData(workDataOf("TASK_TYPE" to "POST_NETWORK_WEEKLY"))
             .build()
 
-        WorkManager.getInstance(this).enqueueUniqueWork(
-            "PostNetworkDaily",
-            ExistingWorkPolicy.REPLACE,
-            updateNetworkWeeklyRequest
-        )
+        // WorkManager 작업 체인 설정
+        workManager
+            .beginUniqueWork(
+                "UsageUpdateChain",
+                ExistingWorkPolicy.REPLACE,
+                updateInstalledAppRequest
+            )
+            .then(updateHourlyDailyRequest)
+            .then(updateWeeklyRequest)
+            .then(updateAccessGoalRequest)
+            .then(postNetworkHourlyRequest)
+            .then(postNetworkDailyRequest)
+            .then(postNetworkWeeklyRequest)
+            .enqueue()
     }
 
     inner class MainActivityLifecycleObserver : DefaultLifecycleObserver {
         override fun onStart(owner: LifecycleOwner) {
             super.onStart(owner)
             Log.d("MainActivity", "App moved to foreground")
-            updateHourlyDailyAtRunning()
-            updateWeeklyAtRunning()
-            updateInstalledAppAtRunning()
-            updateAccessGoalAtRunning()
-            schedulePostNetworkHourly()
-            schedulePostNetworkDaily()
-            schedulePostNetworkWeekly()
+            startWorkManagerChain()
         }
     }
 }
