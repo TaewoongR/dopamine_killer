@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -40,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -50,13 +53,16 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -65,6 +71,7 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.local.user.UserTokenStore
+import kotlin.text.Typography.times
 
 @Composable
 fun OverviewScreen(
@@ -158,14 +165,32 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
 }
 
 @Composable
-fun DonutGraph(percent: Float, modifier: Modifier, size: Dp, overviewUiState: OverviewUiState) {
+fun DonutGraph(percent: Float, modifier: Modifier = Modifier, size: Dp, overviewUiState: OverviewUiState) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val squareSize = (size.value * 0.24f)// 아이콘 크기 설정
+    val squareSize = (size.value * 0.24f) // 아이콘 크기 설정
+
+    var showTooltip by remember { mutableStateOf(false) }
+    var tooltipText by remember { mutableStateOf("") }
+    var tooltipOffset by remember { mutableStateOf(DpOffset(0.dp, 0.dp)) }
+    val density = LocalDensity.current
 
     Box(
         modifier = Modifier
             .size(size)
-            .background(color = Color.White, shape = RoundedCornerShape(16.dp)),
+            .background(color = Color.White, shape = RoundedCornerShape(16.dp))
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = { offset ->
+                        if (showTooltip) {
+                            showTooltip = false
+                        } else {
+                            tooltipOffset = with(density) { DpOffset(offset.x.toDp(), offset.y.toDp()) }
+                            tooltipText = "$percent%"
+                            showTooltip = true
+                        }
+                    }
+                )
+            },
         contentAlignment = Alignment.Center
     ) {
         Canvas(
@@ -211,12 +236,33 @@ fun DonutGraph(percent: Float, modifier: Modifier, size: Dp, overviewUiState: Ov
             val minute = overviewUiState.analysisData.goalTime / 60
             Text(text = if(minute != 0)"${minute}분" else "미지정", style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 16.sp))
         }
+        if (showTooltip) {
+            Box(
+                modifier = Modifier
+                    .offset(x = tooltipOffset.x-60.dp, y = tooltipOffset.y-64.dp)
+                    .background(Color.White, shape = RoundedCornerShape(12.dp))
+                    .padding(8.dp)
+            ) {
+                Text(text = tooltipText, color = Color.Black)
+            }
+        }
     }
 }
 
 
 @Composable
 fun barGraphOverview(modifier: Modifier, size: Dp, analysisData: AnalysisData) {
+    var showTooltip by remember { mutableStateOf(false) }
+    var tooltipText by remember { mutableStateOf("") }
+    val density = LocalDensity.current
+    var tooltipOffset by remember { mutableStateOf(DpOffset(0.dp, 0.dp)) }
+
+    val times = listOf(
+        analysisData.lastMonthAvgTime,
+        analysisData.lastWeekAvgTime,
+        analysisData.yesterdayTime,
+        analysisData.dailyTime
+    )
     Box(
         modifier = modifier
             .size(size)
@@ -224,9 +270,29 @@ fun barGraphOverview(modifier: Modifier, size: Dp, analysisData: AnalysisData) {
     ) {
         Canvas(
             modifier = Modifier.matchParentSize()
+                .pointerInput(Unit) {
+                    detectTapGestures { offset ->
+                        val barWidth = (size.toPx() * 0.4f) / 4
+                        val barSpacing = (size.toPx() * 0.48f) / 5
+                        val startX = (size.toPx() - ((barWidth * 4) + (barSpacing * 3))) / 2
+
+                        times.forEachIndexed { index, barHeight ->
+                            val barStartX = startX + index * (barWidth + barSpacing)
+                            val barEndX = barStartX + barWidth
+                            if (offset.x in barStartX..barEndX) {
+                                tooltipText = "${barHeight}분" // 시간 내용으로
+                                showTooltip = true
+                                val dpOffsetX = with(density) { offset.x.toDp() }
+                                val dpOffsetY = with(density) { offset.y.toDp() }
+                                tooltipOffset = DpOffset(dpOffsetX, dpOffsetY - 210.dp) // 왠지 모르겠지만 이렇게 설정해줘야 클릭 위치에 생성됨
+                                return@detectTapGestures
+                            }
+                        }
+                    }
+                }
         ) {
             val barWidth = (size.toPx() * 0.4f) / 4 // 막대 너비
-            val barSpacing = (size.toPx() * 0.35f) / 5 // 막대 사이 간격
+            val barSpacing = (size.toPx() * 0.48f) / 5 // 막대 사이 간격
 
             val barColors = listOf(
                 keyColor.copy(alpha = 0.3f),
@@ -241,12 +307,6 @@ fun barGraphOverview(modifier: Modifier, size: Dp, analysisData: AnalysisData) {
                 analysisData.dailyTime
             ).maxOrNull() ?: 1  // 0을 방지하기 위해 최소값은 1로 설정
 
-            val times = listOf(
-                analysisData.lastMonthAvgTime,
-                analysisData.lastWeekAvgTime,
-                analysisData.yesterdayTime,
-                analysisData.dailyTime
-            )
             val paddingTop = (size * 0.2f).toPx() // 위쪽 패딩
             val paddingBottom = (size * 0.24f).toPx() // 아래쪽 패딩, 텍스트 공간
             val totalBarsWidth = barWidth * 4 + barSpacing * 3
@@ -267,10 +327,42 @@ fun barGraphOverview(modifier: Modifier, size: Dp, analysisData: AnalysisData) {
                     ),
                     cornerRadius = CornerRadius(4.dp.toPx(), 4.dp.toPx())
                 )
+                val text = when (index) {
+                    0 -> "지난 달"
+                    1 -> "지난 주"
+                    2 -> "어제"
+                    else -> "오늘"
+                }
+
+                drawIntoCanvas {
+                    val textPaint = Paint().asFrameworkPaint().apply {
+                        isAntiAlias = true
+                        textSize = 10.sp.toPx()
+                        color = vagueText.toArgb()
+                    }
+                    val textWidth = textPaint.measureText(text)
+                    it.nativeCanvas.drawText(
+                        text,
+                        barStartX + (barWidth - textWidth) / 2,
+                        size.toPx() - paddingBottom + textPaint.textSize + 12,
+                        textPaint
+                    )
+                }
+            }
+        }
+        if (showTooltip) {
+            DropdownMenu(
+                modifier = Modifier.background(Color.White, RoundedCornerShape(12.dp)),
+                expanded = showTooltip,
+                onDismissRequest = { showTooltip = false },
+                offset = tooltipOffset
+            ) {
+                Text(text = tooltipText, modifier = Modifier.padding(8.dp))
             }
         }
     }
 }
+
 
 @Composable
 fun recordOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int, recordList: List<RecordData>) {
