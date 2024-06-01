@@ -4,6 +4,7 @@ import com.example.network.appUsage.model.BadgeResponse
 import com.example.network.appUsage.model.NetworkDailyEntity
 import com.example.network.appUsage.model.NetworkHourlyEntity
 import com.example.network.appUsage.model.NetworkMonthlyEntity
+import com.example.network.appUsage.model.NetworkRecordEntity
 import com.example.network.appUsage.model.NetworkWeeklyEntity
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -26,6 +27,9 @@ interface RetrofitNetworkApi {
 
     @POST(value = "/monthlyusage/post")
     fun postMonthly(@Body networkMonthlyEntity: NetworkMonthlyEntity): Call<String>
+
+    @POST(value = "/")
+    fun postRecord(@Body networkRecordEntity: NetworkRecordEntity): Call<String>
 
     @GET(value = "/api/badges/{username}")
     suspend fun getBadges(@Path("username") username: String): List<BadgeResponse>

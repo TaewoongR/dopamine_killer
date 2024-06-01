@@ -72,6 +72,10 @@ class CoreDomainImpl @Inject constructor(
         withContext(Dispatchers.IO) {dailyRepository.periodicHourlyDailyUpdate()}
     }
 
+    override suspend fun updateAutoHourlyDailyUsage(){
+        withContext(Dispatchers.IO){dailyRepository.periodicAutoHourlyDailyUpdate()}
+    }
+
     override suspend fun updateWeeklyUsage() {
         val isSunday = dateFactory.returnDayOfWeek(dateFactory.returnToday())
         if(isSunday == 1){
@@ -139,6 +143,34 @@ class CoreDomainImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun monitoringUsageByGoal(): List<Pair<Int, String>> {
+        val resultList = mutableListOf<Pair<Int, String>>()
+        val onGoingList = goalRepository.getOnGoingList().map { Triple(it.appName, it.goalTime, it.date) }
+        val realUsageTodayList = onGoingList.map {
+            Pair(
+                it.first,
+                dailyRepository.getDailyUsageFrom(it.first, 0).first
+            )
+        }
+
+        for (i in onGoingList.indices) {
+            val appName = onGoingList[i].first
+            val goalTime = onGoingList[i].second
+            val realUsageToday = realUsageTodayList[i].second
+            val date = onGoingList[i].third
+
+            if (realUsageToday < goalTime && (realUsageToday + 5 * 60 * 1000) > goalTime) {
+                resultList.add(Pair(1, appName))
+            } else if (realUsageToday > goalTime) {
+                goalRepository.failGoal(appName, date)
+                resultList.add(Pair(2, appName))
+            }
+        }
+
+        return resultList
+    }
+
 
     override suspend fun deleteUndetectedUsageObj(date:String) {
         withContext(Dispatchers.IO) {

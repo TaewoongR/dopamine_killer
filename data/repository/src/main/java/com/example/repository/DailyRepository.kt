@@ -7,4 +7,5 @@ interface DailyRepository {
     suspend fun periodicHourlyDailyUpdate()
     suspend fun deleteHourlyDaily()
     suspend fun deleteOnDate(date: String)
+    suspend fun periodicAutoHourlyDailyUpdate()
 }

@@ -115,7 +115,7 @@ class AppFetchingInfoImpl @Inject constructor(
             dateFactory.returnTheDayStart(numberAgo)
         }
         val endTime = if(numberAgo == 0 && !isInitialSetting) {
-            startTime + (2 * 60 * 60 * 1000)
+            System.currentTimeMillis()
             }else{
             dateFactory.returnTheDayEnd(startTime)
         }

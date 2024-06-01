@@ -85,7 +85,7 @@ fun OverviewScreen(
         viewModel.loadOverviewData()
     }
     if(token.isNotEmpty()){
-        //viewModel.loadFlaskApiResponse(token)
+        viewModel.loadFlaskApiResponse(token)
     }
     MyScreenContent(overviewUiState)
 }

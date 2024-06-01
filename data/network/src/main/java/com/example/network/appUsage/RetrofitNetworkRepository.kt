@@ -6,9 +6,11 @@ import android.util.Log
 import com.example.local.dailyUsage.DailyEntity
 import com.example.local.horulyUsage.HourlyEntity
 import com.example.local.monthlyUsage.MonthlyEntity
+import com.example.local.record.RecordEntity
 import com.example.local.weeklyUsage.WeeklyEntity
 import com.example.network.appUsage.model.asNetworkDailyEntity
 import com.example.network.appUsage.model.asNetworkHourlyEntity
+import com.example.network.appUsage.model.asNetworkRecordEntity
 import com.example.network.appUsage.model.asNetworkWeeklyEntity
 import com.example.network.appUsage.retrofit.RetrofitNetworkApi
 import okhttp3.ResponseBody
@@ -38,6 +40,10 @@ internal class RetrofitNetworkRepository @Inject constructor(
     override fun postMonthlyData(monthlyEntity: MonthlyEntity, context: Context) {
         // Implement and call the postData function as needed
         // Example: postData(retrofitNetworkApi.postWeekly(weeklyEntity.asNetworkWeeklyEntity()), "Monthly")
+    }
+
+    override fun postRecordData(recordEntity: RecordEntity, context: Context) {
+        postData(retrofitNetworkApi.postRecord(recordEntity.asNetworkRecordEntity(context)), "Goal")
     }
 
     override suspend fun getBadge(username: String): List<Triple<String, String, String>> {

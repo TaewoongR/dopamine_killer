@@ -73,6 +73,7 @@ dependencies {
     implementation(project(":ui:navigation"))
     implementation(project(":domain:coreDomain"))
     implementation(project(":data:local"))
+    implementation(project(":data:service"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

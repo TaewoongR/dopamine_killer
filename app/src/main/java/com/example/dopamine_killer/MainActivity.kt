@@ -1,9 +1,5 @@
 package com.example.dopamine_killer
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -11,15 +7,11 @@ import androidx.activity.compose.setContent
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.example.coredomain.CoreDomain
-import com.example.dopamine_killer.alarmReceiver.NotificationUtils
-import com.example.dopamine_killer.alarmReceiver.UpdateUsage
 import com.example.dopamine_killer.workManager.CoreWorker
 import com.example.local.R
 import com.example.navigation.MainScreen
@@ -29,7 +21,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
