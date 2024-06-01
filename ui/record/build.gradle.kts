@@ -7,7 +7,12 @@ plugins {
 
 android{
     compileSdk = 34
-    namespace = "com.example.reccord"
+    namespace = "com.example.record"
+
+    defaultConfig {
+        minSdk = 29
+        targetSdk = 34
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -36,7 +41,9 @@ dependencies {
     implementation(project(":data:local"))
     implementation(project(":data:repository"))
     implementation(project(":ui:service"))
-    implementation(project(":ui:installedApp"))
+    implementation(project(":domain:RecordDomain"))
+    implementation(project(":domain:coreDomain"))
+    implementation(project(":domain:AnalysisDomain"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

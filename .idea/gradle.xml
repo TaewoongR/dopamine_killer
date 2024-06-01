@@ -6,19 +6,23 @@
       <GradleProjectSettings>
         <option name="testRunner" value="GRADLE" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleJvm" value="#GRADLE_LOCAL_JAVA_HOME" />
+        <option name="gradleJvm" value="jbr-17" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/data" />
             <option value="$PROJECT_DIR$/data/local" />
+            <option value="$PROJECT_DIR$/data/network" />
             <option value="$PROJECT_DIR$/data/repository" />
             <option value="$PROJECT_DIR$/data/service" />
+            <option value="$PROJECT_DIR$/domain" />
+            <option value="$PROJECT_DIR$/domain/AnalysisDomain" />
+            <option value="$PROJECT_DIR$/domain/RecordDomain" />
+            <option value="$PROJECT_DIR$/domain/coreDomain" />
+            <option value="$PROJECT_DIR$/domain/rewardDomain" />
             <option value="$PROJECT_DIR$/ui" />
             <option value="$PROJECT_DIR$/ui/analysis" />
-            <option value="$PROJECT_DIR$/ui/initialSet" />
-            <option value="$PROJECT_DIR$/ui/installedApp" />
             <option value="$PROJECT_DIR$/ui/myInfo" />
             <option value="$PROJECT_DIR$/ui/navigation" />
             <option value="$PROJECT_DIR$/ui/overview" />

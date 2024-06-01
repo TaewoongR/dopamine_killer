@@ -1,12 +1,18 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
 }
 
 android{
     compileSdk = 34
     namespace = "com.example.local"
+
+    defaultConfig {
+        minSdk = 29
+        targetSdk = 34
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -19,8 +25,6 @@ android{
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
     implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -30,4 +34,10 @@ dependencies {
     implementation(libs.room.runtime)
     ksp(libs.room.compiler)
 
+    //hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+
+    // EncryptedSharedPreferences
+    implementation(libs.security.crypto)
 }

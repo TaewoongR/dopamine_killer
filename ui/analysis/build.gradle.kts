@@ -9,6 +9,11 @@ android{
     compileSdk = 34
     namespace = "com.example.analysis"
 
+    defaultConfig {
+        minSdk = 29
+        targetSdk = 34
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -36,7 +41,9 @@ dependencies {
     implementation(project(":data:local"))
     implementation(project(":data:repository"))
     implementation(project(":ui:service"))
-    implementation(project(":ui:installedApp"))
+    implementation(project(":domain:AnalysisDomain"))
+    implementation(project(":domain:RecordDomain"))
+    implementation(project(":domain:coreDomain"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

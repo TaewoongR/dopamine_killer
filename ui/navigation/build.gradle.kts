@@ -9,6 +9,10 @@ android{
     compileSdk = 34
     namespace = "com.example.navigation"
 
+    defaultConfig {
+        minSdk = 29
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -33,14 +37,16 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.material3)
+    implementation(project(":data:local"))
     implementation(project(":ui:service"))
-    implementation(project(":ui:installedApp"))
     implementation(project(":ui:analysis"))
     implementation(project(":ui:overview"))
-    implementation(project(":ui:initialSet"))
     implementation(project(":ui:myInfo"))
     implementation(project(":ui:record"))
     implementation(project(":ui:reward"))
+    implementation(project(":domain:coreDomain"))
+    implementation(project(":domain:AnalysisDomain"))
+    implementation(project(":domain:RecordDomain"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -55,7 +61,6 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     //compose viewmodel
-    implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.androidx.lifecycle.viewModelCompose)
 
     //compose navigation

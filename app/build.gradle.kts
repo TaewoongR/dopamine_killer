@@ -22,13 +22,21 @@ android {
         }
     }
 
+    buildFeatures{
+        buildConfig = true
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(
+            proguardFiles (
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField ("boolean", "LOG_ENABLED", "false")
+        }
+        debug {
+            buildConfigField ("boolean", "LOG_ENABLED", "true")
         }
     }
     compileOptions {
@@ -63,6 +71,9 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(project(":ui:analysis"))
     implementation(project(":ui:navigation"))
+    implementation(project(":domain:coreDomain"))
+    implementation(project(":data:local"))
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -75,10 +86,15 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.android.testing)
     ksp(libs.hilt.compiler)
+    ksp(libs.androidx.hilt.compiler)
 
     //compose viewmodel
     implementation(libs.androidx.lifecycle.runtimeCompose)
 
     //compose material3
     implementation(libs.androidx.compose.material3)
+
+    //workmanager
+    implementation(libs.androidx.work)
+    implementation(libs.androidx.hilt.work)
 }

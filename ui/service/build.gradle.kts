@@ -7,7 +7,12 @@ plugins {
 
 android{
     compileSdk = 34
-    namespace = "com.example.service"
+    namespace = "com.example.ui.service"
+
+    defaultConfig {
+        minSdk = 29
+        targetSdk = 34
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
