@@ -25,4 +25,5 @@ interface CoreDomain {
     suspend fun postNetworkDaily(context: Context)
     suspend fun postNetworkWeekly(context: Context)
 
+    suspend fun postGoal(context: Context)
 }

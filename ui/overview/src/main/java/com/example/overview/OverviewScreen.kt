@@ -185,7 +185,7 @@ fun DonutGraph(percent: Float, modifier: Modifier = Modifier, size: Dp, overview
                             showTooltip = false
                         } else {
                             tooltipOffset = with(density) { DpOffset(offset.x.toDp(), offset.y.toDp()) }
-                            tooltipText = "$percent%"
+                            tooltipText = "${overviewUiState.analysisData.dailyTime / 60}분"
                             showTooltip = true
                         }
                     }
@@ -280,7 +280,7 @@ fun barGraphOverview(modifier: Modifier, size: Dp, analysisData: AnalysisData) {
                             val barStartX = startX + index * (barWidth + barSpacing)
                             val barEndX = barStartX + barWidth
                             if (offset.x in barStartX..barEndX) {
-                                tooltipText = "${barHeight}분" // 시간 내용으로
+                                tooltipText = "${barHeight / (60 * 1000)}분" // 시간 내용으로
                                 showTooltip = true
                                 val dpOffsetX = with(density) { offset.x.toDp() }
                                 val dpOffsetY = with(density) { offset.y.toDp() }

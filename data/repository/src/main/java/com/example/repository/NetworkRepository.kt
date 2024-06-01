@@ -8,5 +8,5 @@ interface NetworkRepository {
     suspend fun updateEntireNetworkWeekly(context: Context)
     suspend fun updateTodayNetworkHourly()
     suspend fun updateYesterdayAtMidnight()
-
+    suspend fun postGoal(context: Context)
 }

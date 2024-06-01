@@ -28,7 +28,7 @@ interface RetrofitNetworkApi {
     @POST(value = "/monthlyusage/post")
     fun postMonthly(@Body networkMonthlyEntity: NetworkMonthlyEntity): Call<String>
 
-    @POST(value = "/")
+    @POST(value = "/goal/post")
     fun postRecord(@Body networkRecordEntity: NetworkRecordEntity): Call<String>
 
     @GET(value = "/api/badges/{username}")

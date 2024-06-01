@@ -41,7 +41,7 @@ class MainActivity: ComponentActivity() {
                 initialUpdate()
             }
         }
-        //lifecycle.addObserver(MainActivityLifecycleObserver())
+        lifecycle.addObserver(MainActivityLifecycleObserver())
     }
 
     private suspend fun initialUpdate(){
@@ -99,6 +99,10 @@ class MainActivity: ComponentActivity() {
             .setInputData(workDataOf("TASK_TYPE" to "POST_NETWORK_WEEKLY"))
             .build()
 
+        val postNetworkGoalRequest = OneTimeWorkRequestBuilder<CoreWorker>()
+            .setInputData(workDataOf("TASK_TYPE" to "POST_NETWORK_GOAL"))
+            .build()
+
         // WorkManager 작업 체인 설정
         workManager
             .beginUniqueWork(
@@ -106,12 +110,12 @@ class MainActivity: ComponentActivity() {
                 ExistingWorkPolicy.REPLACE,
                 updateInstalledAppRequest
             )
-            .then(updateHourlyDailyRequest)
             .then(updateWeeklyRequest)
             .then(updateAccessGoalRequest)
             .then(postNetworkHourlyRequest)
             .then(postNetworkDailyRequest)
             .then(postNetworkWeeklyRequest)
+            .then(postNetworkGoalRequest)
             .enqueue()
     }
 

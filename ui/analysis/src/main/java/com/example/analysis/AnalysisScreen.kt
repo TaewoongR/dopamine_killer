@@ -156,7 +156,7 @@ fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, sta
                                 val barStartX = startX + index * (barWidth + barSpacing)
                                 val barEndX = barStartX + barWidth
                                 if (offset.x in barStartX..barEndX) {
-                                    tooltipText = "${barHeight}분" // 시간 내용으로
+                                    tooltipText = "${barHeight / (60)}분" // 시간 내용으로
                                     showTooltip = true
                                     val dpOffsetX = with(density) { offset.x.toDp() }
                                     val dpOffsetY = with(density) { offset.y.toDp() }

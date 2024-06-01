@@ -164,7 +164,7 @@ class AppFetchingInfoImpl @Inject constructor(
                 val endHour = dateFactory.returnTheHour(endTime)
                 hourlyUsage[endHour] += (endTime - lastEventTime)
             }else{
-                val endHour = ((endTime - startTime) / (1000 * 60 )).toInt()
+                val endHour = ((endTime - startTime) / (1000 * 60 * 60 )).toInt()
                 if (endHour < 24) {
                     hourlyUsage[endHour] += (endTime - lastEventTime)
                 }
