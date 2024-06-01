@@ -74,6 +74,7 @@ dependencies {
     implementation(project(":domain:coreDomain"))
     implementation(project(":data:local"))
     implementation(project(":data:service"))
+    implementation(libs.androidx.constraintlayout)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -4,64 +4,98 @@ import android.app.Notification
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
+import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import com.example.coredomain.CoreDomain
 import com.example.dopamine_killer.R
 import com.example.service.AppFetchingInfo
+import com.example.service.DateFactoryForData
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ForegroundService: Service() {
+class ForegroundService : Service() {
     @Inject
     lateinit var coreDomain: CoreDomain
 
     @Inject
     lateinit var appFetchingInfo: AppFetchingInfo
 
+    @Inject
+    lateinit var dateFactory: DateFactoryForData
+
     private val jobScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private lateinit var foregroundAppChecker: ForegroundAppChecker
+    private lateinit var screenStateReceiver: ScreenStateReceiver
+    private lateinit var customPopupView: CustomPopupView
+
+    private val handler = Handler(Looper.getMainLooper())
+    private val hourlyUpdateRunnable = object : Runnable {
+        override fun run() {
+            jobScope.launch {
+                coreDomain.updateAutoHourlyDailyUsage()
+                val warningType = coreDomain.monitoringUsageByGoal()
+                val type = warningType.firstOrNull {
+                    foregroundAppChecker.getForegroundApp() == appFetchingInfo.getPackageNameBy(it.second)
+                }
+                if (type?.first == 1) {
+                    showWarning(type.second)
+                }
+                warningType.forEach {
+                    if (it.first == 2) {
+                        showFailure(it.second)
+                    }
+                }
+            }
+            handler.postDelayed(this, 60 * 1000) // 1분(60,000 밀리초)마다 실행
+        }
+    }
+
+    private val weeklyUpdateRunnable = object : Runnable {
+        override fun run() {
+            if (dateFactory.returnDayOfWeek(System.currentTimeMillis()) == 1) {
+                jobScope.launch {
+                    coreDomain.updateWeeklyUsage()
+                }
+            }
+            // 일주일(7일) 후에 다시 실행하도록 설정
+            handler.postDelayed(this, 7 * 24 * 60 * 60 * 1000L) // 7일 = 7 * 24 * 60 * 60 * 1000 밀리초
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
         val notification = createNotification("Foreground service is running...")
         startForeground(1, notification)        // foregroundService를 실행하기 위한 필수적 실행 함수
         foregroundAppChecker = ForegroundAppChecker(this)
+
+        handler.post(hourlyUpdateRunnable)
+        handler.post(weeklyUpdateRunnable)
+
+        // ScreenStateReceiver 초기화 및 등록
+        screenStateReceiver = ScreenStateReceiver(
+            onScreenOn = { handler.post(hourlyUpdateRunnable) },
+            onScreenOff = { handler.removeCallbacks(hourlyUpdateRunnable) }
+        )
+        screenStateReceiver.register(this)
+
+        // CustomPopupView 초기화
+        customPopupView = CustomPopupView(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        jobScope.launch {
-            while (isActive) {
-                coreDomain.updateAutoHourlyDailyUsage()
-                val warningType = coreDomain.monitoringUsageByGoal()
-                val type = warningType.firstOrNull {
-                    foregroundAppChecker.getForegroundApp() == appFetchingInfo.getPackageNameBy(it.second)
-                }
-                if(type?.first == 1) {
-                    warningUsage(type.second)
-                }
-                warningType.forEach {
-                    if(it.first == 2){
-                        failGoal(it.second)
-                    }
-                }
-                delay(60 * 1000)
-            }
-        }
         return START_STICKY
     }
 
     override fun onDestroy() {
         super.onDestroy()
         jobScope.cancel() // 서비스 종료 시 Coroutine 취소
+        handler.removeCallbacks(hourlyUpdateRunnable) // 서비스 종료 시 Runnable 제거
+        handler.removeCallbacks(weeklyUpdateRunnable) // 서비스 종료 시 Runnable 제거
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -77,21 +111,25 @@ class ForegroundService: Service() {
             .build()
     }
 
-    private fun updateUsage() {
-        val updatedNotification = createNotification("앱 사용량 업데이트")
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(1, updatedNotification)
-    }
-
-    private fun warningUsage(appName: String) {
+    private fun showWarning(appName: String) {
         val updatedNotification = createNotification("$appName 사용량이 목표 시간에 근접했습니다.")
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(1, updatedNotification)
+        if (Settings.canDrawOverlays(this)) {
+            handler.post {
+                customPopupView.showMessage("$appName 사용량이 목표 시간에 근접했습니다.")
+            }
+        }
     }
 
-    private fun failGoal(appName: String) {
+    private fun showFailure(appName: String) {
         val updatedNotification = createNotification("$appName 사용량 목표 시간 달성에 실패했습니다.")
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(1, updatedNotification)
+        if (Settings.canDrawOverlays(this)) {
+            handler.post {
+                customPopupView.showMessage("$appName 사용량 목표 시간 달성에 실패했습니다.")
+            }
+        }
     }
 }

@@ -86,7 +86,7 @@ class CoreDomainImpl @Inject constructor(
                 for(i in 1..7){
                     totalWeeklyHour += dailyRepository.getDailyUsageFrom(it, i).first
                 }
-                weeklyList.add(Triple(it, dateFactory.returnStringDate(dateFactory.returnTheDayStart(7)),totalWeeklyHour))
+                weeklyList.add(Triple(it, dateFactory.returnStringDate(dateFactory.returnTheDayStart(7)),totalWeeklyHour / 7))
             }
             weeklyRepository.periodicWeeklyUpdate(weeklyList)
         }

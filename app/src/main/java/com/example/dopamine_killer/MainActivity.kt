@@ -41,7 +41,8 @@ class MainActivity: ComponentActivity() {
                 initialUpdate()
             }
         }
-        lifecycle.addObserver(MainActivityLifecycleObserver())
+
+        //lifecycle.addObserver(MainActivityLifecycleObserver())
     }
 
     private suspend fun initialUpdate(){
