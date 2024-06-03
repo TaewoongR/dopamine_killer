@@ -303,4 +303,16 @@ class DailyRepositoryImpl @Inject constructor(
         dailySource.clearAll()
         hourlySource.clearAll()
     }
+
+    override suspend fun getHourlyUsage(appName: String, date: String): List<Int> {
+        return hourlySource.getHourlyEntity(appName, date).getHourlyList()
+    }
+
+    override suspend fun getDailyUsage(appName: String, date: String): Int {
+        return try{
+            dailySource.get(appName, date).dailyUsage
+        }catch (e: NullPointerException) {
+            0
+        }
+    }
 }

@@ -8,4 +8,6 @@ interface DailyRepository {
     suspend fun deleteHourlyDaily()
     suspend fun deleteOnDate(date: String)
     suspend fun periodicAutoHourlyDailyUpdate()
+    suspend fun getHourlyUsage(appName: String, date: String): List<Int>
+    suspend fun getDailyUsage(appName: String, date: String): Int
 }

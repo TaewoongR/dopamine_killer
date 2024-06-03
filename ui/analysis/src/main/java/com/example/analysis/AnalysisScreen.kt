@@ -63,13 +63,14 @@ val vagueText: Color = Color(android.graphics.Color.parseColor("#777777"))
 fun AnalysisScreen(
     navController: NavController,
     viewModel: AnalysisViewModel = hiltViewModel(),
+    reportViewModel: ReportViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(navController.currentBackStackEntry) {
         viewModel.loadAnalysisData()
     }
-    analysisContent(uiState)
+    analysisContent(uiState, navController, reportViewModel)
     BackHandler {
         navController.navigate("overview_route") {
             popUpTo(0) { inclusive = true }
@@ -78,7 +79,7 @@ fun AnalysisScreen(
 }
 
 @Composable
-fun analysisContent(uiState: AnalysisUiState) {
+fun analysisContent(uiState: AnalysisUiState, navController: NavController, reportViewModel: ReportViewModel) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val totalWidth = screenWidth * 0.85f
 
@@ -101,7 +102,9 @@ fun analysisContent(uiState: AnalysisUiState) {
                     modifier = Modifier,
                     aspectRatio = 1f / 0.6f,
                     totalWidth = totalWidth,
-                    stateData = uiState.appList[it]
+                    stateData = uiState.appList[it],
+                    navController = navController,
+                    reportViewModel
                 )
             }
             item {
@@ -112,7 +115,7 @@ fun analysisContent(uiState: AnalysisUiState) {
 }
 
 @Composable
-fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, stateData: AnalysisAppData) {
+fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, stateData: AnalysisAppData,  navController: NavController, reportViewModel: ReportViewModel) {
     val times = listOf(
         stateData.lastMonthAvgTime,
         stateData.lastWeekAvgTime,
@@ -132,18 +135,25 @@ fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, sta
                 .width(totalWidth)
                 .aspectRatio(aspectRatio)
                 .background(color = Color.White, shape = RoundedCornerShape(16.dp))
+                .clickable {
+                    navController.navigate("report_screen/${stateData.appName}"){
+                    }
+                }
         ) {
-            IconImage(modifier = Modifier
-                .offset(totalWidth * 0.8f, totalWidth * 0.04f),
+            IconImage(
+                modifier = Modifier
+                    .offset(totalWidth * 0.8f, totalWidth * 0.04f),
                 imageBitmap = stateData.appIcon,
                 size = totalWidth * 0.16f,
-                cornerRadius = 8.dp)
+                cornerRadius = 8.dp
+            )
 
             var selectedBarIndex by remember { mutableIntStateOf(-1) }
 
             Canvas(
                 modifier = modifier
                     .matchParentSize()
+                    /*
                     .pointerInput(Unit) {
                         detectTapGestures { offset ->
                             val barWidth = (size.width * 0.3f) / 4
@@ -160,12 +170,17 @@ fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, sta
                                     showTooltip = true
                                     val dpOffsetX = with(density) { offset.x.toDp() }
                                     val dpOffsetY = with(density) { offset.y.toDp() }
-                                    tooltipOffset = DpOffset(dpOffsetX, dpOffsetY-210.dp) // 왠지 모르겠지만 이렇게 설정해줘야 클릭 위치에 생성됨
+                                    tooltipOffset = DpOffset(
+                                        dpOffsetX,
+                                        dpOffsetY - 210.dp
+                                    ) // 왠지 모르겠지만 이렇게 설정해줘야 클릭 위치에 생성됨
                                     return@detectTapGestures
                                 }
                             }
                         }
                     }
+
+                     */
             ) {
                 val barWidth = (size.width * 0.3f) / 4 // 막대 너비
                 val barSpacing = (size.width * 0.36f) / 5 // 막대 사이 간격
@@ -259,10 +274,4 @@ fun IconImage(
             contentScale = ContentScale.Crop
         )
     }
-}
-
-@Preview
-@Composable
-fun DefaultPreview() {
-    analysisContent(uiState = AnalysisUiState())
 }

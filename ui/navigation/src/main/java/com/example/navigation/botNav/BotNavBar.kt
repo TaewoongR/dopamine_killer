@@ -22,6 +22,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.analysis.AnalysisScreen
+import com.example.analysis.ReportScreen
 import com.example.myinfo.MyInfoScreen
 import com.example.myinfo.SelectedAppEditScreen
 import com.example.navigation.MainScreen
@@ -124,6 +125,11 @@ fun BotNavBar() {
             composable("goal_create_screen"){
                 GoalCreateScreen(navController,)
             }
+            composable("report_screen/{appName}"){backStackEntry ->
+                val appName = backStackEntry.arguments?.getString("appName") ?: ""
+                ReportScreen(navController, appName)
+            }
+
         }
     }
 }

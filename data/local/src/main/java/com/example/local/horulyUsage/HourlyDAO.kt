@@ -27,4 +27,5 @@ interface HourlyDAO {
 
     @Query("DELETE FROM hourly_usage")
     fun clearAll()
+
 }
