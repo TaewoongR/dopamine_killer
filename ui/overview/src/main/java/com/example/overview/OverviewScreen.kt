@@ -81,12 +81,21 @@ fun OverviewScreen(
     val overviewUiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val token = UserTokenStore.getToken(context) ?: ""
+
+    // 한 번만 호출하도록 하는 상태 변수
+    var isFlaskApiLoaded by remember { mutableStateOf(false) }
+
     LaunchedEffect(navController.currentBackStackEntry) {
         viewModel.loadOverviewData()
     }
-    if(token.isNotEmpty()){
-        viewModel.loadFlaskApiResponse(token)
+
+    LaunchedEffect(token) {
+        if (token.isNotEmpty() && !isFlaskApiLoaded) {
+            viewModel.loadFlaskApiResponse(token)
+            isFlaskApiLoaded = true // 데이터가 불러왔음을 표시
+        }
     }
+
     MyScreenContent(overviewUiState)
 }
 

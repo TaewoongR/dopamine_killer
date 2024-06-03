@@ -42,7 +42,7 @@ class MainActivity: ComponentActivity() {
             }
         }
 
-        //lifecycle.addObserver(MainActivityLifecycleObserver())
+        lifecycle.addObserver(MainActivityLifecycleObserver())
     }
 
     private suspend fun initialUpdate(){
@@ -113,10 +113,6 @@ class MainActivity: ComponentActivity() {
             )
             .then(updateWeeklyRequest)
             .then(updateAccessGoalRequest)
-            .then(postNetworkHourlyRequest)
-            .then(postNetworkDailyRequest)
-            .then(postNetworkWeeklyRequest)
-            .then(postNetworkGoalRequest)
             .enqueue()
     }
 

@@ -43,7 +43,7 @@ fun MyInfoScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    settingsContent(uiState, navController)
+    settingsContent(uiState, navController, viewModel)
     // Back button handler
     BackHandler {
         navController.navigate("overview_route") {
@@ -53,7 +53,7 @@ fun MyInfoScreen(
 }
 
 @Composable
-fun settingsContent (uiState: MyInfoUiState, navController: NavController){
+fun settingsContent (uiState: MyInfoUiState, navController: NavController, viewModel: MyInfoViewModel){
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val totalWidth = screenWidth * 0.85f
 
@@ -63,12 +63,12 @@ fun settingsContent (uiState: MyInfoUiState, navController: NavController){
             .background(color = backgroundColor),
         contentAlignment = Alignment.Center
     ){
-        Settings(modifier = Modifier, totalWidth = totalWidth, navController)
+        Settings(modifier = Modifier, totalWidth = totalWidth, navController, viewModel)
     }
 }
 
 @Composable
-fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController) {
+fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController, viewModel: MyInfoViewModel) {
     val context = LocalContext.current
 
     Box(
@@ -138,35 +138,34 @@ fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController) {
                     .fillMaxWidth()
                     .clickable {
                         val token = UserTokenStore.getToken(context)
-                        val username = "현재_사용자_이름" // 실제로 현재 사용자의 이름을 넣어야 합니다.
-
+                        val username = UserTokenStore.getUserId(context)
                         if (token != null) {
-                            // 회원탈퇴 API 호출
-                            val call = LoginApiService.userApi.deleteUser("Bearer $token", username)
-                            call.enqueue(object : Callback<Map<String, String>> {
-                                override fun onResponse(
-                                    call: Call<Map<String, String>>,
-                                    response: Response<Map<String, String>>
-                                ) {
-                                    if (response.isSuccessful) {
-                                        // 토큰 삭제 및 로그인 화면으로 네비게이션
-                                        navController.navigate("main_screen") { // 대상 루트로 변경하세요
-                                            UserTokenStore.clearToken(context)
-                                            UserTokenStore.clearUserId(context)
-                                            popUpTo(0) {
-                                                inclusive = true
+                            viewModel.deleteUserData("Bearer $token", username) {
+                                // After deleting user data, call the user account deletion API
+                                val call = LoginApiService.userApi.deleteUser("Bearer $token", username)
+                                call.enqueue(object : Callback<Map<String, String>> {
+                                    override fun onResponse(
+                                        call: Call<Map<String, String>>,
+                                        response: Response<Map<String, String>>
+                                    ) {
+                                        if (response.isSuccessful) {
+                                            // Clear token and user ID, then navigate to the main screen
+                                            navController.navigate("main_screen") {
+                                                UserTokenStore.clearToken(context)
+                                                UserTokenStore.clearUserId(context)
+                                                popUpTo(0) { inclusive = true }
+                                                launchSingleTop = true
                                             }
-                                            launchSingleTop = true
+                                        } else {
+                                            // Handle failure
                                         }
-                                    } else {
-                                        // 실패 처리 (예: 오류 메시지 표시)
                                     }
-                                }
 
-                                override fun onFailure(call: Call<Map<String, String>>, t: Throwable) {
-                                    // 실패 처리 (예: 네트워크 오류 메시지 표시)
-                                }
-                            })
+                                    override fun onFailure(call: Call<Map<String, String>>, t: Throwable) {
+                                        // Handle failure
+                                    }
+                                })
+                            }
                         }
                     }
                     .height(totalWidth * 0.16f), contentAlignment = Alignment.Center) {

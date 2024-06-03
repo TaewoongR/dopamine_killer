@@ -101,4 +101,45 @@ internal class RetrofitNetworkRepository @Inject constructor(
             }
         })
     }
+
+    override fun deleteAppTime(token: String, username: String) {
+        deleteData(retrofitNetworkApi.deleteAppTime(token, username), "App Time")
+    }
+
+    override fun deleteDailyUsage(token: String, username: String) {
+        deleteData(retrofitNetworkApi.deleteDailyUsage(token, username), "Daily Usage")
+    }
+
+    override fun deleteWeeklyUsage(token: String, username: String) {
+        deleteData(retrofitNetworkApi.deleteWeeklyUsage(token, username), "Weekly Usage")
+    }
+
+    override fun deleteMonthlyUsage(token: String, username: String) {
+        deleteData(retrofitNetworkApi.deleteMonthlyUsage(token, username), "Monthly Usage")
+    }
+
+    override fun deleteGoalByUserName(token: String, username: String) {
+        deleteData(retrofitNetworkApi.deleteGoalByUserName(token, username), "Goal by User Name")
+    }
+
+    private fun deleteData(call: Call<String>, dataType: String) {
+        call.enqueue(object : Callback<String> {
+            override fun onResponse(call: Call<String>, response: Response<String>) {
+                if (response.isSuccessful) {
+                    val responseBody: String? = response.body()
+                    if (responseBody != null) {
+                        Log.d("RetrofitNetwork", "$dataType Deletion successful. Response body: $responseBody")
+                    } else {
+                        Log.d("RetrofitNetwork", "$dataType Deletion successful but response body is null")
+                    }
+                } else {
+                    Log.d("RetrofitNetwork", "$dataType Deletion failed. Error response: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<String>, t: Throwable) {
+                Log.d("RetrofitNetwork", "$dataType Deletion failed. Throwable: ${t.message}")
+            }
+        })
+    }
 }

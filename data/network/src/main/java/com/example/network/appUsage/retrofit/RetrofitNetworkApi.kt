@@ -10,6 +10,7 @@ import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
@@ -36,4 +37,19 @@ interface RetrofitNetworkApi {
 
     @GET(value ="/flask-api")
     suspend fun getFlaskResponse(@Header("Authorization") token: String): Response<ResponseBody>
+
+    @DELETE(value = "/apptime/delete/{username}")
+    fun deleteAppTime(@Header("Authorization") token: String, @Path("username") username: String): Call<String>
+
+    @DELETE(value = "/dailyusage/delete/{username}")
+    fun deleteDailyUsage(@Header("Authorization") token: String, @Path("username") username: String): Call<String>
+
+    @DELETE(value = "/weeklyusage/delete/{username}")
+    fun deleteWeeklyUsage(@Header("Authorization") token: String, @Path("username") username: String): Call<String>
+
+    @DELETE(value = "/monthlyusage/delete/{username}")
+    fun deleteMonthlyUsage(@Header("Authorization") token: String, @Path("username") username: String): Call<String>
+
+    @DELETE(value = "/goal/delete/{username}")
+    fun deleteGoalByUserName(@Header("Authorization") token: String, @Path("username") username: String): Call<String>
 }

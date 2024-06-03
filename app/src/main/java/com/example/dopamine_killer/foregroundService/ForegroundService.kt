@@ -33,7 +33,7 @@ class ForegroundService : Service() {
     private lateinit var screenStateReceiver: ScreenStateReceiver
     private lateinit var customPopupView: CustomPopupView
 
-    private val handler = Handler(Looper.getMainLooper())
+    private val mainHandler = Handler(Looper.getMainLooper()) // 메인 스레드의 Handler
     private val hourlyUpdateRunnable = object : Runnable {
         override fun run() {
             jobScope.launch {
@@ -51,7 +51,7 @@ class ForegroundService : Service() {
                     }
                 }
             }
-            handler.postDelayed(this, 60 * 1000) // 1분(60,000 밀리초)마다 실행
+            mainHandler.postDelayed(this, 60 * 1000) // 1분(60,000 밀리초)마다 실행
         }
     }
 
@@ -63,7 +63,7 @@ class ForegroundService : Service() {
                 }
             }
             // 일주일(7일) 후에 다시 실행하도록 설정
-            handler.postDelayed(this, 7 * 24 * 60 * 60 * 1000L) // 7일 = 7 * 24 * 60 * 60 * 1000 밀리초
+            mainHandler.postDelayed(this, 7 * 24 * 60 * 60 * 1000L) // 7일 = 7 * 24 * 60 * 60 * 1000 밀리초
         }
     }
 
@@ -73,13 +73,13 @@ class ForegroundService : Service() {
         startForeground(1, notification)        // foregroundService를 실행하기 위한 필수적 실행 함수
         foregroundAppChecker = ForegroundAppChecker(this)
 
-        handler.post(hourlyUpdateRunnable)
-        handler.post(weeklyUpdateRunnable)
+        mainHandler.post(hourlyUpdateRunnable)
+        mainHandler.post(weeklyUpdateRunnable)
 
         // ScreenStateReceiver 초기화 및 등록
         screenStateReceiver = ScreenStateReceiver(
-            onScreenOn = { handler.post(hourlyUpdateRunnable) },
-            onScreenOff = { handler.removeCallbacks(hourlyUpdateRunnable) }
+            onScreenOn = { mainHandler.post(hourlyUpdateRunnable) },
+            onScreenOff = { mainHandler.removeCallbacks(hourlyUpdateRunnable) }
         )
         screenStateReceiver.register(this)
 
@@ -94,8 +94,8 @@ class ForegroundService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         jobScope.cancel() // 서비스 종료 시 Coroutine 취소
-        handler.removeCallbacks(hourlyUpdateRunnable) // 서비스 종료 시 Runnable 제거
-        handler.removeCallbacks(weeklyUpdateRunnable) // 서비스 종료 시 Runnable 제거
+        mainHandler.removeCallbacks(hourlyUpdateRunnable) // 서비스 종료 시 Runnable 제거
+        mainHandler.removeCallbacks(weeklyUpdateRunnable) // 서비스 종료 시 Runnable 제거
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -112,23 +112,27 @@ class ForegroundService : Service() {
     }
 
     private fun showWarning(appName: String) {
-        val updatedNotification = createNotification("$appName 사용량이 목표 시간에 근접했습니다.")
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(1, updatedNotification)
-        if (Settings.canDrawOverlays(this)) {
-            handler.post {
-                customPopupView.showMessage("$appName 사용량이 목표 시간에 근접했습니다.")
-            }
-        }
+        val message = "$appName 사용량이 목표 시간에 근접했습니다."
+        showNotification(message)
+        showPopup(message)
     }
 
     private fun showFailure(appName: String) {
-        val updatedNotification = createNotification("$appName 사용량 목표 시간 달성에 실패했습니다.")
+        val message = "$appName 사용량 목표 시간 달성에 실패했습니다."
+        showNotification(message)
+        showPopup(message)
+    }
+
+    private fun showNotification(message: String) {
+        val updatedNotification = createNotification(message)
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(1, updatedNotification)
+    }
+
+    private fun showPopup(message: String) {
         if (Settings.canDrawOverlays(this)) {
-            handler.post {
-                customPopupView.showMessage("$appName 사용량 목표 시간 달성에 실패했습니다.")
+            mainHandler.post {
+                customPopupView.showMessage(message)
             }
         }
     }

@@ -131,13 +131,7 @@ class CoreDomainImpl @Inject constructor(
                 val realUsageToday = realUsageTodayList[i].second
                 val date = onGoingList[i].third
 
-                if (realUsageToday > goalTime) {
-                    goalRepository.failGoal(appName, date)
-                }else if(date < dateFactory.returnStringDate(dateFactory.returnToday())){
-                    if(realUsageYesterday > goalTime){
-                        goalRepository.failGoal(appName, date)
-                    }
-                } else{
+                if(date < dateFactory.returnStringDate(System.currentTimeMillis()) && realUsageYesterday < goalTime){
                     goalRepository.succeedGoal(appName, date, dateFactory.calculateDayPassed(date))
                 }
             }
@@ -160,7 +154,7 @@ class CoreDomainImpl @Inject constructor(
             val realUsageToday = realUsageTodayList[i].second
             val date = onGoingList[i].third
 
-            if (realUsageToday < goalTime && (realUsageToday + 5 * 60 * 1000) > goalTime) {
+            if (realUsageToday < goalTime && (realUsageToday + 5 * 60) > goalTime) {
                 resultList.add(Pair(1, appName))
             } else if (realUsageToday > goalTime) {
                 goalRepository.failGoal(appName, date)
