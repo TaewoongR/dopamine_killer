@@ -43,6 +43,9 @@ class MainActivity: ComponentActivity() {
         }
 
         lifecycle.addObserver(MainActivityLifecycleObserver())
+
+        val app = application as Application
+        app.checkAndStartForegroundService(this)
     }
 
     private suspend fun initialUpdate(){

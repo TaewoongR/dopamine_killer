@@ -20,6 +20,8 @@
     <!--WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY-->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
     <application
         android:name=".Application"
         android:allowBackup="true"

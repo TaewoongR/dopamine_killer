@@ -19,7 +19,7 @@ class CustomPopupView(private val context: Context) {
     private var isShowing = false
 
     init {
-        // Setup expand button
+        // 확장 버튼 세팅
         val expandButton: Button = popupView.findViewById(R.id.expand_button)
         val expandedLayout: LinearLayout = popupView.findViewById(R.id.expanded_layout)
         expandButton.setOnClickListener {
@@ -32,14 +32,14 @@ class CustomPopupView(private val context: Context) {
             }
         }
 
-        // Setup action button
+        //
         val actionButton: Button = popupView.findViewById(R.id.action_button)
         actionButton.setOnClickListener {
             performAction()
         }
     }
 
-    fun showMessage(message: String, duration: Long = 3000) {
+    fun showMessage(message: String, duration: Long = 15000) {
         if (isShowing || !Settings.canDrawOverlays(context)) return
 
         val messageTextView: TextView = popupView.findViewById(R.id.popup_message)
@@ -51,7 +51,7 @@ class CustomPopupView(private val context: Context) {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             else
-                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             WindowManager.LayoutParams.TYPE_STATUS_BAR
         )
