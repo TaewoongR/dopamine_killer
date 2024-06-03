@@ -39,6 +39,7 @@ class MyInfoViewModel @Inject constructor(
                 networkDataSource.deleteWeeklyUsage(token, username)
                 networkDataSource.deleteMonthlyUsage(token, username)
                 networkDataSource.deleteGoalByUserName(token, username)
+                networkDataSource.deleteSelectedApp(token, username)
             } catch (e: Exception) {
                 // Handle errors appropriately
             } finally {

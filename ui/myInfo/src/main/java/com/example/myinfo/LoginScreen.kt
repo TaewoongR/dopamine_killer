@@ -253,11 +253,7 @@ fun loginButton(totalWidth: Dp, username: String, password: String, navControlle
                                         Log.d("LoginScreen", "Login failed: Token not returned")
                                     }
                                 } else {
-                                    errorMessage = "로그인 실패: ${
-                                        response
-                                            .errorBody()
-                                            ?.string() ?: "Unknown error"
-                                    }"
+                                    errorMessage = "아이디 또는 비밀번호를 잘못 입력했습니다. 입력하신 내용을 다시 확인해주세요."
                                     Log.d(
                                         "LoginScreen",
                                         "Login failed with error body: ${

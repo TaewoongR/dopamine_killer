@@ -122,6 +122,10 @@ internal class RetrofitNetworkRepository @Inject constructor(
         deleteData(retrofitNetworkApi.deleteGoalByUserName(token, username), "Goal by User Name")
     }
 
+    override fun deleteSelectedApp(token: String, username: String) {
+        deleteData(retrofitNetworkApi.deleteSelectedApp(token, username), "Selected App")
+    }
+
     private fun deleteData(call: Call<String>, dataType: String) {
         call.enqueue(object : Callback<String> {
             override fun onResponse(call: Call<String>, response: Response<String>) {
@@ -142,4 +146,6 @@ internal class RetrofitNetworkRepository @Inject constructor(
             }
         })
     }
+
+
 }

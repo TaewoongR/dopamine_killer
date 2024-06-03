@@ -43,6 +43,9 @@ class MainActivity: ComponentActivity() {
         }
 
         lifecycle.addObserver(MainActivityLifecycleObserver())
+
+        val app = application as Application
+        app.checkAndStartForegroundService(this)
     }
 
     private suspend fun initialUpdate(){
@@ -104,6 +107,10 @@ class MainActivity: ComponentActivity() {
             .setInputData(workDataOf("TASK_TYPE" to "POST_NETWORK_GOAL"))
             .build()
 
+        val updateRecordRequest = OneTimeWorkRequestBuilder<CoreWorker>()
+            .setInputData(workDataOf("TASK_TYPE" to "UPDATE_ACCESS_GOAL"))
+            .build()
+
         // WorkManager 작업 체인 설정
         workManager
             .beginUniqueWork(
@@ -113,6 +120,9 @@ class MainActivity: ComponentActivity() {
             )
             .then(updateWeeklyRequest)
             .then(updateAccessGoalRequest)
+            .then(updateHourlyDailyRequest)
+            .then(postNetworkDailyRequest)
+            .then(updateRecordRequest)
             .enqueue()
     }
 

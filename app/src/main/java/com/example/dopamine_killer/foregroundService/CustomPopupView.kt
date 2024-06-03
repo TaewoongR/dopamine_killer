@@ -1,6 +1,9 @@
 package com.example.dopamine_killer.foregroundService
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
+import android.graphics.PixelFormat
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
@@ -8,8 +11,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import com.example.dopamine_killer.R
 
 class CustomPopupView(private val context: Context) {
@@ -39,11 +44,14 @@ class CustomPopupView(private val context: Context) {
         }
     }
 
-    fun showMessage(message: String, duration: Long = 3000) {
+    fun showMessage(message: String, duration: Long = 10000) {
         if (isShowing || !Settings.canDrawOverlays(context)) return
 
         val messageTextView: TextView = popupView.findViewById(R.id.popup_message)
         messageTextView.text = message
+
+        val iconImageView: ImageView = popupView.findViewById(R.id.popup_icon)
+        iconImageView.setImageResource(R.drawable.dkapplogo) // Set the icon resource
 
         val layoutParams = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -51,9 +59,9 @@ class CustomPopupView(private val context: Context) {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             else
-                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-            WindowManager.LayoutParams.TYPE_STATUS_BAR
+            PixelFormat.TRANSLUCENT
         )
 
         layoutParams.gravity = android.view.Gravity.TOP or android.view.Gravity.CENTER_HORIZONTAL
@@ -73,7 +81,22 @@ class CustomPopupView(private val context: Context) {
         }, duration)
     }
 
+    @SuppressLint("ServiceCast")
     private fun performAction() {
-        // Perform the desired action here
+        // Ensure the Accessibility Service is running
+        val accessibilityService = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as YourAccessibilityService?
+        if (accessibilityService != null) {
+            val foregroundAppChecker = ForegroundAppChecker(context)
+            val foregroundApp = foregroundAppChecker.getForegroundApp()
+            if (foregroundApp != null) {
+                accessibilityService.forceStopApp(foregroundApp)
+            } else {
+                Toast.makeText(context, "Unable to determine foreground app", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(context, "Accessibility Service is not enabled", Toast.LENGTH_SHORT).show()
+            val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+            context.startActivity(intent)
+        }
     }
 }

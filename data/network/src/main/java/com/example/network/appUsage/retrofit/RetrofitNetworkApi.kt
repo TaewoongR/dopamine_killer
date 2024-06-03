@@ -52,4 +52,8 @@ interface RetrofitNetworkApi {
 
     @DELETE(value = "/goal/delete/{username}")
     fun deleteGoalByUserName(@Header("Authorization") token: String, @Path("username") username: String): Call<String>
+
+    @DELETE(value = "/selectedapp/delete/{username}")
+    fun deleteSelectedApp(@Header("Authorization") token: String, @Path("username") username: String): Call<String>
+
 }

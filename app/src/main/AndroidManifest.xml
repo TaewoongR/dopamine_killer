@@ -20,6 +20,8 @@
     <!--WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY-->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
     <application
         android:name=".Application"
         android:allowBackup="true"
@@ -33,6 +35,18 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:enableOnBackInvokedCallback="true"
         tools:targetApi="31">
+        <service
+            android:name=".foregroundService.YourAccessibilityService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
         <service
             android:name=".foregroundService.ForegroundService"
             android:exported="true"
