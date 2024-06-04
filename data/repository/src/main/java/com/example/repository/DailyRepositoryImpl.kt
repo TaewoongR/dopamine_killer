@@ -1,5 +1,6 @@
 package com.example.repository
 
+import androidx.collection.intListOf
 import com.example.local.dailyUsage.DailyDAO
 import com.example.local.dailyUsage.DailyEntity
 import com.example.local.horulyUsage.HourlyDAO
@@ -305,7 +306,11 @@ class DailyRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getHourlyUsage(appName: String, date: String): List<Int> {
-        return hourlySource.getHourlyEntity(appName, date).getHourlyList()
+        return try{
+            hourlySource.getHourlyEntity(appName, date).getHourlyList()
+        } catch (e: NullPointerException){
+            List(24) { 0 }
+        }
     }
 
     override suspend fun getDailyUsage(appName: String, date: String): Int {

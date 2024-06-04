@@ -21,7 +21,11 @@ class WeeklyRepositoryImpl @Inject constructor(
     override suspend fun getWeeklyUsageFrom(appName: String, weekAgo: Int): Pair<Int, String> {
         val dateString = dateFactory.returnStringDate(dateFactory.returnWeekStartFrom(weekAgo))
         val entity = withContext(Dispatchers.IO) { weeklySource.get(appName, dateString) }
-        return Pair(entity.weeklyUsage, entity.date)
+        return try{
+            Pair(entity.weeklyUsage, entity.date)
+        }catch (e: NullPointerException){
+            Pair(0, "null")
+        }
     }
 
     override suspend fun initialWeeklyUpdate(appNameList: List<String>) {

@@ -20,7 +20,11 @@ class MonthlyRepositoryImpl @Inject constructor(
     override suspend fun getMonthlyUsageFrom(appName: String, monthAgo: Int): Pair<Int, String> {
         val dateString = dateFactory.returnStringDate(dateFactory.returnMonthStartFrom(monthAgo)).substring(0,6)
         val entity = monthlySource.get(appName, dateString)
-        return Pair(entity.monthlyUsage, entity.date )
+        return try{
+            Pair(entity.monthlyUsage, entity.date )
+        }catch (e: NullPointerException){
+            Pair(0, "null")
+        }
     }
 
     override suspend fun updateLastMonthlyUsage(appName: String) {
