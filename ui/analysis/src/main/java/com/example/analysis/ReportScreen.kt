@@ -16,7 +16,10 @@ import androidx.compose.ui.platform.LocalConfiguration
 import android.graphics.Paint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 
@@ -43,13 +46,26 @@ fun ReportScreen(
         verticalArrangement = Arrangement.spacedBy(totalWidth * 0.1f),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        item {
-            Graph(uiState.dailyList)
+        item { 
+            Spacer(modifier = Modifier.height(totalWidth * 0.02f))
+        }
+        item { 
+            Text(text = "앱 상세 보고서", color = Color.Black, fontSize = 24.sp, fontWeight = FontWeight.Bold)
         }
         item {
-            Graph2(uiState.hourlyList)
+            Column {
+                Text(text = "지난 30일 일일 사용 시간", color = Color.Black, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, modifier = Modifier.padding(start = totalWidth * 0.04f, bottom = totalWidth * 0.04f))
+                Graph(uiState.dailyList)
+            }
+        }
+        item {
+            Column {
+                Text(text = "지난 7일 평균 사용 시간대", color = Color.Black, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, modifier = Modifier.padding(start = totalWidth * 0.04f, bottom = totalWidth * 0.04f))
+                Graph2(uiState.hourlyList)
+            }
         }
     }
+    //IconImage(imageBitmap = , size = , cornerRadius = , modifier = Modifier.offset(totalWidth * 0.2f, - totalWidth * 0.2f))
 }
 
 @Composable
@@ -67,7 +83,8 @@ fun Graph(dailyList: List<Int>) {
     ) {// 아이콘 이미지를 박스 내부로 옮김
 
         Box(
-            modifier = Modifier.fillMaxWidth(0.9f)
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
                 .background(color = Color.White, shape = RoundedCornerShape(16.dp)),
             contentAlignment = Alignment.Center
         ) {
@@ -179,7 +196,8 @@ fun Graph2(hourlyList: List<Int>) {
     val graphWidth = screenWidth * 0.85f
 
     Box(
-        modifier = Modifier.fillMaxWidth(0.9f)
+        modifier = Modifier
+            .fillMaxWidth(0.9f)
             .background(color = Color.White, shape = RoundedCornerShape(16.dp)),
         contentAlignment = Alignment.Center
     ) {
