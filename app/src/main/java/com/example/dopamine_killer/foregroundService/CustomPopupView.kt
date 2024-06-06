@@ -1,12 +1,16 @@
 package com.example.dopamine_killer.foregroundService
 
+import YourAccessibilityService
+import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
@@ -81,22 +85,38 @@ class CustomPopupView(private val context: Context) {
         }, duration)
     }
 
-    @SuppressLint("ServiceCast")
     private fun performAction() {
-        // Ensure the Accessibility Service is running
-        val accessibilityService = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as YourAccessibilityService?
-        if (accessibilityService != null) {
+        if (isAccessibilityServiceEnabled(context, YourAccessibilityService::class.java)) {
             val foregroundAppChecker = ForegroundAppChecker(context)
             val foregroundApp = foregroundAppChecker.getForegroundApp()
             if (foregroundApp != null) {
-                accessibilityService.forceStopApp(foregroundApp)
+                val intent = Intent("com.example.dopamine_killer.FORCE_STOP_APP")
+                intent.putExtra("EXTRA_APP_PACKAGE", foregroundApp)
+                context.sendBroadcast(intent)
             } else {
                 Toast.makeText(context, "Unable to determine foreground app", Toast.LENGTH_SHORT).show()
             }
         } else {
             Toast.makeText(context, "Accessibility Service is not enabled", Toast.LENGTH_SHORT).show()
             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)  // FLAG_ACTIVITY_NEW_TASK 플래그 추가
             context.startActivity(intent)
         }
     }
+
+    fun isAccessibilityServiceEnabled(context: Context, service: Class<out AccessibilityService>): Boolean {
+        val expectedComponentName = ComponentName(context, service)
+        val enabledServices = Settings.Secure.getString(context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
+        val colonSplitter = TextUtils.SimpleStringSplitter(':')
+        colonSplitter.setString(enabledServices)
+        while (colonSplitter.hasNext()) {
+            val componentNameString = colonSplitter.next()
+            val enabledComponentName = ComponentName.unflattenFromString(componentNameString)
+            if (enabledComponentName != null && enabledComponentName == expectedComponentName) {
+                return true
+            }
+        }
+        return false
+    }
+
 }

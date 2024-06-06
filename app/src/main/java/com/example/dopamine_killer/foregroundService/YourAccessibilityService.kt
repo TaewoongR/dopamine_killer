@@ -1,32 +1,38 @@
-package com.example.dopamine_killer.foregroundService
-
 import android.accessibilityservice.AccessibilityService
-import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Intent
 import android.view.accessibility.AccessibilityEvent
-import android.view.accessibility.AccessibilityNodeInfo
 
 class YourAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
-        val info = AccessibilityServiceInfo().apply {
-            eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
-            packageNames = null // All packages
-            feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
-            notificationTimeout = 100
-        }
-        this.serviceInfo = info
+        super.onServiceConnected()
+        // Service connected
     }
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent) {
-        // Handle accessibility events here if needed
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        // Handle accessibility events
     }
 
     override fun onInterrupt() {
-        // Handle service interruption if needed
+        // Handle service interrupt
     }
 
-    fun forceStopApp(packageName: String) {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_FORCE_STOP_APP) {
+            val packageName = intent.getStringExtra(EXTRA_APP_PACKAGE)
+            if (packageName != null) {
+                forceStopApp(packageName)
+            }
+        }
+        return super.onStartCommand(intent, flags, startId)
+    }
 
+    private fun forceStopApp(packageName: String) {
+        // Implement your logic to force stop the app
+    }
+
+    companion object {
+        const val ACTION_FORCE_STOP_APP = "com.example.dopamine_killer.ACTION_FORCE_STOP_APP"
+        const val EXTRA_APP_PACKAGE = "com.example.dopamine_killer.EXTRA_APP_PACKAGE"
     }
 }

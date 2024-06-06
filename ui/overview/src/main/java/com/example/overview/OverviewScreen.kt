@@ -133,15 +133,14 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
             .fillMaxSize()
             .background(color = backgroundColor)
     ) {
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
-                .offset(y = 70.dp),
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            item {
+
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     modifier = Modifier.fillMaxWidth(),
@@ -160,9 +159,9 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
                     Spacer(modifier = Modifier.width(10.dp))
                     barGraphOverview(modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState.analysisData)
                 }
-            }
 
-            item {
+
+
                 Column(
                     verticalArrangement = Arrangement.spacedBy(2.dp),
                     modifier = Modifier.fillMaxWidth(),
@@ -172,9 +171,9 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
                         recordOverview(modifier = Modifier, aspectRatio = 1f / 0.1875f, totalWidth = totalWidth, i, overviewUiState.recordList)
                     }
                 }
-            }
 
-            item {
+
+
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally // Column 내 요소를 왼쪽 정렬
@@ -194,10 +193,10 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
 
                     aiOverview(modifier = Modifier, aspectRatio = 1f / 0.6f, totalWidth = totalWidth, flaskApiResponse = overviewUiState.flaskApiResponse)
                 }
-            }
-            item {
+
+
                 Spacer(modifier = Modifier.height(totalWidth * 0.1f))
-            }
+
         }
     }
 }
