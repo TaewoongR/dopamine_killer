@@ -14,6 +14,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -28,9 +29,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.myinfo.api.LoginApiService
 import com.example.myinfo.api.UserSignup
@@ -75,8 +79,19 @@ fun SignUpScreen(navController: NavController) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Updated Sign Up Text
+        Text(
+            text = "Sign Up",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black,
+            modifier = Modifier
+                .padding(bottom = 16.dp)
+                .align(Alignment.CenterHorizontally)
+        )
+
         if (isLoading) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(color = Color(0xFFFF9A62))
         }
 
         errorMessage?.let {
@@ -253,7 +268,8 @@ fun SignUpScreen(navController: NavController) {
                 })
                 // 회원가입 후 이전 화면으로 돌아가기
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF9A62)) // Set the button color to light orange
         ) {
             Text("회원가입 완료")
         }
