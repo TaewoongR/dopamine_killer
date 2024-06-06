@@ -30,7 +30,6 @@ class Application : Application(), Configuration.Provider {
     override fun onCreate(){
         super.onCreate()
         createNotificationChannel()
-        startForegroundService()
 
         // SYSTEM_ALERT_WINDOW 권한 요청
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

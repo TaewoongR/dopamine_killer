@@ -264,7 +264,6 @@ fun loginButton(totalWidth: Dp, username: String, password: String, navControlle
                                     )
                                 }
                             }
-
                             override fun onFailure(call: Call<Map<String, String>>, t: Throwable) {
                                 isLoading = false
                                 Log.e("LoginScreen", "Network error: ${t.message}")

@@ -24,7 +24,7 @@ data class BottomNavigationItem(
     fun bottomNavigationItems() : List<BottomNavigationItem> {
         return listOf(
             BottomNavigationItem(
-                label = "기록",
+                label = "목표",
                 icon = Icons.Rounded.Create,
                 route = Screens.Record.route
             ),
@@ -39,7 +39,7 @@ data class BottomNavigationItem(
                 route = Screens.Overview.route
             ),
             BottomNavigationItem(
-                label = "분석",
+                label = "기록",
                 icon = Icons.Filled.Search,
                 route = Screens.Analysis.route
             ),

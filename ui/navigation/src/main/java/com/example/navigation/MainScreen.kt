@@ -2,11 +2,14 @@ package com.example.navigation
 
 import android.app.AppOpsManager
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -19,12 +22,13 @@ import com.example.navigation.initialSetting.AppSettingScreen
 import com.example.navigation.initialSetting.GoalSettingScreen
 import com.example.navigation.initialSetting.PermissionScreen
 import com.example.navigation.setup.SetupFlag
+import kotlinx.coroutines.launch
 
 @Composable
-fun MainScreen() {
+fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
+    val scope = rememberCoroutineScope()
     val navController = rememberNavController()
     val context = LocalContext.current
-
     val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
     val mode = appOps.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), context.packageName)
     val hasPermission = remember { mutableStateOf(false) }
@@ -51,7 +55,6 @@ fun MainScreen() {
             }
         }
     }
-
 
     NavHost(navController = navController, startDestination = startDestination) {
         composable("placeholder_start"){
@@ -88,12 +91,14 @@ fun MainScreen() {
                 PermissionScreen(navController)
         }
         composable("app_setting") {
+            LaunchedEffect(Unit) {
+                scope.launch{viewModel.initialUpdate()}
+            }
             AppSettingScreen(navController)
         }
         composable("goal_setting") {
             val isSettingComplete: () -> Unit = {SetupFlag.saveSetupComplete(context)}
             GoalSettingScreen(navController, isSettingComplete)
-
         }
         composable("bot_nav_bar") {
             BotNavBar()

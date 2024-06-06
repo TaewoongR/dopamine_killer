@@ -1,21 +1,21 @@
 package com.example.dopamine_killer
 
+import android.app.AppOpsManager
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.example.coredomain.CoreDomain
 import com.example.dopamine_killer.workManager.CoreWorker
-import com.example.local.R
+import com.example.local.user.UserTokenStore
 import com.example.navigation.MainScreen
-import com.example.navigation.initialSetting.AppSettingData
 import com.example.navigation.setup.SetupFlag
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -24,52 +24,37 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity: ComponentActivity() {
+class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var coreDomain: CoreDomain
 
+    private lateinit var appOps: AppOpsManager
+    private var mode: Int = AppOpsManager.MODE_ERRORED
+    private var token: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // onCreate 내에서 시스템 서비스와 토큰을 초기화합니다.
+        appOps = getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+        mode = appOps.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), packageName)
+        token = try {
+            UserTokenStore.getToken(this)
+        } catch (e: NullPointerException) {
+            null
+        }
+
         setContent {
             MainScreen()
         }
-        // 코루틴 스코프 내에서 suspend 함수를 호출
-        if (!SetupFlag.isSetupComplete(this)) {
-            lifecycleScope.launch {
-                Log.d("initial", "initial update")
-                initialUpdate()
-            }
-        }
 
-        lifecycle.addObserver(MainActivityLifecycleObserver())
+        if (mode == AppOpsManager.MODE_ALLOWED) {
+            lifecycle.addObserver(MainActivityLifecycleObserver())
+        }
 
         val app = application as Application
         app.checkAndStartForegroundService(this)
-    }
-
-    private suspend fun initialUpdate(){
-        val appNameList = mutableListOf<String>()
-        val appObjectList = mutableListOf<AppSettingData>()
-        val fields = R.string::class.java.fields // R.string 클래스의 모든 필드를 가져옴
-        val prefix = "app_" // 필터링에 사용할 접두사
-        for (field in fields) {
-            try {
-                // 특정 접두사로 시작하는 문자열 리소스만 처리
-                if (field.name.startsWith(prefix)) {
-                    val appName = field.name.removePrefix(prefix).replace("_", " ") // 접두사를 제거한 이름
-                    val icon = withContext(Dispatchers.IO) {coreDomain.getAppIconForAppSetting(appName)}
-                    if (icon != null) {
-                        appObjectList.add(AppSettingData(appName = appName, icon = icon))
-                        appNameList.add(appName)
-                    }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace() // 예외 처리
-            }
-        }
-        withContext(Dispatchers.IO) {coreDomain.updateInitialInstalledApp(appNameList)}
-        withContext(Dispatchers.IO) {coreDomain.initialUpdate(appNameList)}
     }
 
     private fun startWorkManagerChain() {
@@ -79,17 +64,23 @@ class MainActivity: ComponentActivity() {
             .setInputData(workDataOf("TASK_TYPE" to "UPDATE_INSTALLED_APP"))
             .build()
 
-        val updateHourlyDailyRequest = OneTimeWorkRequestBuilder<CoreWorker>()
-            .setInputData(workDataOf("TASK_TYPE" to "UPDATE_HOURLY_DAILY_USAGE"))
-            .build()
-
-        val updateWeeklyRequest = OneTimeWorkRequestBuilder<CoreWorker>()
-            .setInputData(workDataOf("TASK_TYPE" to "UPDATE_WEEKLY_USAGE"))
-            .build()
-
         val updateAccessGoalRequest = OneTimeWorkRequestBuilder<CoreWorker>()
             .setInputData(workDataOf("TASK_TYPE" to "UPDATE_ACCESS_GOAL"))
             .build()
+
+        // WorkManager 작업 체인 설정
+        workManager
+            .beginUniqueWork(
+                "CheckAppOnDevice",
+                ExistingWorkPolicy.REPLACE,
+                updateInstalledAppRequest
+            )
+            .then(updateAccessGoalRequest)
+            .enqueue()
+    }
+
+    private fun postServerWorkManagerChain() {
+        val workManager = WorkManager.getInstance(this)
 
         val postNetworkHourlyRequest = OneTimeWorkRequestBuilder<CoreWorker>()
             .setInputData(workDataOf("TASK_TYPE" to "POST_NETWORK_HOURLY"))
@@ -107,22 +98,16 @@ class MainActivity: ComponentActivity() {
             .setInputData(workDataOf("TASK_TYPE" to "POST_NETWORK_GOAL"))
             .build()
 
-        val updateRecordRequest = OneTimeWorkRequestBuilder<CoreWorker>()
-            .setInputData(workDataOf("TASK_TYPE" to "UPDATE_ACCESS_GOAL"))
-            .build()
-
         // WorkManager 작업 체인 설정
         workManager
             .beginUniqueWork(
-                "UsageUpdateChain",
+                "Post Network",
                 ExistingWorkPolicy.REPLACE,
-                updateInstalledAppRequest
+                postNetworkHourlyRequest
             )
-            .then(updateWeeklyRequest)
-            .then(updateAccessGoalRequest)
-            .then(updateHourlyDailyRequest)
             .then(postNetworkDailyRequest)
-            .then(updateRecordRequest)
+            .then(postNetworkWeeklyRequest)
+            .then(postNetworkGoalRequest)
             .enqueue()
     }
 
@@ -131,6 +116,10 @@ class MainActivity: ComponentActivity() {
             super.onStart(owner)
             Log.d("MainActivity", "App moved to foreground")
             startWorkManagerChain()
+            if (token != null) {
+                postServerWorkManagerChain()
+            }
         }
     }
+
 }

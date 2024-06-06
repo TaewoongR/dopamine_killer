@@ -50,8 +50,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-// import R class for accessing drawable resources
-import com.example.reward.R
+import com.example.local.R
 
 val backgroundColor: Color = Color(android.graphics.Color.parseColor("#EFEFEF"))
 
@@ -232,7 +231,7 @@ fun UnearnedBadgesTab(totalWidth: Dp, individualWidth: Dp) {
 
         items(7) {
             UnearnedBadges(
-                imageResId = com.example.local.R.drawable.lockedbadge, // 수정된 부분
+                imageResId = R.drawable.lockedbadge, // 수정된 부분
                 bname = "???",
                 bdescription = "모든 배지에 도전해보세요!",
                 individualWidth = individualWidth
