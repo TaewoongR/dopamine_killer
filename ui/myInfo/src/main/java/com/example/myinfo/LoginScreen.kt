@@ -55,6 +55,7 @@ import com.example.local.R
 import com.example.local.user.UserTokenStore
 import com.example.myinfo.api.LoginApiService
 import com.example.myinfo.api.UserLogin
+import com.example.myinfo.setup.SetupFlag
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -245,6 +246,9 @@ fun loginButton(totalWidth: Dp, username: String, password: String, navControlle
                                         ?.get("token")
                                         ?.let { token ->
                                             Log.d("LoginScreen", "Login success with token: $token")
+                                            if(response.body()?.get("initialSet") == "true"){
+                                                SetupFlag.saveSetupComplete(context)
+                                            }
                                             UserTokenStore.saveToken(context, token)
                                             UserTokenStore.saveUserId(context, username)
                                             navigateToMainScreen()

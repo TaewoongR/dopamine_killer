@@ -33,6 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.local.user.UserTokenStore
 import com.example.myinfo.api.LoginApiService
+import com.example.myinfo.setup.SetupFlag
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -139,6 +140,7 @@ fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController, v
                         navController.navigate("main_screen") {
                             UserTokenStore.clearToken(context)
                             UserTokenStore.clearUserId(context)
+                            SetupFlag.resetSetup(context)
                             popUpTo(0) {
                                 inclusive = true
                             }

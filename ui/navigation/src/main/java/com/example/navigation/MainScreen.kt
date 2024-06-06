@@ -21,7 +21,7 @@ import com.example.navigation.botNav.BotNavBar
 import com.example.navigation.initialSetting.AppSettingScreen
 import com.example.navigation.initialSetting.GoalSettingScreen
 import com.example.navigation.initialSetting.PermissionScreen
-import com.example.navigation.setup.SetupFlag
+import com.example.myinfo.setup.SetupFlag
 import kotlinx.coroutines.launch
 
 @Composable
@@ -97,7 +97,7 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
             AppSettingScreen(navController)
         }
         composable("goal_setting") {
-            val isSettingComplete: () -> Unit = {SetupFlag.saveSetupComplete(context)}
+            val isSettingComplete: () -> Unit = { SetupFlag.saveSetupComplete(context)}
             GoalSettingScreen(navController, isSettingComplete)
         }
         composable("bot_nav_bar") {

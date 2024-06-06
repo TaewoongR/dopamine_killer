@@ -16,11 +16,7 @@ import com.example.coredomain.CoreDomain
 import com.example.dopamine_killer.workManager.CoreWorker
 import com.example.local.user.UserTokenStore
 import com.example.navigation.MainScreen
-import com.example.navigation.setup.SetupFlag
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @AndroidEntryPoint

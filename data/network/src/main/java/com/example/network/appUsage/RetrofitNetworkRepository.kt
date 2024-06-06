@@ -69,7 +69,7 @@ internal class RetrofitNetworkRepository @Inject constructor(
 
     override suspend fun getFlaskApiResponse(token: String): String {
         return try {
-            val response: Response<ResponseBody> = retrofitNetworkApi.getFlaskResponse(token)
+            val response: Response<ResponseBody> = retrofitNetworkApi.getFlaskResponseTotal(token)
             if (response.isSuccessful) {
                 response.body()?.string() ?: "Error: Empty response body"
             } else {
