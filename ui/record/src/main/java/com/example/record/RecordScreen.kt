@@ -112,7 +112,7 @@ fun RecordContent(uiState: RecordUiState, viewModel: RecordViewModel, navControl
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "History",
+                text = "Goal",
                 fontSize = 28.sp, // 글자 크기 키움
                 fontWeight = FontWeight.Bold,
             )

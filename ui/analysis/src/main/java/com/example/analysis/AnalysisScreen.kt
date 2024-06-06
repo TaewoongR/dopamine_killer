@@ -79,7 +79,7 @@ fun AnalysisScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Analysis",
+            text = "History",
             fontSize = 28.sp, // 글자 크기 키움
             fontWeight = FontWeight.Bold,
         )

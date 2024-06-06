@@ -1,4 +1,4 @@
-package com.example.navigation.setup
+package com.example.myinfo.setup
 
 import android.content.Context
 

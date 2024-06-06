@@ -35,8 +35,11 @@ interface RetrofitNetworkApi {
     @GET(value = "/api/badges/{username}")
     suspend fun getBadges(@Path("username") username: String): List<BadgeResponse>
 
-    @GET(value ="/flask-api")
-    suspend fun getFlaskResponse(@Header("Authorization") token: String): Response<ResponseBody>
+    @GET(value ="/flask-api/total")
+    suspend fun getFlaskResponseTotal(@Header("Authorization") token: String): Response<ResponseBody>
+
+    @GET(value ="/flask-api/app")
+    suspend fun getFlaskResponseApp(@Header("Authorization") token: String): Response<ResponseBody>
 
     @DELETE(value = "/apptime/delete/{username}")
     fun deleteAppTime(@Header("Authorization") token: String, @Path("username") username: String): Call<String>
