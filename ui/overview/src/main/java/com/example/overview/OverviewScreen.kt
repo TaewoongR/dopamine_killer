@@ -487,7 +487,7 @@ fun aiOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, flaskApiR
             modifier = Modifier.align(Alignment.Center)
         ) {
             flaskApiResponse?.let { response ->
-                val list = response.replace("'", "").replace("-", "").split(".").map { "$it." }
+                val list = response.replace("'", "").replace("\"","").replace("-", "").split(".").map { "$it." }
                 list.forEach {
                     item{
                         Text(
@@ -497,7 +497,7 @@ fun aiOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, flaskApiR
                                 fontSize = 16.sp,
                                 color = Color.Black
                             ),
-                            modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp, bottom = 8.dp),
+                            modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp, top = 5.dp, bottom = 5.dp),
                             textAlign = TextAlign.Center
                         )
                     }
