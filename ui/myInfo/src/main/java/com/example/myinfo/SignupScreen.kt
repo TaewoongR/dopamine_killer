@@ -86,7 +86,7 @@ fun SignUpScreen(navController: NavController) {
             fontWeight = FontWeight.Bold,
             color = Color.Black,
             modifier = Modifier
-                .padding(bottom = 16.dp)
+                .padding(bottom = 18.dp)
                 .align(Alignment.CenterHorizontally)
         )
 
@@ -271,7 +271,7 @@ fun SignUpScreen(navController: NavController) {
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF9A62)) // Set the button color to light orange
         ) {
-            Text("회원가입 완료")
+            Text("완료")
         }
     }
 }

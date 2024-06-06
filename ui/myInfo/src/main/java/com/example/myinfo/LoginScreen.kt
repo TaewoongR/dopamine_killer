@@ -67,7 +67,7 @@ fun LoginScreen(navController: NavController, navigateToMainScreen: () -> Unit) 
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun loginContent(navController: NavController, navigateToMainScreen: () -> Unit){
+fun loginContent(navController: NavController, navigateToMainScreen: () -> Unit) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -76,28 +76,43 @@ fun loginContent(navController: NavController, navigateToMainScreen: () -> Unit)
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .background(backgroundColor)
-        .pointerInput(Unit) {   // 화면을 터치하면 키보드화면 제거
-            detectTapGestures(onTap = {
-                focusManager.clearFocus()
-                keyboardController?.hide()
-            })
-        },
-        contentAlignment = Alignment.TopCenter){
-
-        IconImage(
-            imageResId = R.drawable.dkapplogo,
-            size = totalWidth * 0.6f,
-            cornerRadius = 999.dp,
-            modifier = Modifier.offset( y = totalWidth * 0.3f))
-        Column (
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFF2F2F2))
+            .pointerInput(Unit) {   // 화면을 터치하면 키보드화면 제거
+                detectTapGestures(onTap = {
+                    focusManager.clearFocus()
+                    keyboardController?.hide()
+                })
+            },
+        contentAlignment = Alignment.TopCenter
+    ) {
+        Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(totalWidth * 0.08f),
+            verticalArrangement = Arrangement.spacedBy(16.dp), // 요소 간 간격 설정
             modifier = Modifier
-                .offset(y = totalWidth * 1.06f)
-                .width(totalWidth)){
+                .offset(y = totalWidth * 0.1f)
+                .width(totalWidth)
+        ) {
+            Spacer(modifier = Modifier.height(24.dp)) // 간격 조정
+            IconImage(
+                imageResId = R.drawable.dkapplogo,
+                size = totalWidth * 0.5f, // 로고 사이즈 조정
+                cornerRadius = 999.dp,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.height(16.dp)) // 간격 조정
+            Text(
+                text = "당신의 시간을 소중하게, 도파민 킬러",
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Black
+                ),
+                modifier = Modifier.padding(vertical = 8.dp) // 간격 조정
+            )
+            Spacer(modifier = Modifier.height(16.dp)) // 간격 조정
             BasicTextField(
                 value = username,
                 onValueChange = { username = it },
@@ -108,15 +123,15 @@ fun loginContent(navController: NavController, navigateToMainScreen: () -> Unit)
                     focusManager.clearFocus() // 엔터를 치면 포커스 제거
                     keyboardController?.hide() // 키보드 숨김
                 }),
-                decorationBox = {innerTextField ->
+                decorationBox = { innerTextField ->
                     Box(
                         modifier = Modifier
                             .background(Color.White, shape = RoundedCornerShape(8.dp))
                             .fillMaxWidth()
                             .height(totalWidth * 0.16f)
-                            .padding(start = totalWidth * 0.04f, end = totalWidth * 0.04f),
+                            .padding(horizontal = totalWidth * 0.04f),
                         contentAlignment = Alignment.CenterStart
-                    ){
+                    ) {
                         if (username.isEmpty()) {
                             Text("아이디", color = Color.Gray, fontSize = 16.sp)
                         }
@@ -124,7 +139,7 @@ fun loginContent(navController: NavController, navigateToMainScreen: () -> Unit)
                     }
                 }
             )
-            // 비밀번호 입력 필드
+
             BasicTextField(
                 value = password,
                 onValueChange = { password = it },
@@ -142,7 +157,7 @@ fun loginContent(navController: NavController, navigateToMainScreen: () -> Unit)
                             .background(Color.White, shape = RoundedCornerShape(8.dp))
                             .fillMaxWidth()
                             .height(totalWidth * 0.16f)
-                            .padding(start = totalWidth * 0.04f, end = totalWidth * 0.04f),
+                            .padding(horizontal = totalWidth * 0.04f),
                         contentAlignment = Alignment.CenterStart
                     ) {
                         if (password.isEmpty()) {
@@ -152,9 +167,9 @@ fun loginContent(navController: NavController, navigateToMainScreen: () -> Unit)
                     }
                 }
             )
-
-            // 로그인 버튼
+            Spacer(modifier = Modifier.height(0.dp)) // 간격 조정
             loginButton(totalWidth = totalWidth, username, password, navController, navigateToMainScreen)
+            Spacer(modifier = Modifier.height(16.dp)) // 간격 조정
             Text(
                 text = "비밀번호 찾기",
                 style = TextStyle(
@@ -167,26 +182,30 @@ fun loginContent(navController: NavController, navigateToMainScreen: () -> Unit)
         }
         Box(
             modifier = Modifier
-                .align(Alignment.BottomCenter) // 이 부분을 추가하여 하단 중앙에 위치하도록 설정
+                .align(Alignment.BottomCenter) // 하단 중앙에 위치하도록 설정
                 .fillMaxWidth()
                 .background(Color(android.graphics.Color.parseColor("#636684")))
                 .height(totalWidth * 0.26f),
             contentAlignment = Alignment.Center
         ) {
             Row {
-                Text(text = "계정이 없으신가요?",
+                Text(
+                    text = "계정이 없으신가요?",
                     color = Color.White,
                     fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold)
+                    fontWeight = FontWeight.SemiBold
+                )
                 Spacer(modifier = Modifier.width(totalWidth * 0.04f))
-                Text(text = "회원가입 하기",
-                    modifier = Modifier.clickable{
+                Text(
+                    text = "회원가입 하기",
+                    modifier = Modifier.clickable {
                         navController.navigate("signup_route")
                     },
                     color = Color(android.graphics.Color.parseColor("#8EA7FF")),
                     textDecoration = TextDecoration.Underline,
                     fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold)
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         }
     }
@@ -215,19 +234,19 @@ fun IconImage(
 }
 
 @Composable
-fun loginButton(totalWidth: Dp, username: String, password: String, navController: NavController, navigateToMainScreen: () -> Unit){
+fun loginButton(totalWidth: Dp, username: String, password: String, navController: NavController, navigateToMainScreen: () -> Unit) {
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
 
     if (isLoading) {
         CircularProgressIndicator()
-    }else {
+    } else {
         Box(
             modifier = Modifier
                 .width(totalWidth)
-                .aspectRatio(1f / 0.1875f)
-                .background(keyColor, shape = RoundedCornerShape(12.dp))
+                .height(totalWidth * 0.16f) // 로그인 버튼의 크기를 줄임
+                .background(Color(0xFFFF9A62), shape = RoundedCornerShape(12.dp))
                 .clickable {
                     // 로그인 로직 처리
                     isLoading = true
@@ -246,7 +265,7 @@ fun loginButton(totalWidth: Dp, username: String, password: String, navControlle
                                         ?.get("token")
                                         ?.let { token ->
                                             Log.d("LoginScreen", "Login success with token: $token")
-                                            if(response.body()?.get("initialSet") == "true"){
+                                            if (response.body()?.get("initialSet") == "true") {
                                                 SetupFlag.saveSetupComplete(context)
                                             }
                                             UserTokenStore.saveToken(context, token)
@@ -268,6 +287,7 @@ fun loginButton(totalWidth: Dp, username: String, password: String, navControlle
                                     )
                                 }
                             }
+
                             override fun onFailure(call: Call<Map<String, String>>, t: Throwable) {
                                 isLoading = false
                                 Log.e("LoginScreen", "Network error: ${t.message}")
