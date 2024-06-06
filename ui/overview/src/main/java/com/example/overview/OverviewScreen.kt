@@ -6,7 +6,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,12 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -60,14 +54,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.local.user.UserTokenStore
@@ -96,20 +88,7 @@ fun OverviewScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = backgroundColor)
-            .padding(top = 18.dp), // 상단에 여백 추가
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Overview",
-            fontSize = 28.sp, // 글자 크기 키움
-            fontWeight = FontWeight.Bold,
-        )
-        MyScreenContent(overviewUiState)
-    }
+    MyScreenContent(overviewUiState)
 }
 
 
@@ -127,6 +106,7 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
     val totalWidth = screenWidth * 0.85f
     val individualWidth = ((totalWidth) - 10.dp) / 2 // 도넛 그래프 박스와 막대 그래프 오버뷰 박스 크기 설정
 
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -140,6 +120,7 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             item {
                 Row(
                     horizontalArrangement = Arrangement.Center,
@@ -149,11 +130,12 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
                     Log.d("goalTIme", overviewUiState.analysisData.goalTime.toString())
                     Log.d("dailyTIme", overviewUiState.analysisData.dailyTime.toString())
 
-                    val percent = try {
+                    val percent = try{
                         overviewUiState.analysisData.dailyTime.toFloat() / overviewUiState.analysisData.goalTime.toFloat()
-                    } catch (e: Exception) {
+                    }catch(e: Exception){
                         0f
                     }
+
 
                     DonutGraph(percent = percent, modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState)
                     Spacer(modifier = Modifier.width(10.dp))
@@ -168,13 +150,13 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     for (i in 0 until minOf(3, overviewUiState.recordList.size)) {
-                        recordOverview(modifier = Modifier, aspectRatio = 1f / 0.1875f, totalWidth = totalWidth, i, overviewUiState.recordList)
+                        recordOverview(modifier = Modifier, aspectRatio = 1f/0.1875f, totalWidth = totalWidth, i, overviewUiState.recordList)
                     }
                 }
             }
 
             item {
-                aiOverview(modifier = Modifier, aspectRatio = 1f / 0.6f, totalWidth = totalWidth, flaskApiResponse = overviewUiState.flaskApiResponse)
+                aiOverview(modifier = Modifier, aspectRatio = 1f/0.6f, totalWidth = totalWidth, flaskApiResponse = overviewUiState.flaskApiResponse)
             }
             item {
                 Spacer(modifier = Modifier.height(totalWidth * 0.1f))
@@ -245,7 +227,7 @@ fun DonutGraph(percent: Float, modifier: Modifier = Modifier, size: Dp, overview
                 )
             }
         )
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column (horizontalAlignment = Alignment.CenterHorizontally) {
             IconImage(
                 modifier = Modifier,
                 imageBitmap = overviewUiState.analysisData.appIcon,
@@ -253,12 +235,12 @@ fun DonutGraph(percent: Float, modifier: Modifier = Modifier, size: Dp, overview
                 cornerRadius = 8.dp
             )
             val minute = overviewUiState.analysisData.goalTime / 60
-            Text(text = if (minute != 0) "${minute}분" else "미지정", style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 16.sp))
+            Text(text = if(minute != 0)"${minute}분" else "미지정", style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 16.sp))
         }
         if (showTooltip) {
             Box(
                 modifier = Modifier
-                    .offset(x = tooltipOffset.x - 60.dp, y = tooltipOffset.y - 64.dp)
+                    .offset(x = tooltipOffset.x-60.dp, y = tooltipOffset.y-64.dp)
                     .background(Color.White, shape = RoundedCornerShape(12.dp))
                     .padding(8.dp)
             ) {
@@ -267,6 +249,7 @@ fun DonutGraph(percent: Float, modifier: Modifier = Modifier, size: Dp, overview
         }
     }
 }
+
 
 @Composable
 fun barGraphOverview(modifier: Modifier, size: Dp, analysisData: AnalysisData) {
@@ -381,6 +364,7 @@ fun barGraphOverview(modifier: Modifier, size: Dp, analysisData: AnalysisData) {
     }
 }
 
+
 @Composable
 fun recordOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int, recordList: List<RecordData>) {
     val squareSize = (totalWidth - 10.dp) / 2 * 0.24f
@@ -460,7 +444,7 @@ fun recordOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
             }
         }
         Text(
-            text = recordList[index].date.run { "${this.substring(0, 4)}/${this.substring(4, 6)}/${this.substring(6, 8)}" },
+            text = recordList[index].date.run{ "${this.substring(0, 4)}/${this.substring(4, 6)}/${this.substring(6, 8)}"},
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(end = totalWidth * 0.04f, top = totalWidth * 0.005f),
@@ -492,25 +476,46 @@ fun IconImage(
 }
 
 @Composable
-fun aiOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, flaskApiResponse: String?) {
+fun aiOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, flaskApiResponse: String?){
     Box(
         modifier = Modifier
             .width(totalWidth)
             .aspectRatio(aspectRatio)
             .background(color = Color.White, shape = RoundedCornerShape(16.dp))
     ) {
-        flaskApiResponse?.let { response ->
-            Text(
-                text = response,
-                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black),
-                modifier = Modifier.padding(16.dp)
-            )
-        } ?: run {
-            Text(
-                text = "Loading...",
-                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Gray),
-                modifier = Modifier.padding(16.dp)
-            )
+        LazyColumn(
+            modifier = Modifier.align(Alignment.Center)
+        ) {
+            flaskApiResponse?.let { response ->
+                val list = response.replace("'", "").replace("-", "").split(".").map { "$it." }
+                list.forEach {
+                    item{
+                        Text(
+                            text = it,
+                            style = TextStyle(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = Color.Black
+                            ),
+                            modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp, bottom = 8.dp),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }?: run {
+                item {
+                    Text(
+                        text = "Loading...",
+                        style = TextStyle(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            color = Color.Gray
+                        ),
+                        modifier = Modifier.padding(16.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
         }
     }
 }

@@ -48,9 +48,6 @@ class MainActivity : ComponentActivity() {
         if (mode == AppOpsManager.MODE_ALLOWED) {
             lifecycle.addObserver(MainActivityLifecycleObserver())
         }
-
-        val app = application as Application
-        app.checkAndStartForegroundService(this)
     }
 
     private fun startWorkManagerChain() {
