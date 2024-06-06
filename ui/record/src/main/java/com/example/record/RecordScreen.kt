@@ -55,6 +55,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
@@ -103,91 +104,103 @@ fun RecordContent(uiState: RecordUiState, viewModel: RecordViewModel, navControl
         modifier = Modifier
             .fillMaxSize()
             .background(color = backgroundColor)
-    ){
-        LazyColumn(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(totalWidth * 0.06f),
-            modifier = Modifier.fillMaxSize()
-        ){
-
-            item {
-                Spacer(modifier = Modifier.height(totalWidth * 0.1f))
-                Row(modifier = Modifier
-                    .width(totalWidth), // end 패딩 삭제
-                    horizontalArrangement = Arrangement.End) {
-                    IconButton(onClick = {
-                        navController.navigate("goal_create_screen") { // 대상 루트로 변경하세요
-                            popUpTo(0) {
-                                inclusive = true
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 18.dp), // 상단에 여백 추가
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "History",
+                fontSize = 28.sp, // 글자 크기 키움
+                fontWeight = FontWeight.Bold,
+            )
+            LazyColumn(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(totalWidth * 0.06f),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                item {
+                    Spacer(modifier = Modifier.height(totalWidth * 0.1f))
+                    Row(modifier = Modifier
+                        .width(totalWidth), // end 패딩 삭제
+                        horizontalArrangement = Arrangement.End) {
+                        IconButton(onClick = {
+                            navController.navigate("goal_create_screen") { // 대상 루트로 변경하세요
+                                popUpTo(0) {
+                                    inclusive = true
+                                }
                             }
-                        }
                         },
-                        modifier = Modifier
-                            .width(totalWidth * 0.18f)
-                            .height(totalWidth * 0.1f)
-                            .background(Color.Transparent, RoundedCornerShape(16.dp))) {
-                        // 아이콘을 텍스트로 대체
-                        Text(text = "추가 >", style = TextStyle(fontSize = 18.sp, color = Color.Black, fontWeight = SemiBold))
+                            modifier = Modifier
+                                .width(totalWidth * 0.18f)
+                                .height(totalWidth * 0.1f)
+                                .background(Color.Transparent, RoundedCornerShape(16.dp))) {
+                            // 아이콘을 텍스트로 대체
+                            Text(text = "추가 >", style = TextStyle(fontSize = 18.sp, color = Color.Black, fontWeight = SemiBold))
+                        }
                     }
                 }
-            }
 
-            if (uiState.ongoingList.isEmpty() && uiState.finishedList.isEmpty()) {
-                item {
-                    EmptyState(modifier = Modifier, totalWidth = totalWidth)
-                }
-            } else {
-                item {
-                    Box(modifier = Modifier.width(totalWidth)) {
-                        Column(verticalArrangement = Arrangement.spacedBy(totalWidth * 0.04f)) {
-                            if (uiState.ongoingList.isNotEmpty()) {
-                                for (i in 0 until uiState.ongoingList.size) {      // 진행중인 개수
-                                    val thisUiState = uiState.ongoingList[i]
-                                    ongoingRecords(
-                                        modifier = Modifier,
-                                        aspectRatio = 1 / 0.26f,
-                                        totalWidth = totalWidth,
-                                        index = i,
-                                        ongoingList = uiState.ongoingList,
-                                        onDelete = {
-                                            viewModel.deleteOngoingRecord(
-                                                Pair(
-                                                    thisUiState.appName,
-                                                    thisUiState.date
+                if (uiState.ongoingList.isEmpty() && uiState.finishedList.isEmpty()) {
+                    item {
+                        EmptyState(modifier = Modifier, totalWidth = totalWidth)
+                    }
+                } else {
+                    item {
+                        Box(modifier = Modifier.width(totalWidth)) {
+                            Column(verticalArrangement = Arrangement.spacedBy(totalWidth * 0.04f)) {
+                                if (uiState.ongoingList.isNotEmpty()) {
+                                    for (i in 0 until uiState.ongoingList.size) {      // 진행중인 개수
+                                        val thisUiState = uiState.ongoingList[i]
+                                        ongoingRecords(
+                                            modifier = Modifier,
+                                            aspectRatio = 1 / 0.26f,
+                                            totalWidth = totalWidth,
+                                            index = i,
+                                            ongoingList = uiState.ongoingList,
+                                            onDelete = {
+                                                viewModel.deleteOngoingRecord(
+                                                    Pair(
+                                                        thisUiState.appName,
+                                                        thisUiState.date
+                                                    )
                                                 )
-                                            )
-                                        }
-                                    )
+                                            }
+                                        )
+                                    }
                                 }
-                            }
-                            if (uiState.finishedList.isNotEmpty()) {
-                                for (i in 0 until uiState.finishedList.size) {
-                                    val thisUiState = uiState.finishedList[i]
-                                    finishedRecords(
-                                        modifier = Modifier,
-                                        aspectRatio = 1 / 0.26f,
-                                        totalWidth = totalWidth,
-                                        index = i,
-                                        finishedList = uiState.finishedList,
-                                        onDelete = {
-                                            viewModel.deleteFinishedRecord(
-                                                Pair(
-                                                    thisUiState.appName,
-                                                    thisUiState.date
+                                if (uiState.finishedList.isNotEmpty()) {
+                                    for (i in 0 until uiState.finishedList.size) {
+                                        val thisUiState = uiState.finishedList[i]
+                                        finishedRecords(
+                                            modifier = Modifier,
+                                            aspectRatio = 1 / 0.26f,
+                                            totalWidth = totalWidth,
+                                            index = i,
+                                            finishedList = uiState.finishedList,
+                                            onDelete = {
+                                                viewModel.deleteFinishedRecord(
+                                                    Pair(
+                                                        thisUiState.appName,
+                                                        thisUiState.date
+                                                    )
                                                 )
-                                            )
-                                        }
-                                    )
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
                 }
+                item { Spacer(modifier = Modifier.height(10.dp)) }
             }
-            item{Spacer(modifier = Modifier.height(10.dp))}
         }
     }
 }
+
 
 @Composable
 fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int, ongoingList: List<OngoingRecord>, onDelete: () -> Unit){

@@ -50,6 +50,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+// import R class for accessing drawable resources
+import com.example.reward.R
 
 val backgroundColor: Color = Color(android.graphics.Color.parseColor("#EFEFEF"))
 
@@ -64,7 +66,31 @@ fun RewardScreen(
         viewModel.loadRewardData()
     }
 
-    rewardContent(uiState, viewModel)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(backgroundColor)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 18.dp) // 상단에 여백 추가
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center // 중앙 정렬
+            ) {
+                Text(
+                    text = "Badges",
+                    fontSize = 28.sp, // 글자 크기 키움
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+            rewardContent(uiState, viewModel)
+        }
+    }
+
     BackHandler {
         navController.navigate("overview_route") {
             popUpTo(0) { inclusive = true }
@@ -72,8 +98,10 @@ fun RewardScreen(
     }
 }
 
-@Composable
 
+
+
+@Composable
 fun rewardContent(uiState: List<RewardUiState>, viewModel: RewardViewModel) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val totalWidth = screenWidth * 0.85f
@@ -191,9 +219,9 @@ fun UnearnedBadgesTab(totalWidth: Dp, individualWidth: Dp) {
             .offset(y = totalWidth * 0.04f)
             .fillMaxWidth()
             .fillMaxHeight()
-            .padding(individualWidth * 0.08f),
+            .padding(horizontal = individualWidth * 0.1f, vertical = individualWidth * 0.08f), // 좌우 패딩 추가
         verticalArrangement = Arrangement.spacedBy(individualWidth * 0.1f),
-        horizontalArrangement = Arrangement.spacedBy(individualWidth * 0.08f)
+        horizontalArrangement = Arrangement.spacedBy(individualWidth * 0.1f) // 좌우 간격 조정
     ) {
         item {
             Spacer(modifier = Modifier.height(individualWidth * 0.04f))
@@ -202,11 +230,11 @@ fun UnearnedBadgesTab(totalWidth: Dp, individualWidth: Dp) {
             Spacer(modifier = Modifier.height(individualWidth * 0.04f))
         }
 
-        items (7) {
+        items(7) {
             UnearnedBadges(
-                imageResId = com.example.local.R.drawable.dkapplogo,
-                bname = "name",
-                bdescription = "blah",
+                imageResId = com.example.local.R.drawable.lockedbadge, // 수정된 부분
+                bname = "???",
+                bdescription = "모든 배지에 도전해보세요!",
                 individualWidth = individualWidth
             )
         }
@@ -219,6 +247,8 @@ fun UnearnedBadgesTab(totalWidth: Dp, individualWidth: Dp) {
         }
     }
 }
+
+
 
 @Composable
 fun EarnedBadges(imageUrl: String, bname: String, bdescription: String, individualWidth: Dp) {
@@ -245,68 +275,36 @@ fun EarnedBadges(imageUrl: String, bname: String, bdescription: String, individu
             Spacer(modifier = Modifier.height(individualWidth * 0.1f))
             Text(text = bname, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
             Spacer(modifier = Modifier.height(individualWidth * 0.06f))
-            Text(text = bdescription, fontSize = 14.sp, textAlign = TextAlign.Center)
+            Text(text = bdescription, fontSize = 12.sp, textAlign = TextAlign.Center)
         }
     }
 }
 
 
 @Composable
-fun UnearnedBadges(imageResId: Int, bname: String, bdescription: String, individualWidth: Dp){
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .height(individualWidth * 1.4f)
-        .border(2.dp, Color.LightGray, RoundedCornerShape(16.dp)),
-        contentAlignment = Alignment.TopCenter) {
-        Column (horizontalAlignment = Alignment.CenterHorizontally){
+fun UnearnedBadges(imageResId: Int, bname: String, bdescription: String, individualWidth: Dp) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(individualWidth * 1.4f)
+            .border(2.dp, Color.LightGray, RoundedCornerShape(16.dp)),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Spacer(modifier = Modifier.height(individualWidth * 0.1f))
             Image(
-                painter = painterResource(id = imageResId),
+                painter = painterResource(id = imageResId), // 리소스 ID를 사용하여 이미지 설정
                 contentDescription = bname,
                 modifier = Modifier
                     .size(individualWidth * 0.6f)
                     .clip(RoundedCornerShape(99999.dp)),
                 contentScale = ContentScale.Crop,
-                colorFilter = ColorFilter.colorMatrix(colorMatrix = ColorMatrix().apply { setToSaturation(0f) })
+                colorFilter = ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
             )
             Spacer(modifier = Modifier.height(individualWidth * 0.1f))
             Text(text = bname, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
             Spacer(modifier = Modifier.height(individualWidth * 0.06f))
-            Text(text = bdescription, fontSize = 14.sp, textAlign = TextAlign.Center)
+            Text(text = bdescription, fontSize = 12.sp, textAlign = TextAlign.Center)
         }
     }
 }
-
-/*@Composable
-fun BatteryIndicator(totalWidth: Dp, filledSquares: Int) {
-    val squareSize = totalWidth * 0.07f
-    val spaceBetween = totalWidth * 0.01f
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(squareSize * 1.2f)
-            .border(BorderStroke(2.dp, Color.Gray), RoundedCornerShape(8.dp))
-            .padding(5.dp)
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            for (i in 1..filledSquares) {
-                Box(
-                    modifier = Modifier
-                        .width(squareSize * 0.5f)
-                        .height(squareSize * 0.8f)
-                        .background(keyColor, RoundedCornerShape(4.dp))
-                )
-                if (i < filledSquares) {
-                    Spacer(modifier = Modifier.width(spaceBetween))
-                }
-            }
-            // 왼쪽에서부터 채움
-            Spacer(modifier = Modifier.weight(1f))
-        }
-    }
-}*/

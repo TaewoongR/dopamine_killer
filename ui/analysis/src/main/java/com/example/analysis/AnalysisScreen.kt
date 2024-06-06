@@ -45,6 +45,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
@@ -70,13 +71,27 @@ fun AnalysisScreen(
     LaunchedEffect(navController.currentBackStackEntry) {
         viewModel.loadAnalysisData()
     }
-    analysisContent(uiState, navController, reportViewModel)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = backgroundColor)
+            .padding(top = 18.dp), // 상단에 여백 추가
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Analysis",
+            fontSize = 28.sp, // 글자 크기 키움
+            fontWeight = FontWeight.Bold,
+        )
+        analysisContent(uiState, navController, reportViewModel)
+    }
     BackHandler {
         navController.navigate("overview_route") {
             popUpTo(0) { inclusive = true }
         }
     }
 }
+
 
 @Composable
 fun analysisContent(uiState: AnalysisUiState, navController: NavController, reportViewModel: ReportViewModel) {
