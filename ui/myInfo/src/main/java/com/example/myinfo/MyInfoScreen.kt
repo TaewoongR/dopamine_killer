@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,6 +23,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -43,7 +46,20 @@ fun MyInfoScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    settingsContent(uiState, navController, viewModel)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = backgroundColor)
+            .padding(top = 18.dp), // 상단에 여백 추가
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "My Page",
+            fontSize = 28.sp, // 글자 크기 키움
+            fontWeight = FontWeight.Bold,
+        )
+        settingsContent(uiState, navController, viewModel)
+    }
     // Back button handler
     BackHandler {
         navController.navigate("overview_route") {
@@ -51,6 +67,7 @@ fun MyInfoScreen(
         }
     }
 }
+
 
 @Composable
 fun settingsContent (uiState: MyInfoUiState, navController: NavController, viewModel: MyInfoViewModel){
@@ -66,6 +83,7 @@ fun settingsContent (uiState: MyInfoUiState, navController: NavController, viewM
         Settings(modifier = Modifier, totalWidth = totalWidth, navController, viewModel)
     }
 }
+
 
 @Composable
 fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController, viewModel: MyInfoViewModel) {
@@ -92,7 +110,8 @@ fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController, v
                         }
                     }
                     .height(totalWidth * 0.16f),
-                contentAlignment = Alignment.Center) {
+                contentAlignment = Alignment.Center
+            ) {
                 Text(
                     text = "앱 선택",
                     textAlign = TextAlign.Center,
@@ -104,7 +123,8 @@ fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController, v
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(totalWidth * 0.16f),
-                contentAlignment = Alignment.Center) {
+                contentAlignment = Alignment.Center
+            ) {
                 Text(
                     text = "프로필 설정",
                     textAlign = TextAlign.Center,
@@ -125,7 +145,9 @@ fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController, v
                             launchSingleTop = true
                         }
                     }
-                    .height(totalWidth * 0.16f), contentAlignment = Alignment.Center) {
+                    .height(totalWidth * 0.16f),
+                contentAlignment = Alignment.Center
+            ) {
                 Text(
                     text = "로그아웃",
                     textAlign = TextAlign.Center,
@@ -168,7 +190,9 @@ fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController, v
                             }
                         }
                     }
-                    .height(totalWidth * 0.16f), contentAlignment = Alignment.Center) {
+                    .height(totalWidth * 0.16f),
+                contentAlignment = Alignment.Center
+            ) {
                 Text(
                     text = "계정 탈퇴",
                     textAlign = TextAlign.Center,
