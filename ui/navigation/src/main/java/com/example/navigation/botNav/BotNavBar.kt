@@ -1,5 +1,6 @@
 package com.example.navigation.botNav
 
+import android.content.Context
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -34,7 +35,7 @@ import com.example.reward.RewardScreen
 val keyColor: Color = Color(android.graphics.Color.parseColor("#FF9A62"))
 
 @Composable
-fun BotNavBar() {
+fun BotNavBar(onCheckPermissions: (Context) -> Unit) {
     var navigationSelectedItem by remember { mutableIntStateOf(2) }
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -114,10 +115,10 @@ fun BotNavBar() {
                 AnalysisScreen(navController)
             }
             composable(Screens.MyInfo.route) {
-                MyInfoScreen(navController)
+                MyInfoScreen(navController, onCheckPermissions)
             }
             composable("main_screen"){
-                MainScreen()
+                MainScreen(onCheckPermissions)
             }
             composable("selected_app_edit"){
                 SelectedAppEditScreen(navController)

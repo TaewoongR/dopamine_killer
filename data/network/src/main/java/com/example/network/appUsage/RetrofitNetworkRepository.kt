@@ -146,6 +146,28 @@ internal class RetrofitNetworkRepository @Inject constructor(
             }
         })
     }
+/*
+    override suspend fun getHourly(username: String, date: String): List<Int> {
+        return try {
+            val hourly = retrofitNetworkApi.getHourly(username)
 
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to fetch badges", e)
+            emptyList()
+        }
+    }
 
+    override suspend fun getDaily(date: String): Int {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getWeekly(date: String): Int {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getMonthly(date: String): Int {
+        TODO("Not yet implemented")
+    }
+
+ */
 }

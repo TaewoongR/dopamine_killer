@@ -130,7 +130,14 @@ fun analysisContent(uiState: AnalysisUiState, navController: NavController, repo
 }
 
 @Composable
-fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, stateData: AnalysisAppData,  navController: NavController, reportViewModel: ReportViewModel) {
+fun analysisGraphBox(
+    modifier: Modifier,
+    aspectRatio: Float,
+    totalWidth: Dp,
+    stateData: AnalysisAppData,
+    navController: NavController,
+    reportViewModel: ReportViewModel
+) {
     val times = listOf(
         stateData.lastMonthAvgTime,
         stateData.lastWeekAvgTime,
@@ -151,7 +158,8 @@ fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, sta
                 .aspectRatio(aspectRatio)
                 .background(color = Color.White, shape = RoundedCornerShape(16.dp))
                 .clickable {
-                    navController.navigate("report_screen/${stateData.appName}"){
+                    navController.navigate("report_screen/${stateData.appName}") {
+                        popUpTo("analysis_route") { inclusive = false }
                     }
                 }
         ) {
@@ -168,34 +176,6 @@ fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, sta
             Canvas(
                 modifier = modifier
                     .matchParentSize()
-                    /*
-                    .pointerInput(Unit) {
-                        detectTapGestures { offset ->
-                            val barWidth = (size.width * 0.3f) / 4
-                            val barSpacing = (size.width * 0.36f) / 5
-                            val startX = (size.width - ((barWidth * 4) + (barSpacing * 3))) / 2
-                            val paddingTop = size.height * 0.1f
-                            val paddingBottom = size.height * 0.2f
-
-                            times.forEachIndexed { index, barHeight ->
-                                val barStartX = startX + index * (barWidth + barSpacing)
-                                val barEndX = barStartX + barWidth
-                                if (offset.x in barStartX..barEndX) {
-                                    tooltipText = "${barHeight / (60)}분" // 시간 내용으로
-                                    showTooltip = true
-                                    val dpOffsetX = with(density) { offset.x.toDp() }
-                                    val dpOffsetY = with(density) { offset.y.toDp() }
-                                    tooltipOffset = DpOffset(
-                                        dpOffsetX,
-                                        dpOffsetY - 210.dp
-                                    ) // 왠지 모르겠지만 이렇게 설정해줘야 클릭 위치에 생성됨
-                                    return@detectTapGestures
-                                }
-                            }
-                        }
-                    }
-
-                     */
             ) {
                 val barWidth = (size.width * 0.3f) / 4 // 막대 너비
                 val barSpacing = (size.width * 0.36f) / 5 // 막대 사이 간격
@@ -217,6 +197,48 @@ fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, sta
                 val paddingBottom = size.height * 0.2f
                 val startX = (size.width - ((barWidth * 4) + (barSpacing * 3))) / 2
 
+                // Y축 라벨 추가
+                val yLabels = listOf(0, maxTime / 2, maxTime).map { time2 ->
+                    val time = time2 / 60
+                    if (time >= 60) {
+                        val hours = time / 60
+                        val minutes = time % 60
+                        if (minutes > 0) {
+                            "${hours}시간 ${minutes}분 -"
+                        } else {
+                            "${hours}시간 -"
+                        }
+                    } else {
+                        "${time}분 -"
+                    }
+                }
+
+                val yLabelSpacing = (size.height - paddingTop - paddingBottom) / 2
+                val textPaint = Paint().asFrameworkPaint().apply {
+                    isAntiAlias = true
+                    textSize = 12.sp.toPx()
+                    color = vagueText.toArgb()
+                    textAlign = android.graphics.Paint.Align.RIGHT
+                }
+                val textPaint2 = Paint().asFrameworkPaint().apply {
+                    isAntiAlias = true
+                    textSize = 12.sp.toPx()
+                    color = vagueText.toArgb()
+                }
+
+                yLabels.forEachIndexed { index, label ->
+                    val y = size.height - paddingBottom - (yLabelSpacing * index) - 4
+                    drawIntoCanvas {
+                        val textHeight = textPaint.fontMetrics.run { descent - ascent }
+                        it.nativeCanvas.drawText(
+                            label,
+                            startX - 30, // 원하는 위치로 조정
+                            y + textHeight / 2,
+                            textPaint
+                        )
+                    }
+                }
+
                 //막대 4개; 지난 달, 지난 주, 어제, 오늘
                 times.forEachIndexed { index, time ->
                     val barHeight = time.toFloat() / maxTime  // 높이 계산
@@ -230,8 +252,7 @@ fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, sta
                             barWidth,
                             barHeight * (size.height - paddingTop - paddingBottom)
                         ),
-                        cornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx()),
-
+                        cornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx())
                     )
 
                     val text = when (index) {
@@ -242,23 +263,18 @@ fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, sta
                     }
 
                     drawIntoCanvas {
-                        val textPaint = Paint().asFrameworkPaint().apply {
-                            isAntiAlias = true
-                            textSize = 12.sp.toPx()
-                            color = vagueText.toArgb()
-                        }
-                        val textWidth = textPaint.measureText(text)
+                        val textWidth = textPaint2.measureText(text)
                         it.nativeCanvas.drawText(
                             text,
                             barStartX + (barWidth - textWidth) / 2,
-                            size.height - paddingBottom + textPaint.textSize + 12,
-                            textPaint
+                            size.height - paddingBottom + textPaint2.textSize + 12,
+                            textPaint2
                         )
                     }
                 }
             }
             DropdownMenu(
-                modifier = Modifier.background(Color.White, RoundedCornerShape( 12.dp )),
+                modifier = Modifier.background(Color.White, RoundedCornerShape(12.dp)),
                 expanded = showTooltip,
                 onDismissRequest = { showTooltip = false },
                 offset = tooltipOffset
@@ -268,6 +284,7 @@ fun analysisGraphBox(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, sta
         }
     }
 }
+
 
 @Composable
 fun IconImage(

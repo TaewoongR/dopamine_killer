@@ -47,7 +47,7 @@ class AnDomainImpl @Inject constructor(
     override suspend fun get7daysAvgHourlyUsage(appName: String): List<Int> {
         val listOfLists: MutableList<List<Int>> = mutableListOf()
         val returnList = MutableList(24) { 0 }
-        for(i in 1..7){
+        for(i in 0..6){
             listOfLists.add(
                 withContext(Dispatchers.IO) {
                     dailyRepository.getHourlyUsage(
@@ -62,22 +62,20 @@ class AnDomainImpl @Inject constructor(
             for (list in listOfLists) {
                 sum += list[i]
             }
-            returnList[i] = sum / 7 / 60
+            returnList[i] = sum / 7
         }
         return returnList
     }
 
     override suspend fun get30DailyUsage(appName: String): List<Int> {
         val listOfLists: MutableList<Int> = mutableListOf()
-        for(i in 1..30){
+        for(i in 0..29){
             listOfLists.add(
                 withContext(Dispatchers.IO) {
-                    dailyRepository.getDailyUsage(
-                        appName,
-                        dateFactory.returnStringDate(dateFactory.returnTheDayStart(i))
-                    ) / 60
+                    dailyRepository.getDailyUsage(appName, dateFactory.returnStringDate(dateFactory.returnTheDayStart(i)))
                 })
         }
+        listOfLists.reverse()
         return listOfLists
     }
 }

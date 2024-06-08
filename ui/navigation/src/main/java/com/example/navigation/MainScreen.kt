@@ -25,7 +25,7 @@ import com.example.myinfo.setup.SetupFlag
 import kotlinx.coroutines.launch
 
 @Composable
-fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
+fun MainScreen(onCheckPermissions: (Context) -> Unit, viewModel: MainViewModel = hiltViewModel()) {
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
     val context = LocalContext.current
@@ -38,8 +38,6 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
 
     // LaunchedEffect를 사용하여 토큰 상태를 다시 확인하고 적절한 화면으로 네비게이션
     LaunchedEffect(Unit) {
-        //PreferenceUtils.resetSetup(context)         // 테스트 재시작시 필요
-        //TokenManager.clearToken(context)            // 테스트 재시작시 필요
         val currentToken = UserTokenStore.getToken(context)
         if (currentToken != null && SetupFlag.isSetupComplete(context)) {
             navController.navigate("bot_nav_bar") {
@@ -101,7 +99,7 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
             GoalSettingScreen(navController, isSettingComplete)
         }
         composable("bot_nav_bar") {
-            BotNavBar()
+            BotNavBar(onCheckPermissions)
         }
     }
 }

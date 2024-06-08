@@ -31,31 +31,6 @@ class Application : Application(), Configuration.Provider {
         super.onCreate()
         createNotificationChannel()
         startForegroundService()
-        // SYSTEM_ALERT_WINDOW 권한 요청
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!Settings.canDrawOverlays(this)) {
-                val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(intent)
-            }
-        }
-    }
-
-    fun checkAndStartForegroundService(activity: MainActivity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            if (ContextCompat.checkSelfPermission(activity, "android.permission.FOREGROUND_SERVICE_DATA_SYNC")
-                != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(
-                    activity,
-                    arrayOf("android.permission.FOREGROUND_SERVICE_DATA_SYNC"),
-                    1001
-                )
-            } else {
-                startForegroundService()
-            }
-        } else {
-            startForegroundService()
-        }
     }
 
     private fun startForegroundService() {

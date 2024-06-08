@@ -1,3 +1,5 @@
+package com.example.dopamine_killer.foregroundService
+
 import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import android.view.accessibility.AccessibilityEvent

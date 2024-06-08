@@ -3,54 +3,35 @@
     android:id="@+id/popup_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:layout_weight="0.9"
     android:background="@drawable/popup_background"
+    android:orientation="vertical"
     android:padding="16dp"
-    android:visibility="gone">
+    android:visibility="visible">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:orientation="horizontal"
-        android:gravity="center">
+        android:visibility="visible">
 
         <ImageView
             android:id="@+id/popup_icon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginEnd="8dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
             android:src="@drawable/dkapplogo" />
 
         <TextView
             android:id="@+id/popup_message"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:gravity = "center_horizontal"
+            android:layout_weight="4"
             android:textColor="@android:color/black"
-            android:textSize="16sp"/>
-
-        <Button
-            android:id="@+id/expand_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Expand"
-            android:layout_marginStart="8dp"
-            android:textSize="12sp"
-            android:padding="4dp"/>
+            android:textSize="16sp" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/expanded_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone">
 
-        <Button
-            android:id="@+id/action_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Perform Action"/>
-    </LinearLayout>
 </LinearLayout>

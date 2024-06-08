@@ -13,6 +13,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.example.coredomain.CoreDomain
+import com.example.dopamine_killer.permission.PermissionUtils
 import com.example.dopamine_killer.workManager.CoreWorker
 import com.example.local.user.UserTokenStore
 import com.example.navigation.MainScreen
@@ -28,6 +29,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var appOps: AppOpsManager
     private var mode: Int = AppOpsManager.MODE_ERRORED
     private var token: String? = null
+    private val permissionChecker = PermissionUtils()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,9 +44,10 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            MainScreen()
+            MainScreen({ context ->
+                permissionChecker.checkAndRequestPermissions(context)
+            })
         }
-
         if (mode == AppOpsManager.MODE_ALLOWED) {
             lifecycle.addObserver(MainActivityLifecycleObserver())
         }

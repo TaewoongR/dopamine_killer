@@ -15,10 +15,15 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import android.graphics.Paint
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -34,9 +39,7 @@ fun ReportScreen(
         viewModel.loadReportData(appName)
     }
     BackHandler {
-        navController.navigate("overview_route") {
-            popUpTo(0) { inclusive = true }
-        }
+        navController.popBackStack("analysis_route", false)
     }
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
@@ -51,6 +54,9 @@ fun ReportScreen(
         }
         item { 
             Text(text = "앱 상세 보고서", color = Color.Black, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        }
+        item{
+            IconImageForReport(imageBitmap = uiState.appIcon, size = totalWidth * 0.2f, cornerRadius = 8.dp)
         }
         item {
             Column {
@@ -163,8 +169,8 @@ fun Graph(dailyList: List<Int>) {
                         val ySteps = listOf(minValue, midValue, maxValue)
                         ySteps.forEach { value ->
                             val y = height - (value - minValue) * stepY
-                            val hours = value / 60
-                            val minutes = value % 60
+                            val hours = value / 60 / 60
+                            val minutes = (value / 60) % 60
                             val label = when {
                                 hours == 0 && minutes == 0 -> ""
                                 hours == 0 -> "${minutes}분"
@@ -249,8 +255,8 @@ fun Graph2(hourlyList: List<Int>) {
                         textSize = 30f
                         color = android.graphics.Color.BLACK
                     }
-                    val labelIndices = listOf(0, 5, 10, 15, 20, 23)
-                    val labels = listOf("0시", "5시", "10시", "15시", "20시", "23시")
+                    val labelIndices = listOf(0, 6, 12, 18, 23)
+                    val labels = listOf("0시", "6시", "12시", "18시", "23시")
                     labelIndices.forEachIndexed { index, labelIndex ->
                         val x = labelIndex * stepX
                         val label = labels[index]
@@ -271,8 +277,8 @@ fun Graph2(hourlyList: List<Int>) {
                     val ySteps = listOf(minValue, midValue, maxValue)
                     ySteps.forEach { value ->
                         val y = height - (value - minValue) * stepY
-                        val hours = value / 60
-                        val minutes = value % 60
+                        val hours = value / 60 / 60
+                        val minutes = (value / 60) % 60
                         val label = when {
                             hours == 0 && minutes == 0 -> ""
                             hours == 0 -> "${minutes}분"
@@ -289,5 +295,27 @@ fun Graph2(hourlyList: List<Int>) {
                 }
             }
         }
+    }
+}
+
+@Composable
+fun IconImageForReport(
+    imageBitmap: ImageBitmap,
+    modifier: Modifier = Modifier,
+    size: Dp,
+    cornerRadius: Dp
+) {
+    Box(
+        modifier = modifier
+            .size(size)
+            .clip(RoundedCornerShape(cornerRadius)),
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            bitmap = imageBitmap,
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
     }
 }

@@ -1,9 +1,11 @@
 package com.example.dopamine_killer.foregroundService
 
 import android.app.Notification
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
+import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -34,6 +36,7 @@ class ForegroundService : Service() {
     private lateinit var customPopupView: CustomPopupView
 
     private val mainHandler = Handler(Looper.getMainLooper()) // 메인 스레드의 Handler
+
     private val hourlyUpdateRunnable = object : Runnable {
         override fun run() {
             jobScope.launch {
@@ -43,7 +46,9 @@ class ForegroundService : Service() {
                     foregroundAppChecker.getForegroundApp() == appFetchingInfo.getPackageNameBy(it.second)
                 }
                 if (type?.first == 1) {
-                    showWarning(type.second)
+                    startWarningRoutine(type.second)
+                } else {
+                    stopWarningRoutine()
                 }
                 warningType.forEach {
                     if (it.first == 2) {
@@ -67,9 +72,19 @@ class ForegroundService : Service() {
         }
     }
 
+    private val warningRunnable = object : Runnable {
+        var appName: String = ""
+        override fun run() {
+            showWarning(appName)
+            mainHandler.postDelayed(this, 5000) // 5초마다 실행
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
-        val notification = createNotification("Foreground service is running...")
+        // 알림 채널 생성
+        createNotificationChannel()
+        val notification = createNotification("도파민 킬러 대기중")
         startForeground(1, notification)        // foregroundService를 실행하기 위한 필수적 실행 함수
         foregroundAppChecker = ForegroundAppChecker(this)
 
@@ -96,10 +111,23 @@ class ForegroundService : Service() {
         jobScope.cancel() // 서비스 종료 시 Coroutine 취소
         mainHandler.removeCallbacks(hourlyUpdateRunnable) // 서비스 종료 시 Runnable 제거
         mainHandler.removeCallbacks(weeklyUpdateRunnable) // 서비스 종료 시 Runnable 제거
+        mainHandler.removeCallbacks(warningRunnable) // 서비스 종료 시 warning Runnable 제거
     }
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel("DEFAULT_CHANNEL", "과도한 도파민 방지중", NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = "Channel for foreground service"
+            }
+
+            val manager = getSystemService(NotificationManager::class.java)
+            manager.createNotificationChannel(channel)
+        }
     }
 
     private fun createNotification(contentText: String): Notification {
@@ -113,7 +141,6 @@ class ForegroundService : Service() {
 
     private fun showWarning(appName: String) {
         val message = "$appName 사용량이 목표 시간에 근접했습니다."
-        showNotification(message)
         showPopup(message)
     }
 
@@ -135,5 +162,15 @@ class ForegroundService : Service() {
                 customPopupView.showMessage(message)
             }
         }
+    }
+
+    private fun startWarningRoutine(appName: String) {
+        warningRunnable.appName = appName
+        showNotification("$appName 사용량이 목표 시간에 근접했습니다.")
+        mainHandler.post(warningRunnable)
+    }
+
+    private fun stopWarningRoutine() {
+        mainHandler.removeCallbacks(warningRunnable)
     }
 }

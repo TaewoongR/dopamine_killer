@@ -1,5 +1,6 @@
 package com.example.myinfo
 
+import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,6 +44,7 @@ val backgroundColor: Color = Color(android.graphics.Color.parseColor("#EFEFEF"))
 @Composable
 fun MyInfoScreen(
     navController: NavController,
+    onCheckPermissions: (Context) -> Unit,
     viewModel: MyInfoViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
@@ -59,7 +61,7 @@ fun MyInfoScreen(
             fontSize = 28.sp, // 글자 크기 키움
             fontWeight = FontWeight.Bold,
         )
-        settingsContent(uiState, navController, viewModel)
+        settingsContent(uiState, navController, viewModel, onCheckPermissions)
     }
     // Back button handler
     BackHandler {
@@ -71,7 +73,7 @@ fun MyInfoScreen(
 
 
 @Composable
-fun settingsContent (uiState: MyInfoUiState, navController: NavController, viewModel: MyInfoViewModel){
+fun settingsContent (uiState: MyInfoUiState, navController: NavController, viewModel: MyInfoViewModel, onCheckPermissions: (Context) -> Unit,){
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val totalWidth = screenWidth * 0.85f
 
@@ -81,13 +83,13 @@ fun settingsContent (uiState: MyInfoUiState, navController: NavController, viewM
             .background(color = backgroundColor),
         contentAlignment = Alignment.Center
     ){
-        Settings(modifier = Modifier, totalWidth = totalWidth, navController, viewModel)
+        Settings(modifier = Modifier, totalWidth = totalWidth, navController, viewModel, onCheckPermissions)
     }
 }
 
 
 @Composable
-fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController, viewModel: MyInfoViewModel) {
+fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController, viewModel: MyInfoViewModel, onCheckPermissions: (Context) -> Unit) {
     val context = LocalContext.current
 
     Box(
@@ -123,11 +125,14 @@ fun Settings(modifier: Modifier, totalWidth: Dp, navController: NavController, v
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(totalWidth * 0.16f),
+                    .height(totalWidth * 0.16f)
+                    .clickable {
+                        onCheckPermissions(context)
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "프로필 설정",
+                    text = "권한 설정",
                     textAlign = TextAlign.Center,
                     style = TextStyle(fontSize = 16.sp)
                 )

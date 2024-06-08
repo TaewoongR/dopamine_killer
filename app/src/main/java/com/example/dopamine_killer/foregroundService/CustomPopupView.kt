@@ -1,8 +1,8 @@
 package com.example.dopamine_killer.foregroundService
 
-import YourAccessibilityService
 import android.accessibilityservice.AccessibilityService
-import android.annotation.SuppressLint
+import android.animation.Animator
+import android.animation.ObjectAnimator
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -12,39 +12,56 @@ import android.os.Looper
 import android.provider.Settings
 import android.text.TextUtils
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import android.widget.Button
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import com.example.dopamine_killer.R
+import kotlin.math.abs
 
 class CustomPopupView(private val context: Context) {
     private val handler = Handler(Looper.getMainLooper())
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private val popupView: View = LayoutInflater.from(context).inflate(R.layout.view_custom_popup, null)
     private var isShowing = false
+    private var initialX = 0f
+    private var initialTouchX = 0f
+    private var initialTouchY = 0f
+    private val clickThreshold = 10
 
     init {
-        // Setup expand button
-        val expandButton: Button = popupView.findViewById(R.id.expand_button)
-        val expandedLayout: LinearLayout = popupView.findViewById(R.id.expanded_layout)
-        expandButton.setOnClickListener {
-            if (expandedLayout.visibility == View.VISIBLE) {
-                expandedLayout.visibility = View.GONE
-                expandButton.text = "Expand"
-            } else {
-                expandedLayout.visibility = View.VISIBLE
-                expandButton.text = "Collapse"
+        // Setup touch listener for popup view
+        popupView.setOnTouchListener{ _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    initialX = popupView.x
+                    initialTouchX = event.rawX
+                    initialTouchY = event.rawY
+                    true
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    val offsetX = event.rawX - initialTouchX
+                    popupView.x = initialX + offsetX
+                    true
+                }
+                MotionEvent.ACTION_UP -> {
+                    val offsetX = event.rawX - initialTouchX
+                    val offsetY = event.rawY - initialTouchY
+                    if (abs(offsetX) > clickThreshold || abs(offsetY) > clickThreshold) {
+                        if (abs(offsetX) > popupView.width / 4) {
+                            animateAndHidePopup(offsetX > 0)
+                        } else {
+                            animateToOriginalPosition()
+                        }
+                    } else {
+                        performAction()
+                    }
+                    true
+                }
+                else -> false
             }
-        }
-
-        // Setup action button
-        val actionButton: Button = popupView.findViewById(R.id.action_button)
-        actionButton.setOnClickListener {
-            performAction()
         }
     }
 
@@ -60,10 +77,7 @@ class CustomPopupView(private val context: Context) {
         val layoutParams = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-            else
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.TRANSLUCENT
         )
@@ -79,10 +93,21 @@ class CustomPopupView(private val context: Context) {
         isShowing = true
 
         handler.postDelayed({
-            popupView.visibility = View.GONE
-            windowManager.removeView(popupView)
-            isShowing = false
+            hidePopup()
         }, duration)
+    }
+
+    private fun hidePopup() {
+        if (isShowing && popupView.visibility == View.VISIBLE) {
+            try {
+                windowManager.removeView(popupView)
+            } catch (e: IllegalArgumentException) {
+                // View가 이미 제거된 경우 예외 처리
+                e.printStackTrace()
+            } finally {
+                isShowing = false
+            }
+        }
     }
 
     private fun performAction() {
@@ -93,18 +118,54 @@ class CustomPopupView(private val context: Context) {
                 val intent = Intent("com.example.dopamine_killer.FORCE_STOP_APP")
                 intent.putExtra("EXTRA_APP_PACKAGE", foregroundApp)
                 context.sendBroadcast(intent)
+                // Add code to launch your app after performing the action
+                launchApp("com.example.dopamine_killer")
+                hidePopup() // Hide the popup after performing the action
             } else {
                 Toast.makeText(context, "Unable to determine foreground app", Toast.LENGTH_SHORT).show()
+                hidePopup() // Hide the popup even if the action fails
             }
         } else {
             Toast.makeText(context, "Accessibility Service is not enabled", Toast.LENGTH_SHORT).show()
             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)  // FLAG_ACTIVITY_NEW_TASK 플래그 추가
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
+            hidePopup() // Hide the popup after prompting the user to enable the service
         }
     }
 
-    fun isAccessibilityServiceEnabled(context: Context, service: Class<out AccessibilityService>): Boolean {
+    private fun animateAndHidePopup(toRight: Boolean) {
+        val translationX = if (toRight) popupView.width.toFloat() else -popupView.width.toFloat()
+        val animator = ObjectAnimator.ofFloat(popupView, "translationX", translationX)
+        animator.duration = 300
+        animator.start()
+        animator.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationStart(animation: Animator) {}
+            override fun onAnimationEnd(animation: Animator) {
+                hidePopup()
+            }
+            override fun onAnimationCancel(animation: Animator) {}
+            override fun onAnimationRepeat(animation: Animator) {}
+        })
+    }
+
+    private fun animateToOriginalPosition() {
+        val animator = ObjectAnimator.ofFloat(popupView, "translationX", 0f)
+        animator.duration = 300
+        animator.start()
+    }
+
+    private fun launchApp(packageName: String) {
+        val intent = context.packageManager.getLaunchIntentForPackage(packageName)
+        if (intent != null) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
+        } else {
+            Toast.makeText(context, "App not found", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun isAccessibilityServiceEnabled(context: Context, service: Class<out AccessibilityService>): Boolean {
         val expectedComponentName = ComponentName(context, service)
         val enabledServices = Settings.Secure.getString(context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
         val colonSplitter = TextUtils.SimpleStringSplitter(':')
@@ -118,5 +179,4 @@ class CustomPopupView(private val context: Context) {
         }
         return false
     }
-
 }

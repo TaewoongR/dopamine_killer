@@ -59,4 +59,16 @@ interface RetrofitNetworkApi {
     @DELETE(value = "/selectedapp/delete/{username}")
     fun deleteSelectedApp(@Header("Authorization") token: String, @Path("username") username: String): Call<String>
 
+
+    @GET(value = "/apptime/get/{username}")
+    suspend fun getHourly(@Header("Authorization") token: String): Response<ResponseBody>
+
+    @GET(value = "/dailyusage/get/{username}")
+    suspend fun getDaily(@Header("Authorization") token: String): Response<ResponseBody>
+
+    @GET(value = "/weeklyusage/get/{username}")
+    suspend fun getWeekly(@Header("Authorization") token: String): Response<ResponseBody>
+
+    @GET(value = "/monthlyusage/get/{username}")
+    suspend fun getMonthly(@Header("Authorization") token: String): Response<ResponseBody>
 }

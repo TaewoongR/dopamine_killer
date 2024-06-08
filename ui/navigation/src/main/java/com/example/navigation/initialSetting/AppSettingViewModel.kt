@@ -26,7 +26,6 @@ class AppSettingViewModel @Inject constructor(
     }
 
     private fun updateUiState() {
-        //viewModelScope.launch { coreDomain.clearAllDatabase() } // 테스트 시 데이터베이스 초기화
         val appNameList = mutableListOf<String>()
         viewModelScope.launch {
             val appObjectList = mutableListOf<AppSettingData>()

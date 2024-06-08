@@ -21,4 +21,11 @@ interface NetworkDataSource {
     fun deleteMonthlyUsage(token: String, username: String)
     fun deleteGoalByUserName(token: String, username: String)
     fun deleteSelectedApp(token: String, username: String)
+    /*
+    suspend fun getHourly(username: String, date: String): List<Int>
+    suspend fun getDaily(username: String,date: String): Int
+    suspend fun getWeekly(username: String,date: String): Int
+    suspend fun getMonthly(username: String,date: String): Int
+
+     */
 }

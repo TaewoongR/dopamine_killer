@@ -11,5 +11,4 @@ interface AppFetchingInfo {
     suspend fun getDailyUsage(appName: String, numberAgo: Int): Triple<Int,String,Int>
     suspend fun getWeeklyAvgUsage(appName: String, numberAgo: Int): Pair<Int,String>
     suspend fun getMonthlyAvgUsage(appName: String, numberAgo: Int): Pair<Int, String>
-
 }
