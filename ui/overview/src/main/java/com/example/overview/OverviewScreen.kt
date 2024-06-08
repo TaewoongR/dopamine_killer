@@ -176,7 +176,7 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally // Column 내 요소를 왼쪽 정렬
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Column(
                         modifier = Modifier.fillMaxWidth(), // 좌측 정렬을 위해서 Column 사용
@@ -184,7 +184,7 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
                     ) {
                         Text(
                             text = "AI 사용시간 분석 powered by ChatGPT 🤖",
-                            fontSize = 12.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color.Black,
                             modifier = Modifier.padding(start = 24.dp, bottom = 10.dp) // 여기에 잘못된 부분이 있었습니다.
