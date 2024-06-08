@@ -172,7 +172,7 @@ fun Graph(dailyList: List<Int>) {
                             val hours = value / 60 / 60
                             val minutes = (value / 60) % 60
                             val label = when {
-                                hours == 0 && minutes == 0 -> ""
+                                hours == 0 && minutes == 0 -> "${minutes}분"
                                 hours == 0 -> "${minutes}분"
                                 minutes == 0 -> "${hours}시간"
                                 else -> "${hours}시간${minutes}분"
@@ -280,7 +280,7 @@ fun Graph2(hourlyList: List<Int>) {
                         val hours = value / 60 / 60
                         val minutes = (value / 60) % 60
                         val label = when {
-                            hours == 0 && minutes == 0 -> ""
+                            hours == 0 && minutes == 0 -> "${minutes}분"
                             hours == 0 -> "${minutes}분"
                             minutes == 0 -> "${hours}시간"
                             else -> "${hours}시간${minutes}분"
