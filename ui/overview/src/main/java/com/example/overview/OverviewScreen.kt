@@ -6,53 +6,22 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -62,17 +31,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.local.user.UserTokenStore
-import kotlin.text.Typography.times
 
 @Composable
 fun OverviewScreen(
@@ -113,14 +76,12 @@ fun OverviewScreen(
     }
 }
 
-
 val backgroundColor: Color = Color(parseColor("#EFEFEF"))
 val keyColor: Color = Color(parseColor("#FF9A62"))
 val vagueText: Color = Color(parseColor("#777777"))
 val vagueColor: Color = Color(parseColor("#F0F0F0"))
 val brushColor: Color = Color(parseColor("#FFC2A0"))
 val brusherColor: Color = Color(parseColor("#FFF4EF"))
-
 
 @Composable
 fun MyScreenContent(overviewUiState: OverviewUiState) {
@@ -140,63 +101,93 @@ fun MyScreenContent(overviewUiState: OverviewUiState) {
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+            // Daily Usage와 Weekly Usage를 가로로 배치
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Top // 그래프와 텍스트를 동일 높이에 맞추기
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Log.d("goalTIme", overviewUiState.analysisData.goalTime.toString())
-                    Log.d("dailyTIme", overviewUiState.analysisData.dailyTime.toString())
+                    Text(
+                        text = "Daily Usage",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black
+                    )
+                    DonutGraph(
+                        percent = try {
+                            overviewUiState.analysisData.dailyTime.toFloat() / overviewUiState.analysisData.goalTime.toFloat()
+                        } catch (e: Exception) {
+                            0f
+                        },
+                        modifier = Modifier.size(individualWidth),
+                        size = individualWidth,
+                        overviewUiState
+                    )
+                }
 
-                    val percent = try {
-                        overviewUiState.analysisData.dailyTime.toFloat() / overviewUiState.analysisData.goalTime.toFloat()
-                    } catch (e: Exception) {
-                        0f
-                    }
+                Spacer(modifier = Modifier.width(10.dp))
 
-                    DonutGraph(percent = percent, modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState)
-                    Spacer(modifier = Modifier.width(10.dp))
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "Record",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black
+                    )
                     barGraphOverview(modifier = Modifier.size(individualWidth), size = individualWidth, overviewUiState.analysisData)
                 }
+            }
 
-
-
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(2.dp),
+            Column(
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Column (
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.Start
                 ) {
-                    for (i in 0 until minOf(3, overviewUiState.recordList.size)) {
-                        recordOverview(modifier = Modifier, aspectRatio = 1f / 0.1875f, totalWidth = totalWidth, i, overviewUiState.recordList)
-                    }
+                    Text(
+                        text = "Goal Apps",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black,
+                        modifier = Modifier.padding(start = 24.dp, bottom = 10.dp)
+                    )
                 }
 
-
-
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(), // 좌측 정렬을 위해서 Column 사용
-                        horizontalAlignment = Alignment.Start // Column 내 요소를 왼쪽 정렬
-                    ) {
-                        Text(
-                            text = "AI 사용시간 분석 powered by ChatGPT 🤖",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.Black,
-                            modifier = Modifier.padding(start = 24.dp, bottom = 10.dp) // 여기에 잘못된 부분이 있었습니다.
-                        )
-                    }
-
-                    aiOverview(modifier = Modifier, aspectRatio = 1f / 0.6f, totalWidth = totalWidth, flaskApiResponse = overviewUiState.flaskApiResponse)
+                for (i in 0 until minOf(3, overviewUiState.recordList.size)) {
+                    recordOverview(modifier = Modifier, aspectRatio = 1f / 0.1875f, totalWidth = totalWidth, i, overviewUiState.recordList)
                 }
+            }
 
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(), // 좌측 정렬을 위해서 Column 사용
+                    horizontalAlignment = Alignment.Start // Column 내 요소를 왼쪽 정렬
+                ) {
+                    Text(
+                        text = "AI 사용시간 분석 powered by ChatGPT 🤖",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black,
+                        modifier = Modifier.padding(start = 24.dp, bottom = 10.dp)
+                    )
+                }
+                aiOverview(modifier = Modifier, aspectRatio = 1f / 0.6f, totalWidth = totalWidth, flaskApiResponse = overviewUiState.flaskApiResponse)
+            }
 
-                Spacer(modifier = Modifier.height(totalWidth * 0.1f))
-
+            Spacer(modifier = Modifier.height(totalWidth * 0.1f))
         }
     }
 }
@@ -510,7 +501,7 @@ fun IconImage(
 }
 
 @Composable
-fun aiOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, flaskApiResponse: String?){
+fun aiOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, flaskApiResponse: String?) {
     Box(
         modifier = Modifier
             .width(totalWidth)
@@ -521,9 +512,9 @@ fun aiOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, flaskApiR
             modifier = Modifier.align(Alignment.Center)
         ) {
             flaskApiResponse?.let { response ->
-                val list = response.replace("'", "").replace("\"","").replace("-", "").split(".").map { "$it." }
+                val list = response.replace("'", "").replace("\"", "").replace("-", "").split(".").map { "$it." }
                 list.forEach {
-                    item{
+                    item {
                         Text(
                             text = it,
                             style = TextStyle(
@@ -531,12 +522,14 @@ fun aiOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, flaskApiR
                                 fontSize = 16.sp,
                                 color = Color.Black
                             ),
-                            modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp, top = 5.dp, bottom = 5.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 10.dp, end = 10.dp, top = 5.dp, bottom = 5.dp),
                             textAlign = TextAlign.Center
                         )
                     }
                 }
-            }?: run {
+            } ?: run {
                 item {
                     Text(
                         text = "Loading...",
