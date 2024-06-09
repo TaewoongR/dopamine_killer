@@ -9,7 +9,6 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.text.TextUtils
-import android.widget.AdapterView
 import androidx.core.app.NotificationManagerCompat
 import com.example.dopamine_killer.foregroundService.YourAccessibilityService
 import javax.inject.Inject
