@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
@@ -272,15 +273,17 @@ fun DonutGraph(percent: Float, modifier: Modifier = Modifier, size: Dp, overview
                     center = Offset(boxSize.width / 2, boxSize.height / 2)
                 )
 
-                drawArc(
-                    brush = gradientBrush,
-                    startAngle = startAngle,
-                    sweepAngle = sweepAngle,
-                    useCenter = false,
-                    topLeft = Offset(center.x - radius, center.y - radius),
-                    size = Size(radius * 2, radius * 2),
-                    style = Stroke(width = strokeWidth, cap = StrokeCap.Butt)
-                )
+                rotate(degrees = -90f){
+                    drawArc(
+                        brush = gradientBrush,
+                        startAngle = startAngle,
+                        sweepAngle = sweepAngle,
+                        useCenter = false,
+                        topLeft = Offset(center.x - radius, center.y - radius),
+                        size = Size(radius * 2, radius * 2),
+                        style = Stroke(width = strokeWidth, cap = StrokeCap.Butt)
+                    )
+                }
             }
         )
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
