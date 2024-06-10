@@ -107,7 +107,7 @@ fun MyInfoScreen(
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        Spacer(modifier = Modifier.height(16.dp)) // 텍스트와 메뉴 항목 사이 간격 추가
+        Spacer(modifier = Modifier.height(60.dp)) // 텍스트와 메뉴 항목 사이 간격 추가
 
         settingsContent(uiState, navController, viewModel, onCheckPermissions, clearDatabase)
     }
@@ -134,7 +134,7 @@ fun settingsContent(
         modifier = Modifier
             .fillMaxSize()
             .background(color = backgroundColor),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.TopCenter
     ) {
         Settings(modifier = Modifier, totalWidth = totalWidth, navController, viewModel, onCheckPermissions, clearDatabase)
     }
