@@ -3,6 +3,7 @@ package com.example.repository
 import android.content.Context
 import com.example.local.dailyUsage.DailyDAO
 import com.example.local.horulyUsage.HourlyDAO
+import com.example.local.monthlyUsage.MonthlyDAO
 import com.example.local.record.RecordDAO
 import com.example.local.weeklyUsage.WeeklyDAO
 import com.example.network.appUsage.NetworkDataSource
@@ -13,6 +14,7 @@ class NetworkRepositoryImpl @Inject constructor(
     private val hourlyDao: HourlyDAO,
     private val dailyDao: DailyDAO,
     private val weeklyDao: WeeklyDAO,
+    private val monthlyDAO: MonthlyDAO,
     private val recordDao: RecordDAO,
     private val networkService: NetworkDataSource,
     private val dateFactory: DateFactoryForData,
@@ -35,10 +37,18 @@ class NetworkRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateEntireNetworkWeekly(context: Context) {
-        val listAllDaily = weeklyDao.getAll()
+        val listAllWeekly = weeklyDao.getAll()
+        // 서버에 데이터 PUT
+        listAllWeekly.forEach {
+            networkService.postWeeklyData(it, context)
+        }
+    }
+
+    override suspend fun updateEntireNetworkMonthly(context: Context) {
+        val listAllDaily = monthlyDAO.getAll()
         // 서버에 데이터 PUT
         listAllDaily.forEach {
-            networkService.postWeeklyData(it, context)
+            networkService.postMonthlyData(it, context)
         }
     }
 

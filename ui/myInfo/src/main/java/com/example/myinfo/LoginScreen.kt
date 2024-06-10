@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.coredomain.CoreDomain
 import com.example.local.R
 import com.example.local.user.UserTokenStore
 import com.example.myinfo.api.LoginApiService
@@ -59,13 +60,13 @@ import com.example.myinfo.setup.SetupFlag
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import javax.inject.Inject
 
 @Composable
 fun LoginScreen(navController: NavController, navigateToMainScreen: () -> Unit) {
     loginContent(navController, navigateToMainScreen)
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun loginContent(navController: NavController, navigateToMainScreen: () -> Unit) {
     var username by remember { mutableStateOf("") }
@@ -270,6 +271,7 @@ fun loginButton(totalWidth: Dp, username: String, password: String, navControlle
                                             }
                                             UserTokenStore.saveToken(context, token)
                                             UserTokenStore.saveUserId(context, username)
+
                                             navigateToMainScreen()
                                         } ?: run {
                                         errorMessage = "로그인 실패: 토큰이 반환되지 않았습니다."

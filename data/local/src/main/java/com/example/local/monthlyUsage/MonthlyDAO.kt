@@ -10,6 +10,9 @@ interface MonthlyDAO {
     @Query("SELECT * FROM monthly_usage WHERE appName = :appName AND date = :date")
     fun get(appName: String, date: String): MonthlyEntity
 
+    @Query("SELECT * FROM monthly_usage")
+    fun getAll(): List<MonthlyEntity>
+
     @Query("DELETE FROM monthly_usage WHERE monthlyUsage = 0")
     fun delete()
 

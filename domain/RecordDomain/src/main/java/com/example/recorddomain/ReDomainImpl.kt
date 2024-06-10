@@ -1,5 +1,6 @@
 package com.example.recorddomain
 
+import com.example.local.R
 import com.example.local.record.RecordDAO
 import com.example.local.record.RecordEntity
 import com.example.repository.GoalRepository
@@ -57,7 +58,25 @@ class ReDomainImpl @Inject constructor(
     }
 
     override suspend fun getInstalledSelected(): List<Pair<String, Boolean>> {
-        val installedApps = selectedAppRepository.getAllInstalled()
+        val installedApps = mutableListOf<String>()
+        val fields = R.string::class.java.fields // R.string 클래스의 모든 필드를 가져옴
+        val prefix = "app_" // 필터링에 사용할 접두사
+
+        for (field in fields) {
+            try {
+                // 특정 접두사로 시작하는 문자열 리소스만 처리
+                if (field.name.startsWith(prefix)) {
+                    val appName = field.name.removePrefix(prefix).replace("_", " ") // 접두사를 제거한 이름
+                    val icon = appRepository.getAppIcon(appName)
+                    if (icon != null) {
+                        installedApps.add(appName)
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace() // 예외 처리
+            }
+        }
+
         // 선택된 앱 목록을 가져옴
         val selectedApps = selectedAppRepository.getAllSelected().toSet()
 

@@ -44,4 +44,7 @@ class MainViewModel @Inject constructor(
     }
 
 
+    suspend fun clearDatabase(){
+        withContext(Dispatchers.IO){coreDomain.clearAllDatabase()}
+    }
 }

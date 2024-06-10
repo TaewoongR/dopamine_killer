@@ -134,105 +134,138 @@ class DailyRepositoryImpl @Inject constructor(
                // 기존의 HourlyEntity를 데이터베이스에서 가져오기
                val existingHourlyEntity = hourlySource.getHourlyEntity(app, date)
                // 새로운 HourlyEntity를 생성하고 현재 시간대 필드 업데이트
-               val updatedHourlyEntity = when (currentHour) {
-                   0 -> existingHourlyEntity.copy(
-                       hour23 = hourlyUsage[dateFactory.returnTheHour(dateFactory.returnRightBeforeFixedTime())]
-                   )
-                   1 -> existingHourlyEntity.copy(
-                       hour00 = hourlyUsage[currentHour-1],
-                       hour01 = hourlyUsage[currentHour]
-                   )
-                   2 -> existingHourlyEntity.copy(
-                       hour01 = hourlyUsage[currentHour-1],
-                       hour02 = hourlyUsage[currentHour]
-                   )
-                   3 -> existingHourlyEntity.copy(
-                       hour02 = hourlyUsage[currentHour-1],
-                       hour03 = hourlyUsage[currentHour]
-                   )
-                   4 -> existingHourlyEntity.copy(
-                       hour03 = hourlyUsage[currentHour-1],
-                       hour04 = hourlyUsage[currentHour]
-                   )
-                   5 -> existingHourlyEntity.copy(
-                       hour04 = hourlyUsage[currentHour-1],
-                       hour05 = hourlyUsage[currentHour]
-                   )
-                   6 -> existingHourlyEntity.copy(
-                       hour05 = hourlyUsage[currentHour-1],
-                       hour06 = hourlyUsage[currentHour]
-                   )
-                   7 -> existingHourlyEntity.copy(
-                       hour06 = hourlyUsage[currentHour-1],
-                       hour07 = hourlyUsage[currentHour]
-                   )
-                   8 -> existingHourlyEntity.copy(
-                       hour07 = hourlyUsage[currentHour-1],
-                       hour08 = hourlyUsage[currentHour]
-                   )
-                   9 -> existingHourlyEntity.copy(
-                       hour08 = hourlyUsage[currentHour-1],
-                       hour09 = hourlyUsage[currentHour]
-                   )
-                   10 -> existingHourlyEntity.copy(
-                       hour09 = hourlyUsage[currentHour-1],
-                       hour10 = hourlyUsage[currentHour]
-                   )
-                   11 -> existingHourlyEntity.copy(
-                       hour10 = hourlyUsage[currentHour-1],
-                       hour11 = hourlyUsage[currentHour]
-                   )
-                   12 -> existingHourlyEntity.copy(
-                       hour11 = hourlyUsage[currentHour-1],
-                       hour12 = hourlyUsage[currentHour]
-                   )
-                   13 -> existingHourlyEntity.copy(
-                       hour12 = hourlyUsage[currentHour-1],
-                       hour13 = hourlyUsage[currentHour]
-                   )
-                   14 -> existingHourlyEntity.copy(
-                       hour13 = hourlyUsage[currentHour-1],
-                       hour14 = hourlyUsage[currentHour]
-                   )
-                   15 -> existingHourlyEntity.copy(
-                       hour14 = hourlyUsage[currentHour-1],
-                       hour15 = hourlyUsage[currentHour]
-                   )
-                   16 -> existingHourlyEntity.copy(
-                       hour15 = hourlyUsage[currentHour-1],
-                       hour16 = hourlyUsage[currentHour]
-                   )
-                   17 -> existingHourlyEntity.copy(
-                       hour16 = hourlyUsage[currentHour-1],
-                       hour17 = hourlyUsage[currentHour]
-                   )
-                   18 -> existingHourlyEntity.copy(
-                       hour17 = hourlyUsage[currentHour-1],
-                       hour18 = hourlyUsage[currentHour]
-                   )
-                   19 -> existingHourlyEntity.copy(
-                       hour18 = hourlyUsage[currentHour-1],
-                       hour19 = hourlyUsage[currentHour]
-                   )
-                   20 -> existingHourlyEntity.copy(
-                       hour19 = hourlyUsage[currentHour-1],
-                       hour20 = hourlyUsage[currentHour]
-                   )
-                   21 -> existingHourlyEntity.copy(
-                       hour20 = hourlyUsage[currentHour-1],
-                       hour21 = hourlyUsage[currentHour]
-                   )
-                   22 -> existingHourlyEntity.copy(
-                       hour21 = hourlyUsage[currentHour-1],
-                       hour22 = hourlyUsage[currentHour]
-                   )
-                   23 -> existingHourlyEntity.copy(
-                       hour22 = hourlyUsage[currentHour-1],
-                       hour23 = hourlyUsage[currentHour]
+
+               val updatedHourlyEntity = try {
+                   when (currentHour) {
+                       0 -> existingHourlyEntity.copy(
+                           hour23 = hourlyUsage[dateFactory.returnTheHour(dateFactory.returnRightBeforeFixedTime())]
                        )
-                   else -> existingHourlyEntity // 기본적으로 변경이 없는 경우
+
+                       1 -> existingHourlyEntity.copy(
+                           hour00 = hourlyUsage[currentHour - 1],
+                           hour01 = hourlyUsage[currentHour]
+                       )
+
+                       2 -> existingHourlyEntity.copy(
+                           hour01 = hourlyUsage[currentHour - 1],
+                           hour02 = hourlyUsage[currentHour]
+                       )
+
+                       3 -> existingHourlyEntity.copy(
+                           hour02 = hourlyUsage[currentHour - 1],
+                           hour03 = hourlyUsage[currentHour]
+                       )
+
+                       4 -> existingHourlyEntity.copy(
+                           hour03 = hourlyUsage[currentHour - 1],
+                           hour04 = hourlyUsage[currentHour]
+                       )
+
+                       5 -> existingHourlyEntity.copy(
+                           hour04 = hourlyUsage[currentHour - 1],
+                           hour05 = hourlyUsage[currentHour]
+                       )
+
+                       6 -> existingHourlyEntity.copy(
+                           hour05 = hourlyUsage[currentHour - 1],
+                           hour06 = hourlyUsage[currentHour]
+                       )
+
+                       7 -> existingHourlyEntity.copy(
+                           hour06 = hourlyUsage[currentHour - 1],
+                           hour07 = hourlyUsage[currentHour]
+                       )
+
+                       8 -> existingHourlyEntity.copy(
+                           hour07 = hourlyUsage[currentHour - 1],
+                           hour08 = hourlyUsage[currentHour]
+                       )
+
+                       9 -> existingHourlyEntity.copy(
+                           hour08 = hourlyUsage[currentHour - 1],
+                           hour09 = hourlyUsage[currentHour]
+                       )
+
+                       10 -> existingHourlyEntity.copy(
+                           hour09 = hourlyUsage[currentHour - 1],
+                           hour10 = hourlyUsage[currentHour]
+                       )
+
+                       11 -> existingHourlyEntity.copy(
+                           hour10 = hourlyUsage[currentHour - 1],
+                           hour11 = hourlyUsage[currentHour]
+                       )
+
+                       12 -> existingHourlyEntity.copy(
+                           hour11 = hourlyUsage[currentHour - 1],
+                           hour12 = hourlyUsage[currentHour]
+                       )
+
+                       13 -> existingHourlyEntity.copy(
+                           hour12 = hourlyUsage[currentHour - 1],
+                           hour13 = hourlyUsage[currentHour]
+                       )
+
+                       14 -> existingHourlyEntity.copy(
+                           hour13 = hourlyUsage[currentHour - 1],
+                           hour14 = hourlyUsage[currentHour]
+                       )
+
+                       15 -> existingHourlyEntity.copy(
+                           hour14 = hourlyUsage[currentHour - 1],
+                           hour15 = hourlyUsage[currentHour]
+                       )
+
+                       16 -> existingHourlyEntity.copy(
+                           hour15 = hourlyUsage[currentHour - 1],
+                           hour16 = hourlyUsage[currentHour]
+                       )
+
+                       17 -> existingHourlyEntity.copy(
+                           hour16 = hourlyUsage[currentHour - 1],
+                           hour17 = hourlyUsage[currentHour]
+                       )
+
+                       18 -> existingHourlyEntity.copy(
+                           hour17 = hourlyUsage[currentHour - 1],
+                           hour18 = hourlyUsage[currentHour]
+                       )
+
+                       19 -> existingHourlyEntity.copy(
+                           hour18 = hourlyUsage[currentHour - 1],
+                           hour19 = hourlyUsage[currentHour]
+                       )
+
+                       20 -> existingHourlyEntity.copy(
+                           hour19 = hourlyUsage[currentHour - 1],
+                           hour20 = hourlyUsage[currentHour]
+                       )
+
+                       21 -> existingHourlyEntity.copy(
+                           hour20 = hourlyUsage[currentHour - 1],
+                           hour21 = hourlyUsage[currentHour]
+                       )
+
+                       22 -> existingHourlyEntity.copy(
+                           hour21 = hourlyUsage[currentHour - 1],
+                           hour22 = hourlyUsage[currentHour]
+                       )
+
+                       23 -> existingHourlyEntity.copy(
+                           hour22 = hourlyUsage[currentHour - 1],
+                           hour23 = hourlyUsage[currentHour]
+                       )
+
+                       else -> existingHourlyEntity // 기본적으로 변경이 없는 경우
+                   }
+               }catch(e: NullPointerException){
+                   existingHourlyEntity
                }
-               hourlySource.upsert(updatedHourlyEntity)
+               try{
+                   hourlySource.upsert(updatedHourlyEntity)
+               }catch (e: NullPointerException){
+                   //do nothing
+               }
            }
            if(currentHour != 0) {
                var totalHour = 0

@@ -226,6 +226,10 @@ class CoreDomainImpl @Inject constructor(
         networkRepository.updateEntireNetworkWeekly(context)
     }
 
+    override suspend fun postNetworkMonthly(context: Context){
+        networkRepository.updateEntireNetworkMonthly(context)
+    }
+
     override suspend fun postGoal(context: Context){
         networkRepository.postGoal(context)
     }

@@ -31,11 +31,16 @@ import com.example.overview.OverviewScreen
 import com.example.record.GoalCreateScreen
 import com.example.record.RecordScreen
 import com.example.reward.RewardScreen
+import kotlinx.coroutines.Job
 
 val keyColor: Color = Color(android.graphics.Color.parseColor("#FF9A62"))
 
 @Composable
-fun BotNavBar(onCheckPermissions: (Context) -> Unit) {
+fun BotNavBar(
+    onCheckPermissions: (Context) -> Unit,
+    send2Network: (Any?) -> Unit,
+    clearDatabase: Job
+) {
     var navigationSelectedItem by remember { mutableIntStateOf(2) }
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -109,16 +114,16 @@ fun BotNavBar(onCheckPermissions: (Context) -> Unit) {
                 RewardScreen(navController)
             }
             composable(Screens.Overview.route) {
-                OverviewScreen(navController)
+                OverviewScreen(navController, send2Network)
             }
             composable(Screens.Analysis.route) {
                 AnalysisScreen(navController)
             }
             composable(Screens.MyInfo.route) {
-                MyInfoScreen(navController, onCheckPermissions)
+                MyInfoScreen(navController, onCheckPermissions, clearDatabase)
             }
             composable("main_screen"){
-                MainScreen(onCheckPermissions)
+                MainScreen(onCheckPermissions, send2Network)
             }
             composable("selected_app_edit"){
                 SelectedAppEditScreen(navController)

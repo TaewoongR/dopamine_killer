@@ -10,6 +10,7 @@ import com.example.local.record.RecordEntity
 import com.example.local.weeklyUsage.WeeklyEntity
 import com.example.network.appUsage.model.asNetworkDailyEntity
 import com.example.network.appUsage.model.asNetworkHourlyEntity
+import com.example.network.appUsage.model.asNetworkMonthlyEntity
 import com.example.network.appUsage.model.asNetworkRecordEntity
 import com.example.network.appUsage.model.asNetworkWeeklyEntity
 import com.example.network.appUsage.retrofit.RetrofitNetworkApi
@@ -38,8 +39,7 @@ internal class RetrofitNetworkRepository @Inject constructor(
     }
 
     override fun postMonthlyData(monthlyEntity: MonthlyEntity, context: Context) {
-        // Implement and call the postData function as needed
-        // Example: postData(retrofitNetworkApi.postWeekly(weeklyEntity.asNetworkWeeklyEntity()), "Monthly")
+        postData(retrofitNetworkApi.postMonthly(monthlyEntity.asNetworkMonthlyEntity(context)), "Monthly")
     }
 
     override fun postRecordData(recordEntity: RecordEntity, context: Context) {

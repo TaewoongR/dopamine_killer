@@ -2,7 +2,6 @@ package com.example.navigation
 
 import android.app.AppOpsManager
 import android.content.Context
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -25,7 +24,7 @@ import com.example.myinfo.setup.SetupFlag
 import kotlinx.coroutines.launch
 
 @Composable
-fun MainScreen(onCheckPermissions: (Context) -> Unit, viewModel: MainViewModel = hiltViewModel()) {
+fun MainScreen(onCheckPermissions: (Context) -> Unit, send2Network: (Any?) -> Unit, viewModel: MainViewModel = hiltViewModel()) {
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
     val context = LocalContext.current
@@ -95,13 +94,15 @@ fun MainScreen(onCheckPermissions: (Context) -> Unit, viewModel: MainViewModel =
             AppSettingScreen(navController)
         }
         composable("goal_setting") {
-            val isSettingComplete: () -> Unit = { SetupFlag.saveSetupComplete(context)}
+            val isSettingComplete: () -> Unit = {SetupFlag.saveSetupComplete(context)}
             GoalSettingScreen(navController, isSettingComplete)
         }
         composable("bot_nav_bar") {
-            BotNavBar(onCheckPermissions)
+            send2Network(null)
+            BotNavBar(onCheckPermissions, send2Network, scope.launch {viewModel.clearDatabase()})
         }
     }
 }
+
 
 

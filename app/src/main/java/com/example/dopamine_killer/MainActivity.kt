@@ -46,10 +46,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             MainScreen({ context ->
                 permissionChecker.checkAndRequestPermissions(context)
+            },{ _ ->
+                send2Server()
             })
         }
-        if (mode == AppOpsManager.MODE_ALLOWED) {
-            lifecycle.addObserver(MainActivityLifecycleObserver())
+    }
+
+    private fun send2Server(){
+        if (mode == AppOpsManager.MODE_ALLOWED && token != null) {
+            postServerWorkManagerChain()
         }
     }
 
@@ -90,6 +95,10 @@ class MainActivity : ComponentActivity() {
             .setInputData(workDataOf("TASK_TYPE" to "POST_NETWORK_WEEKLY"))
             .build()
 
+        val postNetworkMonthlyRequest = OneTimeWorkRequestBuilder<CoreWorker>()
+            .setInputData(workDataOf("TASK_TYPE" to "POST_NETWORK_MONTHLY"))
+            .build()
+
         val postNetworkGoalRequest = OneTimeWorkRequestBuilder<CoreWorker>()
             .setInputData(workDataOf("TASK_TYPE" to "POST_NETWORK_GOAL"))
             .build()
@@ -104,18 +113,7 @@ class MainActivity : ComponentActivity() {
             .then(postNetworkDailyRequest)
             .then(postNetworkWeeklyRequest)
             .then(postNetworkGoalRequest)
+            .then(postNetworkMonthlyRequest)
             .enqueue()
     }
-
-    inner class MainActivityLifecycleObserver : DefaultLifecycleObserver {
-        override fun onStart(owner: LifecycleOwner) {
-            super.onStart(owner)
-            Log.d("MainActivity", "App moved to foreground")
-            startWorkManagerChain()
-            if (token != null) {
-                postServerWorkManagerChain()
-            }
-        }
-    }
-
 }

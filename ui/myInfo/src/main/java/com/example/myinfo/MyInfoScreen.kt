@@ -32,6 +32,7 @@ import com.example.local.R
 import com.example.local.user.UserTokenStore
 import com.example.myinfo.api.LoginApiService
 import com.example.myinfo.setup.SetupFlag
+import kotlinx.coroutines.Job
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -64,6 +65,7 @@ fun IconImage2(
 fun MyInfoScreen(
     navController: NavController,
     onCheckPermissions: (Context) -> Unit,
+    clearDatabase: Job,
     viewModel: MyInfoViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
@@ -107,7 +109,7 @@ fun MyInfoScreen(
 
         Spacer(modifier = Modifier.height(16.dp)) // 텍스트와 메뉴 항목 사이 간격 추가
 
-        settingsContent(uiState, navController, viewModel, onCheckPermissions)
+        settingsContent(uiState, navController, viewModel, onCheckPermissions, clearDatabase)
     }
     // Back button handler
     BackHandler {
@@ -122,7 +124,8 @@ fun settingsContent(
     uiState: MyInfoUiState,
     navController: NavController,
     viewModel: MyInfoViewModel,
-    onCheckPermissions: (Context) -> Unit
+    onCheckPermissions: (Context) -> Unit,
+    clearDatabase: Job
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val totalWidth = screenWidth * 0.85f
@@ -133,7 +136,7 @@ fun settingsContent(
             .background(color = backgroundColor),
         contentAlignment = Alignment.Center
     ) {
-        Settings(modifier = Modifier, totalWidth = totalWidth, navController, viewModel, onCheckPermissions)
+        Settings(modifier = Modifier, totalWidth = totalWidth, navController, viewModel, onCheckPermissions, clearDatabase)
     }
 }
 
@@ -143,7 +146,8 @@ fun Settings(
     totalWidth: Dp,
     navController: NavController,
     viewModel: MyInfoViewModel,
-    onCheckPermissions: (Context) -> Unit
+    onCheckPermissions: (Context) -> Unit,
+    clearDatabase: Job
 ) {
     val context = LocalContext.current
 
@@ -201,6 +205,7 @@ fun Settings(
                             UserTokenStore.clearToken(context)
                             UserTokenStore.clearUserId(context)
                             SetupFlag.resetSetup(context)
+                            clearDatabase
                             popUpTo(0) {
                                 inclusive = true
                             }

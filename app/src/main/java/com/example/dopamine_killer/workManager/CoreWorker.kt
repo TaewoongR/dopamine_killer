@@ -61,6 +61,10 @@ class CoreWorker @AssistedInject constructor(
                         Log.d(TAG, "Posting network weekly")
                         coreDomain.postNetworkWeekly(applicationContext)
                     }
+                    "POST_NETWORK_MONTHLY" -> {
+                        Log.d(TAG, "Posting network monthly")
+                        coreDomain.postNetworkMonthly(applicationContext)
+                    }
                     "POST_NETWORK_GOAL" -> {
                         Log.d(TAG, "Posting network Goal")
                         coreDomain.postGoal(applicationContext)
