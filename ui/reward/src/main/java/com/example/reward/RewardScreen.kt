@@ -97,9 +97,6 @@ fun RewardScreen(
     }
 }
 
-
-
-
 @Composable
 fun rewardContent(uiState: List<RewardUiState>, viewModel: RewardViewModel) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
@@ -124,7 +121,6 @@ fun rewardContent(uiState: List<RewardUiState>, viewModel: RewardViewModel) {
     }
 }
 
-
 @Composable
 fun CustomTabBar(totalWidth: Dp, individualWidth: Dp, uiState: List<RewardUiState>, viewModel: RewardViewModel) {
     val tabs = listOf("취득한 배지", "미취득한 배지")
@@ -132,14 +128,16 @@ fun CustomTabBar(totalWidth: Dp, individualWidth: Dp, uiState: List<RewardUiStat
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         // 커스텀 탭바
-        Row(modifier = Modifier
-            .offset(y = totalWidth * 0.08f)
-            .background(Color.LightGray, RoundedCornerShape(12.dp))
-            .height(totalWidth * 0.12f)
-            .width(totalWidth * 0.8f)
-            .padding(totalWidth * 0.01f)
-            .horizontalScroll(rememberScrollState()),
-            verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier
+                .offset(y = totalWidth * 0.08f)
+                .background(Color.LightGray, RoundedCornerShape(12.dp))
+                .height(totalWidth * 0.12f)
+                .width(totalWidth * 0.8f)
+                .padding(totalWidth * 0.01f)
+                .horizontalScroll(rememberScrollState()),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             tabs.forEachIndexed { index, title ->
                 // 각 탭 정의
                 TabItem(totalWidth = totalWidth, title = title, selected = index == selectedTabIndex) {
@@ -157,18 +155,25 @@ fun CustomTabBar(totalWidth: Dp, individualWidth: Dp, uiState: List<RewardUiStat
 
 @Composable
 fun TabItem(totalWidth: Dp, title: String, selected: Boolean, onSelect: () -> Unit) {
-    Column(modifier = Modifier
-        .clickable(onClick = onSelect),
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(modifier = Modifier
-            .width(totalWidth * 0.39f)
-            .fillMaxHeight()
-            .background(
-                color = if (selected) Color.White else Color.LightGray,
-                RoundedCornerShape(12.dp)
-            ),
-            contentAlignment = Alignment.Center){
-            Text(text = title, color = if (selected) Color.Black else Color.White, fontSize = 15.sp)
+    Column(
+        modifier = Modifier.clickable(onClick = onSelect),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .width(totalWidth * 0.39f)
+                .fillMaxHeight()
+                .background(
+                    color = if (selected) Color.White else Color.LightGray,
+                    RoundedCornerShape(12.dp)
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = title,
+                color = if (selected) Color.Black else Color.White,
+                fontSize = 15.sp
+            )
         }
     }
 }
@@ -192,7 +197,7 @@ fun EarnedBadgesTab(totalWidth: Dp, individualWidth: Dp, uiState: List<RewardUiS
             Spacer(modifier = Modifier.height(individualWidth * 0.04f))
         }
 
-        items(uiState.size){
+        items(uiState.size) {
             EarnedBadges(
                 imageUrl = uiState[it].imageUrl,
                 bname = uiState[it].name,
@@ -229,7 +234,7 @@ fun UnearnedBadgesTab(totalWidth: Dp, individualWidth: Dp) {
             Spacer(modifier = Modifier.height(individualWidth * 0.04f))
         }
 
-        items(7) {
+        items(6) {
             UnearnedBadges(
                 imageResId = R.drawable.lockedbadge, // 수정된 부분
                 bname = "???",
@@ -247,8 +252,6 @@ fun UnearnedBadgesTab(totalWidth: Dp, individualWidth: Dp) {
     }
 }
 
-
-
 @Composable
 fun EarnedBadges(imageUrl: String, bname: String, bdescription: String, individualWidth: Dp) {
     Box(
@@ -258,7 +261,10 @@ fun EarnedBadges(imageUrl: String, bname: String, bdescription: String, individu
             .border(2.dp, Color.LightGray, RoundedCornerShape(16.dp)),
         contentAlignment = Alignment.TopCenter
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(horizontal = 8.dp) // 좌우 패딩 추가
+        ) {
             Spacer(modifier = Modifier.height(individualWidth * 0.1f))
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
@@ -272,13 +278,20 @@ fun EarnedBadges(imageUrl: String, bname: String, bdescription: String, individu
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.height(individualWidth * 0.1f))
-            Text(text = bname, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+            Text(
+                text = bname,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold
+            )
             Spacer(modifier = Modifier.height(individualWidth * 0.06f))
-            Text(text = bdescription, fontSize = 12.sp, textAlign = TextAlign.Center)
+            Text(
+                text = bdescription,
+                fontSize = 12.sp,
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
-
 
 @Composable
 fun UnearnedBadges(imageResId: Int, bname: String, bdescription: String, individualWidth: Dp) {
@@ -289,7 +302,10 @@ fun UnearnedBadges(imageResId: Int, bname: String, bdescription: String, individ
             .border(2.dp, Color.LightGray, RoundedCornerShape(16.dp)),
         contentAlignment = Alignment.TopCenter
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(horizontal = 8.dp) // 좌우 패딩 추가
+        ) {
             Spacer(modifier = Modifier.height(individualWidth * 0.1f))
             Image(
                 painter = painterResource(id = imageResId), // 리소스 ID를 사용하여 이미지 설정
@@ -301,9 +317,17 @@ fun UnearnedBadges(imageResId: Int, bname: String, bdescription: String, individ
                 colorFilter = ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
             )
             Spacer(modifier = Modifier.height(individualWidth * 0.1f))
-            Text(text = bname, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+            Text(
+                text = bname,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold
+            )
             Spacer(modifier = Modifier.height(individualWidth * 0.06f))
-            Text(text = bdescription, fontSize = 12.sp, textAlign = TextAlign.Center)
+            Text(
+                text = bdescription,
+                fontSize = 12.sp,
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
