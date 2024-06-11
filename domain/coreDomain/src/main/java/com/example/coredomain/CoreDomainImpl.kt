@@ -1,6 +1,7 @@
 package com.example.coredomain
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import com.example.local.R
 import com.example.repository.DailyRepository
@@ -39,6 +40,41 @@ class CoreDomainImpl @Inject constructor(
             withContext(Dispatchers.IO) {
                 monthlyRepository.initialMonthlyUpdate(appNameList)}
             }
+    }
+
+    override suspend fun loginUpdate(token: String,username: String){
+        Log.d("core domain", "saving hourly usage from Server")
+
+        withContext(Dispatchers.IO){
+            networkRepository.getHourly(token,username).forEach {
+                dailyRepository.saveHourlyUsage(it)
+            }
+        }
+        withContext(Dispatchers.IO){
+            networkRepository.getDaily(token,username).forEach {
+                dailyRepository.saveDailyUsage(it)
+            }
+        }
+        withContext(Dispatchers.IO){
+            networkRepository.getWeekly(token,username).forEach {
+                weeklyRepository.saveWeeklyUsage(it)
+            }
+        }
+        withContext(Dispatchers.IO){
+            networkRepository.getMonthly(token,username).forEach {
+                monthlyRepository.saveMonthlyUsage(it)
+            }
+        }
+        withContext(Dispatchers.IO){
+            networkRepository.getRecord(token,username).forEach {
+                goalRepository.saveRecord(it)
+            }
+        }
+        withContext(Dispatchers.IO){
+            networkRepository.getSelected(token, username).forEach {
+                selectedAppRepository.saveSelected(it)
+            }
+        }
     }
 
     override suspend fun updateInitialSelectedApp(appNameList: List<String>) {
@@ -215,22 +251,26 @@ class CoreDomainImpl @Inject constructor(
     }
 
     override suspend fun postNetworkHourly(context: Context) {
-        networkRepository.updateEntireNetworkHourly(context)
+        networkRepository.postHourly(context)
     }
 
     override suspend fun postNetworkDaily(context: Context) {
-        networkRepository.updateEntireNetworkDaily(context)
+        networkRepository.postDaily(context)
     }
 
     override suspend fun postNetworkWeekly(context: Context) {
-        networkRepository.updateEntireNetworkWeekly(context)
+        networkRepository.postWeekly(context)
     }
 
     override suspend fun postNetworkMonthly(context: Context){
-        networkRepository.updateEntireNetworkMonthly(context)
+        networkRepository.postMonthly(context)
     }
 
     override suspend fun postGoal(context: Context){
         networkRepository.postGoal(context)
+    }
+
+    override suspend fun postSelected(context: Context){
+        networkRepository.postSelected(context)
     }
 }

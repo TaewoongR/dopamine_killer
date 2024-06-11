@@ -18,6 +18,9 @@ interface SelectedAppDAO {
     @Query("SELECT * FROM selected_app WHERE appName = :appName")
     fun getEntity(appName: String): SelectedAppEntity
 
+    @Query("SELECT * FROM selected_app")
+    fun getAll(): List<SelectedAppEntity>
+
     @Upsert
     fun upsert(selectedAppEntity: SelectedAppEntity)
 

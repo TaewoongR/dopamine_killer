@@ -2,6 +2,7 @@ package com.example.navigation
 
 import android.app.AppOpsManager
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -24,7 +25,7 @@ import com.example.myinfo.setup.SetupFlag
 import kotlinx.coroutines.launch
 
 @Composable
-fun MainScreen(onCheckPermissions: (Context) -> Unit, send2Network: (Any?) -> Unit, viewModel: MainViewModel = hiltViewModel()) {
+fun MainScreen(onCheckPermissions: (Context) -> Unit, send2Network: (Any?) -> Unit, startForegroundService: (Any?) -> Unit, stopForegroundService: (Any?) -> Unit, viewModel: MainViewModel = hiltViewModel()) {
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
     val context = LocalContext.current
@@ -53,6 +54,18 @@ fun MainScreen(onCheckPermissions: (Context) -> Unit, send2Network: (Any?) -> Un
         }
     }
 
+    val clearDatabase: () -> Unit = {
+        scope.launch { viewModel.clearDatabase() }
+    }
+
+    val loginUpdate: (String, String) -> Unit = {it1, it2 ->
+        scope.launch { viewModel.loginUpdate(it1, it2) }
+    }
+
+    val initialUpdate: () -> Unit = {
+        scope.launch{viewModel.initialUpdate()}
+    }
+
     NavHost(navController = navController, startDestination = startDestination) {
         composable("placeholder_start"){
             // LaunchedEffect를 사용하여 토큰 상태를 다시 확인하고 적절한 화면으로 네비게이션
@@ -75,7 +88,7 @@ fun MainScreen(onCheckPermissions: (Context) -> Unit, send2Network: (Any?) -> Un
                     }
                 }
             }
-            LoginScreen(navController, navigateToScreen)
+            LoginScreen(navController, navigateToScreen, loginUpdate, initialUpdate)
         }
         composable("signup_route"){
             SignUpScreen(navController)
@@ -84,13 +97,11 @@ fun MainScreen(onCheckPermissions: (Context) -> Unit, send2Network: (Any?) -> Un
             hasPermission.value = (mode == AppOpsManager.MODE_ALLOWED)
             if (hasPermission.value) {
                 AppSettingScreen(navController)
-            } else
+            } else {
                 PermissionScreen(navController)
+            }
         }
         composable("app_setting") {
-            LaunchedEffect(Unit) {
-                scope.launch{viewModel.initialUpdate()}
-            }
             AppSettingScreen(navController)
         }
         composable("goal_setting") {
@@ -98,11 +109,7 @@ fun MainScreen(onCheckPermissions: (Context) -> Unit, send2Network: (Any?) -> Un
             GoalSettingScreen(navController, isSettingComplete)
         }
         composable("bot_nav_bar") {
-            send2Network(null)
-            BotNavBar(onCheckPermissions, send2Network, scope.launch {viewModel.clearDatabase()})
+            BotNavBar(onCheckPermissions, send2Network, clearDatabase, startForegroundService, stopForegroundService)
         }
     }
 }
-
-
-

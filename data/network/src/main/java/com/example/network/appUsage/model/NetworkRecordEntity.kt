@@ -5,6 +5,7 @@ import com.example.local.record.RecordEntity
 import com.example.local.user.UserTokenStore
 
 data class NetworkRecordEntity(
+    val id: Long = 0L,
     val userName: String,
     val appName: String,
     val date: String,
@@ -22,5 +23,10 @@ fun RecordEntity.asNetworkRecordEntity(context: Context) = NetworkRecordEntity(
     onGoing = if(onGoing) 1 else 0
 )
 
-
-
+fun NetworkRecordEntity.asRecordEntity() = RecordEntity(
+    appName = appName,
+    date = date,
+    goalTime = goalTime,
+    howLong = howLong,
+    onGoing = onGoing == 1
+)

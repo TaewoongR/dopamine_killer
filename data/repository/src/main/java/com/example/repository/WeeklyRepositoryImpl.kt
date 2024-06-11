@@ -64,4 +64,8 @@ class WeeklyRepositoryImpl @Inject constructor(
     override suspend fun deleteWeekly() {
         weeklySource.clearAll()
     }
+
+    override suspend fun saveWeeklyUsage(weeklyEntity: WeeklyEntity) {
+        weeklySource.upsert(weeklyEntity)
+    }
 }

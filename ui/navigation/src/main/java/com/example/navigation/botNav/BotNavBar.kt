@@ -39,7 +39,9 @@ val keyColor: Color = Color(android.graphics.Color.parseColor("#FF9A62"))
 fun BotNavBar(
     onCheckPermissions: (Context) -> Unit,
     send2Network: (Any?) -> Unit,
-    clearDatabase: Job
+    clearDatabase: () -> Unit,
+    startForegroundService: (Any?) -> Unit,
+    stopForegroundService: (Any?) -> Unit
 ) {
     var navigationSelectedItem by remember { mutableIntStateOf(2) }
     val navController = rememberNavController()
@@ -56,6 +58,7 @@ fun BotNavBar(
             }
         }
     }
+    startForegroundService(null)
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -120,10 +123,10 @@ fun BotNavBar(
                 AnalysisScreen(navController)
             }
             composable(Screens.MyInfo.route) {
-                MyInfoScreen(navController, onCheckPermissions, clearDatabase)
+                MyInfoScreen(navController, onCheckPermissions, clearDatabase, stopForegroundService)
             }
             composable("main_screen"){
-                MainScreen(onCheckPermissions, send2Network)
+                MainScreen(onCheckPermissions, send2Network, startForegroundService, stopForegroundService)
             }
             composable("selected_app_edit"){
                 SelectedAppEditScreen(navController)

@@ -29,4 +29,6 @@ interface CoreDomain {
 
 
     suspend fun postNetworkMonthly(context: Context)
+    suspend fun postSelected(context: Context)
+    suspend fun loginUpdate(token: String,username: String)
 }

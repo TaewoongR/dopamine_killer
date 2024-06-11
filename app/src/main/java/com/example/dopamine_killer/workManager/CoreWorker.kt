@@ -69,6 +69,10 @@ class CoreWorker @AssistedInject constructor(
                         Log.d(TAG, "Posting network Goal")
                         coreDomain.postGoal(applicationContext)
                     }
+                    "POST_NETWORK_SELECTED" -> {
+                        Log.d(TAG, "Posting network Selected")
+                        coreDomain.postSelected(applicationContext)
+                    }
                     else -> {
                         Log.d(TAG, "Executing default task")
                         defaultTask()
@@ -85,6 +89,5 @@ class CoreWorker @AssistedInject constructor(
 
     private fun defaultTask() {
         Log.d(TAG, "Executing default task logic")
-        // 기본 작업 수행
     }
 }

@@ -1,7 +1,9 @@
 package com.example.repository
 
+import android.util.Log
 import com.example.local.record.RecordDAO
 import com.example.local.record.RecordEntity
+import com.example.local.weeklyUsage.WeeklyEntity
 import com.example.service.AppFetchingInfo
 import com.example.service.DateFactoryForData
 import kotlinx.coroutines.Dispatchers
@@ -52,5 +54,10 @@ class GoalRepositoryImpl @Inject constructor(
 
     override suspend fun deleteGoal() {
         recordDao.clearAll()
+    }
+
+    override suspend fun saveRecord(recordEntity: RecordEntity) {
+        recordDao.upsert(recordEntity)
+        Log.d("save record", "save record")
     }
 }

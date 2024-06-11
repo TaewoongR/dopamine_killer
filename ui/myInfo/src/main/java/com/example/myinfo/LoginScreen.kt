@@ -63,12 +63,12 @@ import retrofit2.Response
 import javax.inject.Inject
 
 @Composable
-fun LoginScreen(navController: NavController, navigateToMainScreen: () -> Unit) {
-    loginContent(navController, navigateToMainScreen)
+fun LoginScreen(navController: NavController, navigateToMainScreen: () -> Unit, loginUpdate: (String, String) -> Unit, initialUpdate: () -> Unit) {
+    loginContent(navController, navigateToMainScreen, loginUpdate, initialUpdate)
 }
 
 @Composable
-fun loginContent(navController: NavController, navigateToMainScreen: () -> Unit) {
+fun loginContent(navController: NavController, navigateToMainScreen: () -> Unit, loginUpdate: (String, String) -> Unit, initialUpdate: () -> Unit) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -169,7 +169,7 @@ fun loginContent(navController: NavController, navigateToMainScreen: () -> Unit)
                 }
             )
             Spacer(modifier = Modifier.height(0.dp)) // 간격 조정
-            loginButton(totalWidth = totalWidth, username, password, navController, navigateToMainScreen)
+            loginButton(totalWidth = totalWidth, username, password, navController, navigateToMainScreen, loginUpdate, initialUpdate)
             Spacer(modifier = Modifier.height(16.dp)) // 간격 조정
             Text(
                 text = "비밀번호 찾기",
@@ -235,8 +235,10 @@ fun IconImage(
 }
 
 @Composable
-fun loginButton(totalWidth: Dp, username: String, password: String, navController: NavController, navigateToMainScreen: () -> Unit) {
+fun loginButton(totalWidth: Dp, username: String, password: String, navController: NavController, navigateToMainScreen: () -> Unit, loginUpdate: (String, String) -> Unit, initialUpdate: () -> Unit) {
     var isLoading by remember { mutableStateOf(false) }
+    var isLoading2 by remember { mutableStateOf(false) }
+    var navigateToMain by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
 
@@ -268,10 +270,13 @@ fun loginButton(totalWidth: Dp, username: String, password: String, navControlle
                                             Log.d("LoginScreen", "Login success with token: $token")
                                             if (response.body()?.get("initialSet") == "true") {
                                                 SetupFlag.saveSetupComplete(context)
+                                                loginUpdate(token, username)
+                                                Log.d("LoginScreen", "login update operating")
+                                            }else{
+                                                initialUpdate()
                                             }
                                             UserTokenStore.saveToken(context, token)
                                             UserTokenStore.saveUserId(context, username)
-
                                             navigateToMainScreen()
                                         } ?: run {
                                         errorMessage = "로그인 실패: 토큰이 반환되지 않았습니다."
@@ -312,4 +317,5 @@ fun loginButton(totalWidth: Dp, username: String, password: String, navControlle
             Text(it, color = MaterialTheme.colorScheme.error)
         }
     }
+
 }

@@ -2,6 +2,7 @@ package com.example.repository
 
 import com.example.local.monthlyUsage.MonthlyDAO
 import com.example.local.monthlyUsage.MonthlyEntity
+import com.example.local.weeklyUsage.WeeklyEntity
 import com.example.service.AppFetchingInfo
 import com.example.service.DateFactoryForData
 import kotlinx.coroutines.Dispatchers
@@ -72,5 +73,9 @@ class MonthlyRepositoryImpl @Inject constructor(
 
     override suspend fun deleteMonthly() {
         monthlySource.clearAll()
+    }
+
+    override suspend fun saveMonthlyUsage(monthlyEntity: MonthlyEntity) {
+        monthlySource.upsert(monthlyEntity)
     }
 }

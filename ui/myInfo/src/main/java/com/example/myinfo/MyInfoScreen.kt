@@ -65,7 +65,8 @@ fun IconImage2(
 fun MyInfoScreen(
     navController: NavController,
     onCheckPermissions: (Context) -> Unit,
-    clearDatabase: Job,
+    clearDatabase: () -> Unit,
+    stopForegroundService: (Any?) -> Unit,
     viewModel: MyInfoViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
@@ -109,7 +110,7 @@ fun MyInfoScreen(
 
         Spacer(modifier = Modifier.height(60.dp)) // 텍스트와 메뉴 항목 사이 간격 추가
 
-        settingsContent(uiState, navController, viewModel, onCheckPermissions, clearDatabase)
+        settingsContent(uiState, navController, viewModel, onCheckPermissions, clearDatabase, stopForegroundService)
     }
     // Back button handler
     BackHandler {
@@ -125,7 +126,8 @@ fun settingsContent(
     navController: NavController,
     viewModel: MyInfoViewModel,
     onCheckPermissions: (Context) -> Unit,
-    clearDatabase: Job
+    clearDatabase: () -> Unit,
+    stopForegroundService: (Any?) -> Unit
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val totalWidth = screenWidth * 0.85f
@@ -136,7 +138,7 @@ fun settingsContent(
             .background(color = backgroundColor),
         contentAlignment = Alignment.TopCenter
     ) {
-        Settings(modifier = Modifier, totalWidth = totalWidth, navController, viewModel, onCheckPermissions, clearDatabase)
+        Settings(modifier = Modifier, totalWidth = totalWidth, navController, viewModel, onCheckPermissions, clearDatabase, stopForegroundService)
     }
 }
 
@@ -147,7 +149,8 @@ fun Settings(
     navController: NavController,
     viewModel: MyInfoViewModel,
     onCheckPermissions: (Context) -> Unit,
-    clearDatabase: Job
+    clearDatabase: () -> Unit,
+    stopForegroundService: (Any?) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -205,7 +208,7 @@ fun Settings(
                             UserTokenStore.clearToken(context)
                             UserTokenStore.clearUserId(context)
                             SetupFlag.resetSetup(context)
-                            clearDatabase
+                            clearDatabase()
                             popUpTo(0) {
                                 inclusive = true
                             }
@@ -242,6 +245,8 @@ fun Settings(
                                             navController.navigate("main_screen") {
                                                 UserTokenStore.clearToken(context)
                                                 UserTokenStore.clearUserId(context)
+                                                SetupFlag.resetSetup(context)
+                                                stopForegroundService(null)
                                                 popUpTo(0) { inclusive = true }
                                                 launchSingleTop = true
                                             }

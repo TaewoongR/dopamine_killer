@@ -16,4 +16,5 @@ interface GoalRepository {
     suspend fun getAllList():List<RecordEntity>
 
     suspend fun deleteGoal()
+    suspend fun saveRecord(recordEntity: RecordEntity)
 }

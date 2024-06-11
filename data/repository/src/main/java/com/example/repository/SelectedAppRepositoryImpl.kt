@@ -1,5 +1,6 @@
 package com.example.repository
 
+import com.example.local.record.RecordEntity
 import com.example.local.selectedApp.SelectedAppDAO
 import com.example.local.selectedApp.SelectedAppEntity
 import com.example.service.AppFetchingInfo
@@ -96,5 +97,9 @@ class SelectedAppRepositoryImpl @Inject constructor(
 
     override suspend fun deleteSelected() {
         selectedAppDAO.clearAll()
+    }
+
+    override suspend fun saveSelected(selectedAppEntity: SelectedAppEntity) {
+        selectedAppDAO.upsert(selectedAppEntity)
     }
 }

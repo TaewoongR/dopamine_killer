@@ -43,6 +43,10 @@ class MainViewModel @Inject constructor(
          withContext(Dispatchers.IO) {coreDomain.initialUpdate(appNameList)}
     }
 
+    suspend fun loginUpdate(token: String,username: String){
+        withContext(Dispatchers.IO) {coreDomain.loginUpdate(token, username)}
+    }
+
 
     suspend fun clearDatabase(){
         withContext(Dispatchers.IO){coreDomain.clearAllDatabase()}

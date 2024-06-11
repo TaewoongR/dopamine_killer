@@ -13,6 +13,7 @@ import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import com.example.coredomain.CoreDomain
 import com.example.dopamine_killer.R
+import com.example.local.user.UserTokenStore
 import com.example.service.AppFetchingInfo
 import com.example.service.DateFactoryForData
 import dagger.hilt.android.AndroidEntryPoint
@@ -87,19 +88,20 @@ class ForegroundService : Service() {
         val notification = createNotification("도파민 킬러 대기중")
         startForeground(1, notification)        // foregroundService를 실행하기 위한 필수적 실행 함수
         foregroundAppChecker = ForegroundAppChecker(this)
+        if(UserTokenStore.getToken(this) != null) {
+            mainHandler.post(hourlyUpdateRunnable)
+            mainHandler.post(weeklyUpdateRunnable)
 
-        mainHandler.post(hourlyUpdateRunnable)
-        mainHandler.post(weeklyUpdateRunnable)
+            // ScreenStateReceiver 초기화 및 등록
+            screenStateReceiver = ScreenStateReceiver(
+                onScreenOn = { mainHandler.post(hourlyUpdateRunnable) },
+                onScreenOff = { mainHandler.removeCallbacks(hourlyUpdateRunnable) }
+            )
+            screenStateReceiver.register(this)
 
-        // ScreenStateReceiver 초기화 및 등록
-        screenStateReceiver = ScreenStateReceiver(
-            onScreenOn = { mainHandler.post(hourlyUpdateRunnable) },
-            onScreenOff = { mainHandler.removeCallbacks(hourlyUpdateRunnable) }
-        )
-        screenStateReceiver.register(this)
-
-        // CustomPopupView 초기화
-        customPopupView = CustomPopupView(this)
+            // CustomPopupView 초기화
+            customPopupView = CustomPopupView(this)
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

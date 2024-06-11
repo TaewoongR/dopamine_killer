@@ -353,4 +353,12 @@ class DailyRepositoryImpl @Inject constructor(
             0
         }
     }
+
+    override suspend fun saveHourlyUsage(hourlyEntity: HourlyEntity){
+        hourlySource.upsert(hourlyEntity)
+    }
+
+    override suspend fun saveDailyUsage(dailyEntity: DailyEntity){
+        dailySource.upsert(dailyEntity)
+    }
 }

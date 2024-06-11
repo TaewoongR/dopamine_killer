@@ -5,6 +5,7 @@ import com.example.network.appUsage.model.NetworkDailyEntity
 import com.example.network.appUsage.model.NetworkHourlyEntity
 import com.example.network.appUsage.model.NetworkMonthlyEntity
 import com.example.network.appUsage.model.NetworkRecordEntity
+import com.example.network.appUsage.model.NetworkSelectedEntity
 import com.example.network.appUsage.model.NetworkWeeklyEntity
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -32,6 +33,9 @@ interface RetrofitNetworkApi {
     @POST(value = "/goal/post")
     fun postRecord(@Body networkRecordEntity: NetworkRecordEntity): Call<String>
 
+    @POST(value = "/selectedapp/post")
+    fun postSelected(@Body networkSelectedEntity: NetworkSelectedEntity): Call<String>
+
     @GET(value = "/api/badges/{username}")
     suspend fun getBadges(@Path("username") username: String): List<BadgeResponse>
 
@@ -40,6 +44,24 @@ interface RetrofitNetworkApi {
 
     @GET(value ="/flask-api/app")
     suspend fun getFlaskResponseApp(@Header("Authorization") token: String): Response<ResponseBody>
+
+    @GET(value = "/apptime/get/{username}")
+    suspend fun getHourly(@Header("Authorization") token: String, @Path("username") username: String): List<NetworkHourlyEntity>
+
+    @GET(value = "/dailyusage/get/{username}")
+    suspend fun getDaily(@Header("Authorization") token: String, @Path("username") username: String): List<NetworkDailyEntity>
+
+    @GET(value = "/weeklyusage/get/{username}")
+    suspend fun getWeekly(@Header("Authorization") token: String, @Path("username") username: String): List<NetworkWeeklyEntity>
+
+    @GET(value = "/monthlyusage/get/{username}")
+    suspend fun getMonthly(@Header("Authorization") token: String, @Path("username") username: String): List<NetworkMonthlyEntity>
+
+    @GET(value = "/goal/get/{username}")
+    suspend fun getGoal(@Header("Authorization") token: String, @Path("username") username: String): List<NetworkRecordEntity>
+
+    @GET(value = "/selectedapp/get/{username}")
+    suspend fun getSelected(@Header("Authorization") token: String, @Path("username") username: String): List<NetworkSelectedEntity>
 
     @DELETE(value = "/apptime/delete/{username}")
     fun deleteAppTime(@Header("Authorization") token: String, @Path("username") username: String): Call<String>
@@ -58,17 +80,4 @@ interface RetrofitNetworkApi {
 
     @DELETE(value = "/selectedapp/delete/{username}")
     fun deleteSelectedApp(@Header("Authorization") token: String, @Path("username") username: String): Call<String>
-
-
-    @GET(value = "/apptime/get/{username}")
-    suspend fun getHourly(@Header("Authorization") token: String): Response<ResponseBody>
-
-    @GET(value = "/dailyusage/get/{username}")
-    suspend fun getDaily(@Header("Authorization") token: String): Response<ResponseBody>
-
-    @GET(value = "/weeklyusage/get/{username}")
-    suspend fun getWeekly(@Header("Authorization") token: String): Response<ResponseBody>
-
-    @GET(value = "/monthlyusage/get/{username}")
-    suspend fun getMonthly(@Header("Authorization") token: String): Response<ResponseBody>
 }

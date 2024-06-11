@@ -2,6 +2,8 @@ package com.example.dopamine_killer
 
 import android.app.AppOpsManager
 import android.content.Context
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -13,6 +15,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.example.coredomain.CoreDomain
+import com.example.dopamine_killer.foregroundService.ForegroundService
 import com.example.dopamine_killer.permission.PermissionUtils
 import com.example.dopamine_killer.workManager.CoreWorker
 import com.example.local.user.UserTokenStore
@@ -34,7 +37,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // onCreate 내에서 시스템 서비스와 토큰을 초기화합니다.
+        //onCreate 내에서 시스템 서비스와 토큰을 초기화
         appOps = getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
         mode = appOps.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), packageName)
         token = try {
@@ -43,41 +46,41 @@ class MainActivity : ComponentActivity() {
             null
         }
 
+        if(UserTokenStore.getToken(this) != null){
+            send2Server()
+        }
+
         setContent {
             MainScreen({ context ->
                 permissionChecker.checkAndRequestPermissions(context)
             },{ _ ->
                 send2Server()
+            },{_ ->
+                startForegroundService()
+            },{_ ->
+                stopForegroundService()
             })
         }
+    }
+
+    private fun startForegroundService() {
+        val serviceIntent = Intent(this, ForegroundService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent)
+        } else {
+            startService(serviceIntent)
+        }
+    }
+
+    private fun stopForegroundService() {
+        val serviceIntent = Intent(this, ForegroundService::class.java)
+        stopService(serviceIntent)
     }
 
     private fun send2Server(){
         if (mode == AppOpsManager.MODE_ALLOWED && token != null) {
             postServerWorkManagerChain()
         }
-    }
-
-    private fun startWorkManagerChain() {
-        val workManager = WorkManager.getInstance(this)
-
-        val updateInstalledAppRequest = OneTimeWorkRequestBuilder<CoreWorker>()
-            .setInputData(workDataOf("TASK_TYPE" to "UPDATE_INSTALLED_APP"))
-            .build()
-
-        val updateAccessGoalRequest = OneTimeWorkRequestBuilder<CoreWorker>()
-            .setInputData(workDataOf("TASK_TYPE" to "UPDATE_ACCESS_GOAL"))
-            .build()
-
-        // WorkManager 작업 체인 설정
-        workManager
-            .beginUniqueWork(
-                "CheckAppOnDevice",
-                ExistingWorkPolicy.REPLACE,
-                updateInstalledAppRequest
-            )
-            .then(updateAccessGoalRequest)
-            .enqueue()
     }
 
     private fun postServerWorkManagerChain() {
@@ -103,6 +106,10 @@ class MainActivity : ComponentActivity() {
             .setInputData(workDataOf("TASK_TYPE" to "POST_NETWORK_GOAL"))
             .build()
 
+        val postNetworkSelectedRequest = OneTimeWorkRequestBuilder<CoreWorker>()
+            .setInputData(workDataOf("TASK_TYPE" to "POST_NETWORK_SELECTED"))
+            .build()
+
         // WorkManager 작업 체인 설정
         workManager
             .beginUniqueWork(
@@ -114,6 +121,7 @@ class MainActivity : ComponentActivity() {
             .then(postNetworkWeeklyRequest)
             .then(postNetworkGoalRequest)
             .then(postNetworkMonthlyRequest)
+            .then(postNetworkSelectedRequest)
             .enqueue()
     }
 }

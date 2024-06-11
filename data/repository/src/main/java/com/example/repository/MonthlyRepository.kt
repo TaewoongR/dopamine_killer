@@ -1,5 +1,7 @@
 package com.example.repository
 
+import com.example.local.monthlyUsage.MonthlyEntity
+
 interface MonthlyRepository {
     suspend fun getMonthlyUsageFrom(appName: String, monthAgo: Int): Pair<Int,String>
     suspend fun updateLastMonthlyUsage(appName: String)
@@ -7,4 +9,5 @@ interface MonthlyRepository {
     suspend fun periodicMonthlyUpdate(appMonthlyList: List<Triple<String, String, Int>>)
     suspend fun deleteUndetected()
     suspend fun deleteMonthly()
+    suspend fun saveMonthlyUsage(monthlyEntity: MonthlyEntity)
 }

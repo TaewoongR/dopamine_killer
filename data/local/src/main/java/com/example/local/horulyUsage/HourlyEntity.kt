@@ -22,4 +22,15 @@ data class HourlyEntity(
             hour16, hour17, hour18, hour19, hour20, hour21, hour22, hour23
         )
     }
+
+    fun getDefaultEntity(appName: String, date: String, dateOfWeek: Int): HourlyEntity{
+        return HourlyEntity(
+            appName = appName,
+            date = date,
+            dayOfWeek = dateOfWeek,
+            hour00, hour01, hour02, hour03, hour04, hour05, hour06, hour07,
+            hour08, hour09, hour10, hour11, hour12, hour13, hour14, hour15,
+            hour16, hour17, hour18, hour19, hour20, hour21, hour22, hour23
+        )
+    }
 }
