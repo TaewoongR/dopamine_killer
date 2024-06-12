@@ -28,7 +28,6 @@ class OverviewViewModel @Inject constructor(
 
     fun loadOverviewData() {
         viewModelScope.launch {
-
             val appAnalysis = coreDomain.getAllSelectedAppUsage()
             if(appAnalysis.isEmpty()){
                 _uiState.value = OverviewUiState(AnalysisData())

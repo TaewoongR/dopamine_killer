@@ -206,7 +206,7 @@ class CoreDomainImpl @Inject constructor(
 
     override suspend fun getAllSelectedAppUsage(): List<FourUsageDomainData> {
         return mutex.withLock {
-            val nameList = withContext(Dispatchers.IO) {selectedAppRepository.getAllSelected()}
+            val nameList = withContext(Dispatchers.IO) {goalRepository.getOnGoingList().map { it.appName }}
             val list = mutableListOf<FourUsageDomainData>()
             nameList.forEach {
                 withContext(Dispatchers.IO) {

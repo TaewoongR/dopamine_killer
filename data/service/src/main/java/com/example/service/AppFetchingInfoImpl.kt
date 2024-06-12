@@ -5,6 +5,7 @@ import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.BitmapDrawable
@@ -12,6 +13,7 @@ import android.graphics.drawable.Drawable
 import android.os.Environment
 import android.os.PowerManager
 import android.util.Log
+import android.widget.ImageView
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -82,10 +84,12 @@ class AppFetchingInfoImpl @Inject constructor(
             val appInfo = packageManager.getApplicationInfo(packageName, 0)
             val drawable = packageManager.getApplicationIcon(appInfo)
             val bitmap = drawableToBitmap(drawable)
-            saveBitmapToExternalStorage(bitmap.asImageBitmap(), "$appName.png")
+            //saveBitmapToExternalStorage(bitmap.asImageBitmap(), "$appName.png")
             bitmap.asImageBitmap()
         } catch (e: Exception) {
-            val bitmap = Bitmap.createBitmap(3, 3, Bitmap.Config.ARGB_8888)
+
+            val resId = context.resources.getIdentifier(getPackageNameBy(appName).replace(".", ""), "drawable", context.packageName)
+            val bitmap = BitmapFactory.decodeResource(context.resources, resId)
             Log.d("AppInfoImpl", "Exception: ${e::class.java.simpleName}, Message: ${e.message}")
             bitmap.asImageBitmap()
         }
@@ -119,6 +123,7 @@ class AppFetchingInfoImpl @Inject constructor(
         }
     }
 
+/*  앱 아이콘 이미지 추출 코드
     private fun saveBitmapToExternalStorage(bitmap: ImageBitmap, fileName: String) {
         val bitmapToSave = bitmap.asAndroidBitmap()
         val appExternalFilesDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
@@ -132,6 +137,8 @@ class AppFetchingInfoImpl @Inject constructor(
             Log.e("AppInfoImpl", "Failed to get external storage directory")
         }
     }
+
+ */
 
     override suspend fun getHourlyUsage(appName: String, numberAgo: Int, isInitialSetting: Boolean): Triple<List<Int>, String, Int> {
         val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
