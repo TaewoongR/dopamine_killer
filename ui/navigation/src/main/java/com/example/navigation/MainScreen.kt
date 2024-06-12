@@ -43,7 +43,7 @@ fun MainScreen(onCheckPermissions: (Context) -> Unit, send2Network: (Any?) -> Un
             navController.navigate("bot_nav_bar") {
                 popUpTo(0) { inclusive = true }
             }
-        }else if(currentToken != null && !SetupFlag.isSetupComplete(context)){
+        }else if(currentToken != null && mode != AppOpsManager.MODE_ALLOWED){
             navController.navigate("permission_screen"){
                 popUpTo(0) { inclusive = true }
             }

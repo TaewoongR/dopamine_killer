@@ -29,14 +29,6 @@ class CoreWorker @AssistedInject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 when (taskType) {
-                    "UPDATE_HOURLY_DAILY_USAGE" -> {
-                        Log.d(TAG, "Updating hourly daily usage")
-                        coreDomain.updateHourlyDailyUsage()
-                    }
-                    "UPDATE_WEEKLY_USAGE" -> {
-                        Log.d(TAG, "Updating weekly usage")
-                        coreDomain.updateWeeklyUsage()
-                    }
                     "UPDATE_INSTALLED_APP" -> {
                         Log.d(TAG, "Updating installed apps")
                         coreDomain.updatePeriodicInstalledApp()

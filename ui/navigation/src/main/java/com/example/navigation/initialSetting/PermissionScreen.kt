@@ -3,6 +3,7 @@ package com.example.navigation.initialSetting
 import android.app.AppOpsManager
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.annotation.RequiresApi
@@ -147,7 +148,7 @@ fun setButton(totalWidth: Dp, navController: NavController, context: Context){
             .aspectRatio(1f / 0.1875f)
             .background(com.example.record.keyColor, shape = RoundedCornerShape(12.dp))
             .clickable {
-                val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+                val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS, Uri.parse("package:${context.packageName}"))
                 context.startActivity(intent)
             },
         contentAlignment = Alignment.Center

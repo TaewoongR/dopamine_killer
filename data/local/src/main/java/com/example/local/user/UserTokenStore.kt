@@ -5,7 +5,7 @@ import android.content.SharedPreferences
 import android.util.Log
 
 object UserTokenStore {
-    private const val PREF_NAME = "dopamine_killer_prefs"
+    private const val PREF_NAME = "user_token_prefs"
     private const val TOKEN_KEY = "token"
     private const val USER_ID = "user"
 

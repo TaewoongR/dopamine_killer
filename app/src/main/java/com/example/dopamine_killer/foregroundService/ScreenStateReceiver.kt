@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 
 class ScreenStateReceiver(private val onScreenOn: () -> Unit, private val onScreenOff: () -> Unit) : BroadcastReceiver() {
 
@@ -12,6 +13,16 @@ class ScreenStateReceiver(private val onScreenOn: () -> Unit, private val onScre
         when (intent.action) {
             Intent.ACTION_SCREEN_ON -> onScreenOn()
             Intent.ACTION_SCREEN_OFF -> onScreenOff()
+            Intent.ACTION_BOOT_COMPLETED -> {
+                if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
+                    val serviceIntent = Intent(context, ForegroundService::class.java)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        context.startForegroundService(serviceIntent)
+                    } else {
+                        context.startService(serviceIntent)
+                    }
+                }
+            }
         }
     }
 
@@ -26,4 +37,6 @@ class ScreenStateReceiver(private val onScreenOn: () -> Unit, private val onScre
     fun unregister(context: Context) {
         context.unregisterReceiver(this)
     }
+
+
 }

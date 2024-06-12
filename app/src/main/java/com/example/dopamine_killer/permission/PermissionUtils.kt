@@ -85,6 +85,11 @@ class PermissionUtils @Inject constructor() : PermissionChecker {
     private fun isAccessibilityServiceEnabled(context: Context, service: Class<out AccessibilityService>): Boolean {
         val expectedComponentName = ComponentName(context, service)
         val enabledServices = Settings.Secure.getString(context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
+
+        if (enabledServices.isNullOrEmpty()) {
+            return false
+        }
+
         val colonSplitter = TextUtils.SimpleStringSplitter(':')
         colonSplitter.setString(enabledServices)
         while (colonSplitter.hasNext()) {
@@ -96,6 +101,7 @@ class PermissionUtils @Inject constructor() : PermissionChecker {
         }
         return false
     }
+
 
     private fun showAccessibilityPermissionDialog(context: Context) {
         val message = if (isAccessibilityServiceEnabled(context, YourAccessibilityService::class.java)) {

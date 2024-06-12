@@ -69,6 +69,12 @@
             android:authorities="${applicationId}.androidx-startup"
             tools:node="remove">
         </provider>
+        <!--재부팅후 포그라운드 서비스 자동실행-->
+        <receiver android:name=".foregroundService.BootCompletedReceiver" android:enabled="true" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

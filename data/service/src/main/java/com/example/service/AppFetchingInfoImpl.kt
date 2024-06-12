@@ -70,12 +70,6 @@ class AppFetchingInfoImpl @Inject constructor(
     }
 
     override suspend fun getAppIcon(appName: String): ImageBitmap {
-        val packageName = getPackageNameBy(appName)
-        val packageManager = context.packageManager
-        val appInfo = packageManager.getApplicationInfo(packageName, 0)
-        val drawable = packageManager.getApplicationIcon(appInfo)
-        return drawableToImageBitmap(drawable)
-        /*
         return try {
             val packageName = getPackageNameBy(appName)
             val packageManager = context.packageManager
@@ -87,7 +81,6 @@ class AppFetchingInfoImpl @Inject constructor(
             Log.d("appInfoImpl","Exception: ${e::class.java.simpleName}, Message: ${e.message}")
             return bitmap.asImageBitmap()
         }
-         */
     }
 
     private fun drawableToImageBitmap(drawable: Drawable): ImageBitmap {
@@ -199,7 +192,7 @@ class AppFetchingInfoImpl @Inject constructor(
             if (event.packageName == packageName) {
                 when (event.eventType) {
                     UsageEvents.Event.ACTIVITY_RESUMED -> {
-                        if (powerManager.isInteractive) { // Check if screen is on
+                        if (powerManager.isInteractive) { // 스크린이 켜져있는지 여부
                             isAppInForeground = true
                             lastEventTime = event.timeStamp
                         }

@@ -544,7 +544,7 @@ fun aiOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, flaskApiR
             modifier = Modifier.align(Alignment.Center)
         ) {
             flaskApiResponse?.let { response ->
-                val list = response.replace("'", "").replace("\"","").replace("-", "").split(".").map { "$it." }
+                val list = response.replace("'", "").replace("\"","").replace("-", "").split(".").map { "$it" }
                 list.forEach {
                     item{
                         Text(
