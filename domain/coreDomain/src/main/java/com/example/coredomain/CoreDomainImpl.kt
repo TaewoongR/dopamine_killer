@@ -147,7 +147,7 @@ class CoreDomainImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateRecord(accessOrPeriodic: Int) {  // 0-접속시 1-자동처리
+    override suspend fun updateRecord() {  // 0-접속시 1-자동처리
         withContext(Dispatchers.IO) {
             val onGoingList = goalRepository.getOnGoingList().map{ Triple(it.appName,it.goalTime, it.date) }
             val realUsageYesterdayList = onGoingList.map {
@@ -204,9 +204,15 @@ class CoreDomainImpl @Inject constructor(
     }
 
 
-    override suspend fun getAllSelectedAppUsage(): List<FourUsageDomainData> {
+    override suspend fun getAllSelectedAppUsage(fromAnalysis: Boolean): List<FourUsageDomainData> {
         return mutex.withLock {
-            val nameList = withContext(Dispatchers.IO) {goalRepository.getOnGoingList().map { it.appName }}
+            val nameList = if(fromAnalysis){
+                withContext(Dispatchers.IO){selectedAppRepository.getAllSelected()}
+            }else {
+                withContext(Dispatchers.IO) {
+                    goalRepository.getOnGoingList().map { it.appName }
+                }
+            }
             val list = mutableListOf<FourUsageDomainData>()
             nameList.forEach {
                 withContext(Dispatchers.IO) {

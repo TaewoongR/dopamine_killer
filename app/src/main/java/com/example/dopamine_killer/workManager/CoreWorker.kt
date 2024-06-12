@@ -33,13 +33,9 @@ class CoreWorker @AssistedInject constructor(
                         Log.d(TAG, "Updating installed apps")
                         coreDomain.updatePeriodicInstalledApp()
                     }
-                    "UPDATE_PERIODIC_GOAL" -> {
-                        Log.d(TAG, "Updating periodic goal")
-                        coreDomain.updateRecord(1)
-                    }
-                    "UPDATE_ACCESS_GOAL" -> {
+                    "UPDATE_GOAL" -> {
                         Log.d(TAG, "Updating access goal")
-                        coreDomain.updateRecord(0)
+                        coreDomain.updateRecord()
                     }
                     "POST_NETWORK_HOURLY" -> {
                         Log.d(TAG, "Posting network hourly")

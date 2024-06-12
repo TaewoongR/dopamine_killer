@@ -25,7 +25,7 @@ class AnalysisViewModel @Inject constructor(
 
     fun loadAnalysisData() {
         viewModelScope.launch {
-            val appsUsageList = coreDomain.getAllSelectedAppUsage()  // 비동기 작업을 기다림
+            val appsUsageList = coreDomain.getAllSelectedAppUsage(true)  // 비동기 작업을 기다림
             val appList = appsUsageList.map { appUsage ->
                 AnalysisAppData(
                     appName = appUsage.appName,

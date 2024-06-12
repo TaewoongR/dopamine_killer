@@ -84,13 +84,11 @@ class AppFetchingInfoImpl @Inject constructor(
             val appInfo = packageManager.getApplicationInfo(packageName, 0)
             val drawable = packageManager.getApplicationIcon(appInfo)
             val bitmap = drawableToBitmap(drawable)
-            //saveBitmapToExternalStorage(bitmap.asImageBitmap(), "$appName.png")
+            // saveBitmapToExternalStorage(bitmap.asImageBitmap(), "$appName.png")
             bitmap.asImageBitmap()
         } catch (e: Exception) {
-
             val resId = context.resources.getIdentifier(getPackageNameBy(appName).replace(".", ""), "drawable", context.packageName)
             val bitmap = BitmapFactory.decodeResource(context.resources, resId)
-            Log.d("AppInfoImpl", "Exception: ${e::class.java.simpleName}, Message: ${e.message}")
             bitmap.asImageBitmap()
         }
     }

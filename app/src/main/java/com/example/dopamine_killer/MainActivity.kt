@@ -84,6 +84,14 @@ class MainActivity : ComponentActivity() {
     private fun postServerWorkManagerChain() {
         val workManager = WorkManager.getInstance(this)
 
+        val updateInstalledRequest = OneTimeWorkRequestBuilder<CoreWorker>()
+            .setInputData(workDataOf("TASK_TYPE" to "UPDATE_INSTALLED_APP"))
+            .build()
+
+        val updateGoalRequest = OneTimeWorkRequestBuilder<CoreWorker>()
+            .setInputData(workDataOf("TASK_TYPE" to "UPDATE_GOAL"))
+            .build()
+
         val postNetworkHourlyRequest = OneTimeWorkRequestBuilder<CoreWorker>()
             .setInputData(workDataOf("TASK_TYPE" to "POST_NETWORK_HOURLY"))
             .build()
@@ -113,8 +121,10 @@ class MainActivity : ComponentActivity() {
             .beginUniqueWork(
                 "Post Network",
                 ExistingWorkPolicy.REPLACE,
-                postNetworkHourlyRequest
+                updateInstalledRequest
             )
+            .then(updateGoalRequest)
+            .then(postNetworkHourlyRequest)
             .then(postNetworkDailyRequest)
             .then(postNetworkWeeklyRequest)
             .then(postNetworkGoalRequest)
