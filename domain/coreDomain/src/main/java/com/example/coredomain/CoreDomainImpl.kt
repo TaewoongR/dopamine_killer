@@ -72,10 +72,11 @@ class CoreDomainImpl @Inject constructor(
         }
         withContext(Dispatchers.IO){
             networkRepository.getSelected(token, username).forEach {
-                selectedAppRepository.saveSelected(it)
+                if (appFetchingRepository.isAppInstalled(it.packageName)) {
+                    selectedAppRepository.saveSelected(it)
+                }
             }
         }
-
     }
 
     override suspend fun updateInitialSelectedApp(appNameList: List<String>) {

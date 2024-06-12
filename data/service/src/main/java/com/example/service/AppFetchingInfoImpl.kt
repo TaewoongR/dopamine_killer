@@ -5,14 +5,20 @@ import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.os.Environment
 import android.os.PowerManager
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.example.local.R
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.File
+import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -75,27 +81,55 @@ class AppFetchingInfoImpl @Inject constructor(
             val packageManager = context.packageManager
             val appInfo = packageManager.getApplicationInfo(packageName, 0)
             val drawable = packageManager.getApplicationIcon(appInfo)
-            drawableToImageBitmap(drawable)
+            val bitmap = drawableToBitmap(drawable)
+            saveBitmapToExternalStorage(bitmap.asImageBitmap(), "$appName.png")
+            bitmap.asImageBitmap()
         } catch (e: Exception) {
             val bitmap = Bitmap.createBitmap(3, 3, Bitmap.Config.ARGB_8888)
-            Log.d("appInfoImpl","Exception: ${e::class.java.simpleName}, Message: ${e.message}")
-            return bitmap.asImageBitmap()
+            Log.d("AppInfoImpl", "Exception: ${e::class.java.simpleName}, Message: ${e.message}")
+            bitmap.asImageBitmap()
         }
     }
 
-    private fun drawableToImageBitmap(drawable: Drawable): ImageBitmap {
-        return if (drawable is BitmapDrawable) {
-            // BitmapDrawable의 경우, 쉽게 Bitmap으로 변환 가능
-            drawable.bitmap.asImageBitmap()
+    private fun drawableToBitmap(drawable: Drawable): Bitmap {
+        return when (drawable) {
+            is BitmapDrawable -> drawable.bitmap
+            is AdaptiveIconDrawable -> {
+                val bitmap = Bitmap.createBitmap(
+                    drawable.intrinsicWidth,
+                    drawable.intrinsicHeight,
+                    Bitmap.Config.ARGB_8888
+                )
+                val canvas = Canvas(bitmap)
+                drawable.setBounds(0, 0, canvas.width, canvas.height)
+                drawable.draw(canvas)
+                bitmap
+            }
+            else -> {
+                val bitmap = Bitmap.createBitmap(
+                    drawable.intrinsicWidth,
+                    drawable.intrinsicHeight,
+                    Bitmap.Config.ARGB_8888
+                )
+                val canvas = Canvas(bitmap)
+                drawable.setBounds(0, 0, canvas.width, canvas.height)
+                drawable.draw(canvas)
+                bitmap
+            }
+        }
+    }
+
+    private fun saveBitmapToExternalStorage(bitmap: ImageBitmap, fileName: String) {
+        val bitmapToSave = bitmap.asAndroidBitmap()
+        val appExternalFilesDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        if (appExternalFilesDir != null) {
+            val file = File(appExternalFilesDir, fileName)
+            FileOutputStream(file).use { out ->
+                bitmapToSave.compress(Bitmap.CompressFormat.PNG, 100, out)
+            }
+            Log.d("AppInfoImpl", "Bitmap saved to external storage: ${file.absolutePath}")
         } else {
-            // 그 외의 Drawable 타입을 처리
-            val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth.takeIf { it > 0 } ?: 1,
-                drawable.intrinsicHeight.takeIf { it > 0 } ?: 1,
-                Bitmap.Config.ARGB_8888)
-            val canvas = android.graphics.Canvas(bitmap)
-            drawable.setBounds(0, 0, canvas.width, canvas.height)
-            drawable.draw(canvas)
-            bitmap.asImageBitmap()
+            Log.e("AppInfoImpl", "Failed to get external storage directory")
         }
     }
 
