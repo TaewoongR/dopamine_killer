@@ -207,8 +207,10 @@ fun Settings(
                         navController.navigate("main_screen") {
                             UserTokenStore.clearToken(context)
                             UserTokenStore.clearUserId(context)
+                            UserTokenStore.clearLoginPost(context)
                             SetupFlag.resetSetup(context)
                             clearDatabase()
+                            stopForegroundService(null)
                             popUpTo(0) {
                                 inclusive = true
                             }
@@ -245,7 +247,9 @@ fun Settings(
                                             navController.navigate("main_screen") {
                                                 UserTokenStore.clearToken(context)
                                                 UserTokenStore.clearUserId(context)
+                                                UserTokenStore.clearLoginPost(context)
                                                 SetupFlag.resetSetup(context)
+                                                clearDatabase()
                                                 stopForegroundService(null)
                                                 popUpTo(0) { inclusive = true }
                                                 launchSingleTop = true

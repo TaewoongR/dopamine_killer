@@ -118,19 +118,19 @@ class CustomPopupView(private val context: Context) {
                 val intent = Intent("com.example.dopamine_killer.FORCE_STOP_APP")
                 intent.putExtra("EXTRA_APP_PACKAGE", foregroundApp)
                 context.sendBroadcast(intent)
-                // Add code to launch your app after performing the action
+
                 launchApp("com.example.dopamine_killer")
-                hidePopup() // Hide the popup after performing the action
+                hidePopup() // 팝업 종료
             } else {
                 Toast.makeText(context, "Unable to determine foreground app", Toast.LENGTH_SHORT).show()
-                hidePopup() // Hide the popup even if the action fails
+                hidePopup() // 팝업 종료
             }
         } else {
             Toast.makeText(context, "Accessibility Service is not enabled", Toast.LENGTH_SHORT).show()
             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
-            hidePopup() // Hide the popup after prompting the user to enable the service
+            hidePopup()
         }
     }
 

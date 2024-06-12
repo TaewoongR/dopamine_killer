@@ -8,15 +8,15 @@ class YourAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        // Service connected
+
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        // Handle accessibility events
+
     }
 
     override fun onInterrupt() {
-        // Handle service interrupt
+
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -30,7 +30,7 @@ class YourAccessibilityService : AccessibilityService() {
     }
 
     private fun forceStopApp(packageName: String) {
-        // Implement your logic to force stop the app
+        // 강제종료할 앱
     }
 
     companion object {

@@ -67,7 +67,6 @@ import com.example.local.user.UserTokenStore
 @Composable
 fun OverviewScreen(
     navController: NavController,
-    send2Network: (Any?) -> Unit,
     viewModel: OverviewViewModel = hiltViewModel(),
 ) {
     val overviewUiState by viewModel.uiState.collectAsState()

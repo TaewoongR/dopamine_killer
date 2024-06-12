@@ -1,5 +1,6 @@
 package com.example.navigation
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.analysisdomain.AnDomain
@@ -7,6 +8,7 @@ import com.example.coredomain.CoreDomain
 import com.example.local.R
 import com.example.navigation.initialSetting.AppSettingData
 import com.example.recorddomain.ReDomain
+import com.example.service.AppFetchingInfo
 import com.example.service.DateFactory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val coreDomain: CoreDomain
+    private val coreDomain: CoreDomain,
+    private val appFetching: AppFetchingInfo
 ) : ViewModel() {
 
      suspend fun initialUpdate(){
@@ -47,6 +50,9 @@ class MainViewModel @Inject constructor(
         withContext(Dispatchers.IO) {coreDomain.loginUpdate(token, username)}
     }
 
+    suspend fun postAfterLogin(context: Context){
+        withContext(Dispatchers.IO) {coreDomain.postCoreData(context)}
+    }
 
     suspend fun clearDatabase(){
         withContext(Dispatchers.IO){coreDomain.clearAllDatabase()}

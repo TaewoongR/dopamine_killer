@@ -9,6 +9,7 @@ import com.example.service.AppFetchingInfo
 import com.example.service.DateFactoryForData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.lang.Exception
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -123,6 +124,7 @@ class DailyRepositoryImpl @Inject constructor(
     }
 
     override suspend fun periodicAutoHourlyDailyUpdate(){
+        val currentMilli = System.currentTimeMillis()
         val appNameList = selectedAppRepository.getAllInstalled()
         val currentHour = dateFactory.returnTheHour(System.currentTimeMillis())
         appNameList.forEach {app ->
@@ -132,7 +134,11 @@ class DailyRepositoryImpl @Inject constructor(
 
            withContext(Dispatchers.IO) {
                // 기존의 HourlyEntity를 데이터베이스에서 가져오기
-               val existingHourlyEntity = hourlySource.getHourlyEntity(app, date)
+               val existingHourlyEntity = try{
+                   hourlySource.getHourlyEntity(app, date)
+               }catch(e: Exception){
+                   HourlyEntity(app, date, dateFactory.returnDayOfWeek(currentMilli))
+               }
                // 새로운 HourlyEntity를 생성하고 현재 시간대 필드 업데이트
 
                val updatedHourlyEntity = try {
@@ -140,7 +146,6 @@ class DailyRepositoryImpl @Inject constructor(
                        0 -> existingHourlyEntity.copy(
                            hour23 = hourlyUsage[dateFactory.returnTheHour(dateFactory.returnRightBeforeFixedTime())]
                        )
-
                        1 -> existingHourlyEntity.copy(
                            hour00 = hourlyUsage[currentHour - 1],
                            hour01 = hourlyUsage[currentHour]
@@ -255,58 +260,69 @@ class DailyRepositoryImpl @Inject constructor(
                            hour22 = hourlyUsage[currentHour - 1],
                            hour23 = hourlyUsage[currentHour]
                        )
-
                        else -> existingHourlyEntity // 기본적으로 변경이 없는 경우
                    }
-               }catch(e: NullPointerException){
+               }catch(e: NullPointerException){  //
                    existingHourlyEntity
                }
                try{
                    hourlySource.upsert(updatedHourlyEntity)
                }catch (e: NullPointerException){
-                   //do nothing
+                   hourlySource.upsert(HourlyEntity(app,date,dateFactory.returnDayOfWeek(currentMilli)))
                }
            }
            if(currentHour != 0) {
-               var totalHour = 0
-               hourlySource.getHourlyEntity(app, date).apply {
-                   totalHour += this.hour00
-                   totalHour += this.hour01
-                   totalHour += this.hour02
-                   totalHour += this.hour03
-                   totalHour += this.hour04
-                   totalHour += this.hour05
-                   totalHour += this.hour06
-                   totalHour += this.hour07
-                   totalHour += this.hour08
-                   totalHour += this.hour09
-                   totalHour += this.hour10
-                   totalHour += this.hour11
-                   totalHour += this.hour12
-                   totalHour += this.hour13
-                   totalHour += this.hour14
-                   totalHour += this.hour15
-                   totalHour += this.hour16
-                   totalHour += this.hour17
-                   totalHour += this.hour18
-                   totalHour += this.hour19
-                   totalHour += this.hour20
-                   totalHour += this.hour21
-                   totalHour += this.hour22
-                   totalHour += this.hour23
-               }
-               dailySource.upsert(
-                   DailyEntity(
-                       appName = app,
-                       date = usageNDate.second,
-                       dayOfWeek = usageNDate.third,
-                       dailyUsage = totalHour
+               try {
+                   var totalHour = 0
+                   hourlySource.getHourlyEntity(app, date).apply {
+                       totalHour += this.hour00
+                       totalHour += this.hour01
+                       totalHour += this.hour02
+                       totalHour += this.hour03
+                       totalHour += this.hour04
+                       totalHour += this.hour05
+                       totalHour += this.hour06
+                       totalHour += this.hour07
+                       totalHour += this.hour08
+                       totalHour += this.hour09
+                       totalHour += this.hour10
+                       totalHour += this.hour11
+                       totalHour += this.hour12
+                       totalHour += this.hour13
+                       totalHour += this.hour14
+                       totalHour += this.hour15
+                       totalHour += this.hour16
+                       totalHour += this.hour17
+                       totalHour += this.hour18
+                       totalHour += this.hour19
+                       totalHour += this.hour20
+                       totalHour += this.hour21
+                       totalHour += this.hour22
+                       totalHour += this.hour23
+                   }
+                   dailySource.upsert(
+                       DailyEntity(
+                           appName = app,
+                           date = usageNDate.second,
+                           dayOfWeek = usageNDate.third,
+                           dailyUsage = totalHour
+                       )
                    )
-               )
+               }catch (e: NullPointerException){    // 중간에 어플이 새로 설치된 경우
+                   dailySource.upsert(
+                       DailyEntity(
+                           appName = app,
+                           date = dateFactory.returnStringDate(currentMilli),
+                           dayOfWeek = dateFactory.returnDayOfWeek(currentMilli),
+                           dailyUsage = hourlyUsage.sum()
+                       )
+                   )
+               }
            }else{
+
                withContext(Dispatchers.IO) {
-                   val newToday = dateFactory.returnStringDate(dateFactory.returnToday())
-                   val newDayOfWeek = dateFactory.returnDayOfWeek(dateFactory.returnToday())
+                   val newToday = dateFactory.returnStringDate(currentMilli)
+                   val newDayOfWeek = dateFactory.returnDayOfWeek(currentMilli)
                    hourlySource.upsert(
                        HourlyEntity(
                            appName = app,

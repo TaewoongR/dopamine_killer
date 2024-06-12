@@ -32,4 +32,7 @@ interface SelectedAppDAO {
 
     @Query("DELETE FROM selected_app")
     fun clearAll()
+
+    @Query("DELETE FROM selected_app WHERE appName = :appName")
+    fun deleteApp(appName: String)
 }

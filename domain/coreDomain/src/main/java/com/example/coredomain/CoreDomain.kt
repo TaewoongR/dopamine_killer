@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 
 interface CoreDomain {
     suspend fun initialUpdate(appNameList: List<String>)     // 최초 앱 실행시 실행
+    suspend fun loginUpdate(token: String,username: String)     // 로그인시 실행
     suspend fun updateInitialSelectedApp(appNameList: List<String>)      // 목표 앱 선택 항목 업데이트
     suspend fun updateInitialInstalledApp(appNameList: List<String>)
     suspend fun updatePeriodicInstalledApp()
@@ -14,7 +15,6 @@ interface CoreDomain {
     suspend fun updateMonthlyUsage()
     suspend fun updateRecord(accessOrPeriodic: Int)
     suspend fun monitoringUsageByGoal(): List<Pair<Int, String>>
-    suspend fun deleteUndetectedUsageObj(date: String)
 
     suspend fun getAllSelectedAppUsage(): List<FourUsageDomainData>   // 월, 주, 어제, 오늘 사용 시간
     suspend fun getAppIconForAppSetting(appName: String): ImageBitmap?
@@ -24,11 +24,9 @@ interface CoreDomain {
     suspend fun postNetworkHourly(context: Context)
     suspend fun postNetworkDaily(context: Context)
     suspend fun postNetworkWeekly(context: Context)
-
-    suspend fun postGoal(context: Context)
-
-
     suspend fun postNetworkMonthly(context: Context)
+    suspend fun postGoal(context: Context)
     suspend fun postSelected(context: Context)
-    suspend fun loginUpdate(token: String,username: String)
+
+    suspend fun postCoreData(context: Context)
 }

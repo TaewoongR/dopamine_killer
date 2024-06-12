@@ -127,7 +127,7 @@ fun RecordContent(uiState: RecordUiState, viewModel: RecordViewModel, navControl
                         .width(totalWidth), // end 패딩 삭제
                         horizontalArrangement = Arrangement.End) {
                         IconButton(onClick = {
-                            navController.navigate("goal_create_screen") { // 대상 루트로 변경하세요
+                            navController.navigate("goal_create_screen") { // 대상 루트로 변경
                                 popUpTo(0) {
                                     inclusive = true
                                 }
@@ -281,7 +281,7 @@ fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
                     Spacer(modifier = Modifier.weight(1f))
                 }
                 Row(
-                    modifier = Modifier.fillMaxWidth(), // Ensure the Row fills the width of its parent
+                    modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {

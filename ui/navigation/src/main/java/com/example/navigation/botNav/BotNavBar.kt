@@ -38,7 +38,6 @@ val keyColor: Color = Color(android.graphics.Color.parseColor("#FF9A62"))
 @Composable
 fun BotNavBar(
     onCheckPermissions: (Context) -> Unit,
-    send2Network: (Any?) -> Unit,
     clearDatabase: () -> Unit,
     startForegroundService: (Any?) -> Unit,
     stopForegroundService: (Any?) -> Unit
@@ -110,6 +109,7 @@ fun BotNavBar(
             navController = navController,
             startDestination = Screens.Overview.route,
             modifier = Modifier.padding(paddingValues = paddingValues)) {
+
             composable(Screens.Record.route) {
                 RecordScreen(navController)
             }
@@ -117,7 +117,7 @@ fun BotNavBar(
                 RewardScreen(navController)
             }
             composable(Screens.Overview.route) {
-                OverviewScreen(navController, send2Network)
+                OverviewScreen(navController)
             }
             composable(Screens.Analysis.route) {
                 AnalysisScreen(navController)
@@ -126,7 +126,7 @@ fun BotNavBar(
                 MyInfoScreen(navController, onCheckPermissions, clearDatabase, stopForegroundService)
             }
             composable("main_screen"){
-                MainScreen(onCheckPermissions, send2Network, startForegroundService, stopForegroundService)
+                MainScreen(onCheckPermissions,startForegroundService, stopForegroundService)
             }
             composable("selected_app_edit"){
                 SelectedAppEditScreen(navController)

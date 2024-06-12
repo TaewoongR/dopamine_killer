@@ -16,7 +16,6 @@ class ReDomainImpl @Inject constructor(
     private val appRepository: AppFetchingInfo,
     private val goalRepository: GoalRepository,
     private val selectedAppRepository: SelectedAppRepository,
-    private val dateFactoryForData: DateFactoryForData
 ):ReDomain {
 
 
@@ -53,7 +52,8 @@ class ReDomainImpl @Inject constructor(
 
     override suspend fun deleteGoal(goal: Pair<String, String>) {
         withContext(Dispatchers.IO) {
-            recordDAO.delete(goal.first, goal.second)   //
+
+            recordDAO.delete(goal.first, goal.second)
         }
     }
 
@@ -67,8 +67,8 @@ class ReDomainImpl @Inject constructor(
                 // 특정 접두사로 시작하는 문자열 리소스만 처리
                 if (field.name.startsWith(prefix)) {
                     val appName = field.name.removePrefix(prefix).replace("_", " ") // 접두사를 제거한 이름
-                    val icon = appRepository.getAppIcon(appName)
-                    if (icon != null) {
+                    val isInstalled = appRepository.isAppInstalled(appRepository.getPackageNameBy(appName))
+                    if (isInstalled) {
                         installedApps.add(appName)
                     }
                 }

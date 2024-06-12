@@ -75,6 +75,7 @@ class CoreDomainImpl @Inject constructor(
                 selectedAppRepository.saveSelected(it)
             }
         }
+
     }
 
     override suspend fun updateInitialSelectedApp(appNameList: List<String>) {
@@ -202,12 +203,6 @@ class CoreDomainImpl @Inject constructor(
     }
 
 
-    override suspend fun deleteUndetectedUsageObj(date:String) {
-        withContext(Dispatchers.IO) {
-            dailyRepository.deleteOnDate(date)
-        }
-    }
-
     override suspend fun getAllSelectedAppUsage(): List<FourUsageDomainData> {
         return mutex.withLock {
             val nameList = withContext(Dispatchers.IO) {selectedAppRepository.getAllSelected()}
@@ -272,5 +267,14 @@ class CoreDomainImpl @Inject constructor(
 
     override suspend fun postSelected(context: Context){
         networkRepository.postSelected(context)
+    }
+
+    override suspend fun postCoreData(context: Context){
+        postNetworkHourly(context)
+        postNetworkDaily(context)
+        postNetworkWeekly(context)
+        postNetworkMonthly(context)
+        postGoal(context)
+        postSelected(context)
     }
 }

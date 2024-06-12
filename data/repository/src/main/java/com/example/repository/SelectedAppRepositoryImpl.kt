@@ -72,24 +72,28 @@ class SelectedAppRepositoryImpl @Inject constructor(
             selectedAppDAO.clearAll()
             appNameList.forEach {
                 val packageName = appFetchingInfo.getPackageNameBy(it)
-                selectedAppDAO.upsert(
-                    SelectedAppEntity(
-                        appName = it,
-                        packageName = packageName,
-                        isSelected = false
-                    )
-                )
-            }
-            if(selected.isNotEmpty()) {
-                selected.forEach {
-                    val packageName = appFetchingInfo.getPackageNameBy(it)
+                if(packageName != "") {
                     selectedAppDAO.upsert(
                         SelectedAppEntity(
                             appName = it,
                             packageName = packageName,
-                            isSelected = true
+                            isSelected = false
                         )
                     )
+                }
+            }
+            if(selected.isNotEmpty()) {
+                selected.forEach {
+                    val packageName = appFetchingInfo.getPackageNameBy(it)
+                    if(packageName != "") {
+                        selectedAppDAO.upsert(
+                            SelectedAppEntity(
+                                appName = it,
+                                packageName = packageName,
+                                isSelected = true
+                            )
+                        )
+                    }
                 }
             }
         }

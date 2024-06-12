@@ -95,7 +95,7 @@ class ForegroundService : Service() {
                 if (!isBackgroundRunning) {        // 하나의 쓰레드만을 보장하는 플래그
                     mainHandler.post(hourlyUpdateRunnable)
                     mainHandler.post(weeklyUpdateRunnable)
-                    prefs.edit().putBoolean("isBackgroundRunning", false).apply()
+                    prefs.edit().putBoolean("isBackgroundRunning", true).apply()
                 }
                 // ScreenStateReceiver 초기화 및 등록
                 screenStateReceiver = ScreenStateReceiver(
@@ -128,7 +128,10 @@ class ForegroundService : Service() {
         startForeground(1, notification)        // foregroundService를 실행하기 위한 필수적 실행 함수
         foregroundAppChecker = ForegroundAppChecker(this)
 
+        // SharedPreferences 리스너 등록
         prefs.registerOnSharedPreferenceChangeListener(prefsChangeListener)
+        // 초기 SharedPreferences 값 확인 및 필요한 초기화 작업 수행
+        prefsChangeListener.onSharedPreferenceChanged(prefs, "token")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -137,10 +140,11 @@ class ForegroundService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        jobScope.cancel() // 서비스 종료 시 Coroutine 취소
+        jobScope.cancel() // 서비스 종료 시 jobScope 범위에서 실행되는 모든 Coroutine 취소
         mainHandler.removeCallbacks(hourlyUpdateRunnable) // 서비스 종료 시 Runnable 제거
         mainHandler.removeCallbacks(weeklyUpdateRunnable) // 서비스 종료 시 Runnable 제거
         mainHandler.removeCallbacks(warningRunnable) // 서비스 종료 시 warning Runnable 제거
+        unregisterReceiver(screenStateReceiver) // 서비스 종료 시 리시버 해제
     }
 
     override fun onBind(intent: Intent?): IBinder? {

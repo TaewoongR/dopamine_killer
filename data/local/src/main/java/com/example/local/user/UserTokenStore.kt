@@ -8,6 +8,7 @@ object UserTokenStore {
     private const val PREF_NAME = "user_token_prefs"
     private const val TOKEN_KEY = "token"
     private const val USER_ID = "user"
+    private const val LOGIN_POST = "post"
 
     private fun getPreferences(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
@@ -44,5 +45,21 @@ object UserTokenStore {
         val editor = getPreferences(context).edit()
         editor.remove(USER_ID)
         editor.apply()
+    }
+
+    fun saveLoginPost(context: Context){
+        val editor = getPreferences(context).edit()
+        editor.putBoolean(LOGIN_POST, true)
+        editor.apply()
+    }
+
+    fun clearLoginPost(context: Context){
+        val editor = getPreferences(context).edit()
+        editor.putBoolean(LOGIN_POST, false)
+        editor.apply()
+    }
+
+    fun getLoginPost(context: Context): Boolean{
+        return getPreferences(context).getBoolean(LOGIN_POST, false)
     }
 }

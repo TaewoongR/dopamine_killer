@@ -25,7 +25,7 @@ import com.example.myinfo.setup.SetupFlag
 import kotlinx.coroutines.launch
 
 @Composable
-fun MainScreen(onCheckPermissions: (Context) -> Unit, send2Network: (Any?) -> Unit, startForegroundService: (Any?) -> Unit, stopForegroundService: (Any?) -> Unit, viewModel: MainViewModel = hiltViewModel()) {
+fun MainScreen(onCheckPermissions: (Context) -> Unit, startForegroundService: (Any?) -> Unit, stopForegroundService: (Any?) -> Unit, viewModel: MainViewModel = hiltViewModel()) {
     val scope = rememberCoroutineScope()
     val navController = rememberNavController()
     val context = LocalContext.current
@@ -59,11 +59,16 @@ fun MainScreen(onCheckPermissions: (Context) -> Unit, send2Network: (Any?) -> Un
     }
 
     val loginUpdate: (String, String) -> Unit = {it1, it2 ->
-        scope.launch { viewModel.loginUpdate(it1, it2) }
+        scope.launch {
+            viewModel.loginUpdate(it1, it2) }
     }
 
     val initialUpdate: () -> Unit = {
         scope.launch{viewModel.initialUpdate()}
+    }
+
+    val postAfterLogin: () -> Unit ={
+        scope.launch{viewModel.postAfterLogin(context)}
     }
 
     NavHost(navController = navController, startDestination = startDestination) {
@@ -109,7 +114,11 @@ fun MainScreen(onCheckPermissions: (Context) -> Unit, send2Network: (Any?) -> Un
             GoalSettingScreen(navController, isSettingComplete)
         }
         composable("bot_nav_bar") {
-            BotNavBar(onCheckPermissions, send2Network, clearDatabase, startForegroundService, stopForegroundService)
+            if(!UserTokenStore.getLoginPost(context)) {
+                postAfterLogin()
+                UserTokenStore.saveLoginPost(context)
+            }
+            BotNavBar(onCheckPermissions, clearDatabase, startForegroundService, stopForegroundService)
         }
     }
 }

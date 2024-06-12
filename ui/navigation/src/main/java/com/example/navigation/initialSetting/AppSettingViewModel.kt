@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.coredomain.CoreDomain
 import com.example.local.R
+import com.example.service.AppFetchingInfoImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AppSettingViewModel @Inject constructor(
     private val coreDomain: CoreDomain,
+    private val appFetching: AppFetchingInfoImpl,
     @ApplicationContext val context: Context
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AppSettingUiState())
@@ -37,8 +39,9 @@ class AppSettingViewModel @Inject constructor(
                     // 특정 접두사로 시작하는 문자열 리소스만 처리
                     if (field.name.startsWith(prefix)) {
                         val appName = field.name.removePrefix(prefix).replace("_", " ") // 접두사를 제거한 이름
-                        val icon = coreDomain.getAppIconForAppSetting(appName)
-                        if (icon != null) {
+                        val isInstalled = appFetching.isAppInstalled(appFetching.getPackageNameBy(appName))
+                        if (isInstalled) {
+                            val icon = appFetching.getAppIcon(appName)
                             appObjectList.add(AppSettingData(appName = appName, icon = icon))
                             appNameList.add(appName)
                         }
