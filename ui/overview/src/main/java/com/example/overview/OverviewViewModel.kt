@@ -23,7 +23,6 @@ class OverviewViewModel @Inject constructor(
 
     init {
         loadOverviewData()
-
     }
 
     fun loadOverviewData() {
@@ -45,7 +44,7 @@ class OverviewViewModel @Inject constructor(
                             howLong = it.howLong,
                             onGoing = it.onGoing
                         )
-                    }
+                    }.sortedByDescending { it.howLong }
                 } else {
                     listOf()
                 }

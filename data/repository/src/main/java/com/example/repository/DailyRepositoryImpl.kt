@@ -1,5 +1,6 @@
 package com.example.repository
 
+import android.util.Log
 import androidx.collection.intListOf
 import com.example.local.dailyUsage.DailyDAO
 import com.example.local.dailyUsage.DailyEntity
@@ -30,7 +31,7 @@ class DailyRepositoryImpl @Inject constructor(
                 return Triple(entity.dailyUsage, entity.date, entity.dayOfWeek)
             }
         } catch (e: NullPointerException) {
-
+            Log.d("overview test","exception happend")
         }
         return Triple(0, dateString, -1)
     }

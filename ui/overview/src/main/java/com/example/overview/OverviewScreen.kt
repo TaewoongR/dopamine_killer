@@ -235,19 +235,7 @@ fun DonutGraph(percent: Float, modifier: Modifier = Modifier, size: Dp, overview
         modifier = Modifier
             .size(size)
             .background(color = Color.White, shape = RoundedCornerShape(16.dp))
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = { offset ->
-                        if (showTooltip) {
-                            showTooltip = false
-                        } else {
-                            tooltipOffset = with(density) { DpOffset(offset.x.toDp(), offset.y.toDp()) }
-                            tooltipText = "${overviewUiState.analysisData.dailyTime / 60}분"
-                            showTooltip = true
-                        }
-                    }
-                )
-            },
+            ,
         contentAlignment = Alignment.Center
     ) {
         Canvas(
@@ -326,29 +314,7 @@ fun barGraphOverview(modifier: Modifier, size: Dp, analysisData: AnalysisData) {
             .size(size)
             .background(color = Color.White, shape = RoundedCornerShape(16.dp))
     ) {
-        Canvas(
-            modifier = Modifier.matchParentSize()
-                .pointerInput(Unit) {
-                    detectTapGestures { offset ->
-                        val barWidth = (size.toPx() * 0.4f) / 4
-                        val barSpacing = (size.toPx() * 0.48f) / 5
-                        val startX = (size.toPx() - ((barWidth * 4) + (barSpacing * 3))) / 2
-
-                        times.forEachIndexed { index, barHeight ->
-                            val barStartX = startX + index * (barWidth + barSpacing)
-                            val barEndX = barStartX + barWidth
-                            if (offset.x in barStartX..barEndX) {
-                                tooltipText = "${barHeight / (60 * 1000)}분" // 시간 내용으로
-                                showTooltip = true
-                                val dpOffsetX = with(density) { offset.x.toDp() }
-                                val dpOffsetY = with(density) { offset.y.toDp() }
-                                tooltipOffset = DpOffset(dpOffsetX, dpOffsetY - 210.dp) // 왠지 모르겠지만 이렇게 설정해줘야 클릭 위치에 생성됨
-                                return@detectTapGestures
-                            }
-                        }
-                    }
-                }
-        ) {
+        Canvas(modifier = Modifier.matchParentSize()) {
             val barWidth = (size.toPx() * 0.4f) / 4 // 막대 너비
             val barSpacing = (size.toPx() * 0.48f) / 5 // 막대 사이 간격
 
@@ -464,12 +430,12 @@ fun recordOverview(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
                             .size(totalWidth * 0.028f, totalWidth * 0.05f)
                             .background(
                                 color = when (howLong) {
-                                    in 0..18 -> Color(android.graphics.Color.parseColor("#BEBEBE"))
-                                    in 19..36 -> Color(android.graphics.Color.parseColor("#BFCBB4"))
-                                    in 37..54 -> Color(android.graphics.Color.parseColor("#ABCC96"))
-                                    in 55..72 -> Color(android.graphics.Color.parseColor("#96CE78"))
-                                    in 73..90 -> Color(android.graphics.Color.parseColor("#82CF59"))
-                                    else -> Color(android.graphics.Color.parseColor("#73A66A"))
+                                    in 0..18 -> Color(parseColor("#A5D6A7"))
+                                    in 19..36 -> Color(parseColor("#99CD82"))
+                                    in 37..54 -> Color(parseColor("#8BC34A"))
+                                    in 55..72 -> Color(parseColor("#6FBF40"))
+                                    in 73..90 -> Color(parseColor("#5FAE46"))
+                                    else -> Color(parseColor("#4CAF50"))
                                 },
                                 shape = RoundedCornerShape(3.dp)
                             )
