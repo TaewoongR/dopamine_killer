@@ -24,6 +24,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -201,16 +204,17 @@ fun RecordContent(uiState: RecordUiState, viewModel: RecordViewModel, navControl
 
 
 @Composable
-fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int, ongoingList: List<OngoingRecord>, onDelete: () -> Unit){
+fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int, ongoingList: List<OngoingRecord>, onDelete: () -> Unit) {
     val squareSize = (totalWidth - 10.dp) / 2 * 0.24f
     var expanded by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
             .width(totalWidth)
             .background(Color.White, RoundedCornerShape(16.dp)) // 백그라운드 추가
             .aspectRatio(aspectRatio)
-    ){
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
@@ -235,7 +239,7 @@ fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
                             .background(vagueText.copy(0.2f), shape = RoundedCornerShape(4.dp))
                     ) {
                         Box(modifier.padding(start = totalWidth * 0.0035f))
-                        for (k in 1..if(howLong == 0) 1 else if (howLong % 18 == 0) 18 else if (howLong > 90) 18 else howLong % 18) {
+                        for (k in 1..if (howLong == 0) 1 else if (howLong % 18 == 0) 18 else if (howLong > 90) 18 else howLong % 18) {
                             Box(
                                 modifier = Modifier
                                     .padding(end = totalWidth * 0.0035f) // 패딩 수정
@@ -333,7 +337,7 @@ fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        onDelete()
+                                        showDialog = true
                                         expanded = false
                                     }
                                     .padding(vertical = 8.dp)
@@ -345,26 +349,57 @@ fun ongoingRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index
         }
 
         Text(
-            text = ongoingList[index].date.run{ "${this.substring(0, 4)}/${this.substring(4, 6)}/${this.substring(6, 8)}"},
+            text = ongoingList[index].date.run { "${this.substring(0, 4)}/${this.substring(4, 6)}/${this.substring(6, 8)}" },
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(start = totalWidth * 0.04f, top = totalWidth * 0.03f),
             style = TextStyle(Color.Gray, fontSize = 9.sp)
         )
     }
-}
 
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = {
+                Text(text = "알림", style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold))
+            },
+            text = {
+                Text("정말로 삭제하시겠습니까?", style = TextStyle(fontSize = 16.sp))
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDialog = false
+                        onDelete()
+                    },
+                    colors = ButtonDefaults.buttonColors(keyColor)
+                ) {
+                    Text("삭제", color = Color.White)
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { showDialog = false },
+                    colors = ButtonDefaults.buttonColors(keyColor)
+                ) {
+                    Text("취소", color = Color.White)
+                }
+            }
+        )
+    }
+}
 @Composable
-fun finishedRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int, finishedList: List<FinishedRecord>, onDelete: () -> Unit){
+fun finishedRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, index: Int, finishedList: List<FinishedRecord>, onDelete: () -> Unit) {
     val squareSize = (totalWidth - 10.dp) / 2 * 0.24f
     var expanded by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
             .width(totalWidth)
             .background(Color.White, RoundedCornerShape(16.dp)) // 백그라운드 추가
             .aspectRatio(aspectRatio)
-    ){
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
@@ -450,7 +485,7 @@ fun finishedRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, inde
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        onDelete()
+                                        showDialog = true
                                         expanded = false
                                     }
                                     .padding(vertical = 8.dp)
@@ -460,16 +495,47 @@ fun finishedRecords(modifier: Modifier, aspectRatio: Float, totalWidth: Dp, inde
                 }
             }
         }
+
         Text(
-            text = finishedList[index].date.run{ "${this.substring(0, 4)}/${this.substring(4, 6)}/${this.substring(6, 8)}"},
+            text = finishedList[index].date.run { "${this.substring(0, 4)}/${this.substring(4, 6)}/${this.substring(6, 8)}" },
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(start = totalWidth * 0.04f, top = totalWidth * 0.03f),
             style = TextStyle(Color.Gray, fontSize = 9.sp)
         )
     }
-}
 
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = {
+                Text(text = "알림", style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold))
+            },
+            text = {
+                Text("정말로 삭제하시겠습니까?", style = TextStyle(fontSize = 16.sp))
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDialog = false
+                        onDelete()
+                    },
+                    colors = ButtonDefaults.buttonColors(keyColor)
+                ) {
+                    Text("삭제", color = Color.White)
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { showDialog = false },
+                    colors = ButtonDefaults.buttonColors(keyColor)
+                ) {
+                    Text("취소", color = Color.White)
+                }
+            }
+        )
+    }
+}
 @Composable
 fun EmptyState(modifier: Modifier, totalWidth: Dp) {
     Box(

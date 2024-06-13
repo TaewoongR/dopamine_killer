@@ -75,24 +75,22 @@ class RecordViewModel @Inject constructor(
             )
         }
     }
-
-    fun deleteOngoingRecord(record: Pair<String, String>, token:String, username:String){
+    fun deleteOngoingRecord(record: Pair<String, String>, token: String, username: String) {
         viewModelScope.launch {
             reDomain.deleteGoal(record, token, username)
+            _uiState.value = _uiState.value.copy(ongoingList = _uiState.value.ongoingList.filterNot {
+                it.appName == record.first && it.date == record.second
+            })
         }
-        _uiState.value = _uiState.value.copy(ongoingList = _uiState.value.ongoingList.filterNot{
-            it.appName == record.first
-        })
-
-
     }
 
-    fun deleteFinishedRecord(record: Pair<String, String>, token:String, username:String){
+    fun deleteFinishedRecord(record: Pair<String, String>, token: String, username: String) {
         viewModelScope.launch {
             reDomain.deleteGoal(record, token, username)
+            _uiState.value = _uiState.value.copy(finishedList = _uiState.value.finishedList.filterNot {
+                it.appName == record.first && it.date == record.second
+            })
         }
-        _uiState.value = _uiState.value.copy(finishedList = _uiState.value.finishedList.filterNot{
-            it.appName == record.first
-        })
     }
+
 }

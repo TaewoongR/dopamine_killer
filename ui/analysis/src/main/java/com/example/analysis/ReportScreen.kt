@@ -16,11 +16,13 @@ import androidx.compose.ui.platform.LocalConfiguration
 import android.graphics.Paint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -155,7 +157,7 @@ fun Graph(dailyList: List<Int>) {
                             drawContext.canvas.nativeCanvas.drawText(
                                 label,
                                 x,
-                                height + 30f,
+                                height + 50f,
                                 xLabelPaint
                             )
                         }
@@ -200,6 +202,7 @@ fun Graph2(hourlyList: List<Int>) {
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val graphWidth = screenWidth * 0.85f
+    var selectedValue by remember { mutableStateOf<Pair<Int, Int>?>(null) }
 
     Box(
         modifier = Modifier
@@ -218,7 +221,24 @@ fun Graph2(hourlyList: List<Int>) {
                 Canvas(modifier = Modifier
                     .fillMaxHeight(0.9f)
                     .fillMaxWidth()
-                    .padding(bottom = 10.dp, top = 20.dp, start = 50.dp, end = 10.dp)) {
+                    .padding(bottom = 10.dp, top = 20.dp, start = 50.dp, end = 10.dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures { offset ->
+                            val width = size.width
+                            val height = size.height
+                            val stepX = width / (hourlyList.size - 1).toFloat()
+                            val stepY = height / (maxValue - minValue).toFloat()
+
+                            hourlyList.forEachIndexed { index, value ->
+                                val x = index * stepX
+                                val y = height - (value - minValue) * stepY
+                                if (Offset(x, y).minus(offset).getDistance() <= 20f) {
+                                    selectedValue = index to value
+                                }
+                            }
+                        }
+                    })
+                {
                     val width = size.width
                     val height = size.height
                     val stepX = width / (hourlyList.size - 1)
@@ -231,27 +251,27 @@ fun Graph2(hourlyList: List<Int>) {
                         }
                     }
 
-                    // Draw the graph path
+                    // 데이터 포인터를 연결하는 라인
                     drawPath(
                         path = path,
                         color = Color(0xFFFF9A62),
                         style = Stroke(width = 4f)
                     )
 
-                    // Draw circles at data points
+                    // 원형의 데이터 포인트
                     hourlyList.forEachIndexed { index, value ->
                         val x = index * stepX
                         val y = height - (value - minValue) * stepY
                         drawCircle(
-                            color = Color(0xFFBF6A40), // Slightly darker color
+                            color = Color(0xFFBF6A40),
                             radius = 6f,
                             center = Offset(x, y)
                         )
                     }
 
-                    // Draw X axis labels
+                    // x축 라벨
                     val xLabelPaint = Paint().apply {
-                        textAlign = Paint.Align.CENTER
+                        textAlign = Paint.Align.CENTER      // 텍스트 위치 기준 - 중앙
                         textSize = 30f
                         color = android.graphics.Color.BLACK
                     }
@@ -263,14 +283,13 @@ fun Graph2(hourlyList: List<Int>) {
                         drawContext.canvas.nativeCanvas.drawText(
                             label,
                             x,
-                            height + 30f,
+                            height + 50f,
                             xLabelPaint
                         )
                     }
 
-                    // Draw Y axis labels with 60-minute units
                     val yLabelPaint = Paint().apply {
-                        textAlign = Paint.Align.RIGHT
+                        textAlign = Paint.Align.RIGHT   // 텍스트 위치 기준 - 오른쪽
                         textSize = 30f
                         color = android.graphics.Color.BLACK
                     }
@@ -294,6 +313,15 @@ fun Graph2(hourlyList: List<Int>) {
                     }
                 }
             }
+        }
+        selectedValue?.let { (index, value) ->
+            Text(
+                text = "시간: ${index}시, ${value / 60}분 사용",
+                color = Color.Black,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(top = 16.dp)
+            )
         }
     }
 }

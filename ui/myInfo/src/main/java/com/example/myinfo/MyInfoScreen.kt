@@ -7,11 +7,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,7 +33,6 @@ import com.example.local.R
 import com.example.local.user.UserTokenStore
 import com.example.myinfo.api.LoginApiService
 import com.example.myinfo.setup.SetupFlag
-import kotlinx.coroutines.Job
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -73,6 +73,48 @@ fun MyInfoScreen(
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val totalWidth = screenWidth * 0.85f
     val uiState by viewModel.uiState.collectAsState()
+    var showDialog by remember { mutableStateOf(false) }
+    var operation: (() -> Unit)? by remember { mutableStateOf(null) }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            modifier = Modifier,
+            title = {
+                Text(
+                    text = "알림",
+                    style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            },
+            text = {
+                Text(
+                    text = "확실하십니까?",
+                    style = TextStyle(fontSize = 16.sp),
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDialog = false
+                        operation?.invoke()
+                    },
+                    colors = ButtonDefaults.buttonColors(keyColor)
+                ) {
+                    Text("OK", color = Color.White)
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { showDialog = false },
+                    colors = ButtonDefaults.buttonColors(keyColor)
+                ) {
+                    Text("취소", color = Color.White)
+                }
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -110,7 +152,10 @@ fun MyInfoScreen(
 
         Spacer(modifier = Modifier.height(60.dp)) // 텍스트와 메뉴 항목 사이 간격 추가
 
-        settingsContent(uiState, navController, viewModel, onCheckPermissions, clearDatabase, stopForegroundService)
+        settingsContent(uiState, navController, viewModel, onCheckPermissions, clearDatabase, stopForegroundService) {
+            showDialog = true
+            operation = it
+        }
     }
     // Back button handler
     BackHandler {
@@ -127,7 +172,8 @@ fun settingsContent(
     viewModel: MyInfoViewModel,
     onCheckPermissions: (Context) -> Unit,
     clearDatabase: () -> Unit,
-    stopForegroundService: (Any?) -> Unit
+    stopForegroundService: (Any?) -> Unit,
+    showAlert: (()-> Unit) -> Unit
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val totalWidth = screenWidth * 0.85f
@@ -138,7 +184,16 @@ fun settingsContent(
             .background(color = backgroundColor),
         contentAlignment = Alignment.TopCenter
     ) {
-        Settings(modifier = Modifier, totalWidth = totalWidth, navController, viewModel, onCheckPermissions, clearDatabase, stopForegroundService)
+        Settings(
+            modifier = Modifier,
+            totalWidth = totalWidth,
+            navController,
+            viewModel,
+            onCheckPermissions,
+            clearDatabase,
+            stopForegroundService,
+            showAlert
+        )
     }
 }
 
@@ -150,7 +205,8 @@ fun Settings(
     viewModel: MyInfoViewModel,
     onCheckPermissions: (Context) -> Unit,
     clearDatabase: () -> Unit,
-    stopForegroundService: (Any?) -> Unit
+    stopForegroundService: (Any?) -> Unit,
+    showAlert: (()-> Unit) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -204,18 +260,21 @@ fun Settings(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        navController.navigate("main_screen") {
-                            UserTokenStore.clearToken(context)
-                            UserTokenStore.clearUserId(context)
-                            UserTokenStore.clearLoginPost(context)
-                            SetupFlag.resetSetup(context)
-                            clearDatabase()
-                            stopForegroundService(null)
-                            popUpTo(0) {
-                                inclusive = true
+                        val operate = {
+                            navController.navigate("main_screen") {
+                                UserTokenStore.clearToken(context)
+                                UserTokenStore.clearUserId(context)
+                                UserTokenStore.clearLoginPost(context)
+                                SetupFlag.resetSetup(context)
+                                clearDatabase()
+                                stopForegroundService(null)
+                                popUpTo(0) {
+                                    inclusive = true
+                                }
+                                launchSingleTop = true
                             }
-                            launchSingleTop = true
                         }
+                        showAlert(operate)
                     }
                     .height(totalWidth * 0.16f),
                 contentAlignment = Alignment.Center
@@ -231,40 +290,49 @@ fun Settings(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        val token = UserTokenStore.getToken(context)
-                        val username = UserTokenStore.getUserId(context)
-                        if (token != null) {
-                            viewModel.deleteUserData("Bearer $token", username) {
-                                // After deleting user data, call the user account deletion API
-                                val call = LoginApiService.userApi.deleteUser("Bearer $token", username)
-                                call.enqueue(object : Callback<Map<String, String>> {
-                                    override fun onResponse(
-                                        call: Call<Map<String, String>>,
-                                        response: Response<Map<String, String>>
-                                    ) {
-                                        if (response.isSuccessful) {
-                                            // Clear token and user ID, then navigate to the main screen
-                                            navController.navigate("main_screen") {
-                                                UserTokenStore.clearToken(context)
-                                                UserTokenStore.clearUserId(context)
-                                                UserTokenStore.clearLoginPost(context)
-                                                SetupFlag.resetSetup(context)
-                                                clearDatabase()
-                                                stopForegroundService(null)
-                                                popUpTo(0) { inclusive = true }
-                                                launchSingleTop = true
+                        val operate = {
+                            val token = UserTokenStore.getToken(context)
+                            val username = UserTokenStore.getUserId(context)
+                            if (token != null) {
+                                viewModel.deleteUserData("Bearer $token", username) {
+                                    // After deleting user data, call the user account deletion API
+                                    val call = LoginApiService.userApi.deleteUser(
+                                        "Bearer $token",
+                                        username
+                                    )
+                                    call.enqueue(object : Callback<Map<String, String>> {
+                                        override fun onResponse(
+                                            call: Call<Map<String, String>>,
+                                            response: Response<Map<String, String>>
+                                        ) {
+                                            if (response.isSuccessful) {
+                                                // Clear token and user ID, then navigate to the main screen
+                                                navController.navigate("main_screen") {
+                                                    UserTokenStore.clearToken(context)
+                                                    UserTokenStore.clearUserId(context)
+                                                    UserTokenStore.clearLoginPost(context)
+                                                    SetupFlag.resetSetup(context)
+                                                    clearDatabase()
+                                                    stopForegroundService(null)
+                                                    popUpTo(0) { inclusive = true }
+                                                    launchSingleTop = true
+                                                }
+                                            } else {
+                                                // Handle failure
                                             }
-                                        } else {
+                                        }
+
+                                        override fun onFailure(
+                                            call: Call<Map<String, String>>,
+                                            t: Throwable
+                                        ) {
                                             // Handle failure
                                         }
-                                    }
-
-                                    override fun onFailure(call: Call<Map<String, String>>, t: Throwable) {
-                                        // Handle failure
-                                    }
-                                })
+                                    })
+                                }
                             }
                         }
+                        showAlert(operate)
                     }
                     .height(totalWidth * 0.16f),
                 contentAlignment = Alignment.Center
