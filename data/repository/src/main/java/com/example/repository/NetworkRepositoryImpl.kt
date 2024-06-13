@@ -97,4 +97,8 @@ class NetworkRepositoryImpl @Inject constructor(
     override suspend fun getSelected(token: String,username: String): List<SelectedAppEntity> {
         return networkService.getSelected(token,username)
     }
+
+    override suspend fun deleteRecord(token: String, username: String) {
+        networkService.deleteGoalByUserName(token, username)
+    }
 }

@@ -3,19 +3,23 @@ package com.example.recorddomain
 import com.example.local.R
 import com.example.local.record.RecordDAO
 import com.example.local.record.RecordEntity
+import com.example.local.user.UserTokenStore
 import com.example.repository.GoalRepository
+import com.example.repository.NetworkRepository
 import com.example.repository.SelectedAppRepository
 import com.example.service.AppFetchingInfo
 import com.example.service.DateFactoryForData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.coroutines.coroutineContext
 
 class ReDomainImpl @Inject constructor(
     private val recordDAO: RecordDAO,
     private val appRepository: AppFetchingInfo,
     private val goalRepository: GoalRepository,
     private val selectedAppRepository: SelectedAppRepository,
+    private val networkRepository: NetworkRepository
 ):ReDomain {
 
 
@@ -50,10 +54,11 @@ class ReDomainImpl @Inject constructor(
         }
     }
 
-    override suspend fun deleteGoal(goal: Pair<String, String>) {
-        withContext(Dispatchers.IO) {
+    override suspend fun deleteGoal(goal: Pair<String, String>, token: String, username: String) {
 
+        withContext(Dispatchers.IO) {
             recordDAO.delete(goal.first, goal.second)
+            networkRepository.deleteRecord(token, username)
         }
     }
 

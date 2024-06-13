@@ -21,4 +21,5 @@ interface NetworkRepository {
     suspend fun getMonthly(token: String,username: String): List<MonthlyEntity>
     suspend fun getRecord(token: String,username: String): List<RecordEntity>
     suspend fun getSelected(token: String,username: String): List<SelectedAppEntity>
+    suspend fun deleteRecord(token: String, username: String)
 }

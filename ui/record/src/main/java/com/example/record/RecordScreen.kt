@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
@@ -56,6 +57,8 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.local.user.UserTokenStore
+import kotlin.coroutines.coroutineContext
 
 
 val backgroundColor: Color = Color(android.graphics.Color.parseColor("#EFEFEF"))
@@ -68,7 +71,7 @@ val vagueText: Color = Color(android.graphics.Color.parseColor("#777777"))
 fun RecordScreen(
     navController: NavController,
     viewModel: RecordViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -87,6 +90,7 @@ fun RecordScreen(
 fun RecordContent(uiState: RecordUiState, viewModel: RecordViewModel, navController: NavController) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val totalWidth = screenWidth * 0.85f
+    val context = LocalContext.current
 
     val scrollState = rememberScrollState()
 
@@ -155,7 +159,9 @@ fun RecordContent(uiState: RecordUiState, viewModel: RecordViewModel, navControl
                                                     Pair(
                                                         thisUiState.appName,
                                                         thisUiState.date
-                                                    )
+                                                    ),
+                                                    UserTokenStore.getToken(context)!!,
+                                                    UserTokenStore.getUserId(context)
                                                 )
                                             }
                                         )
@@ -175,7 +181,9 @@ fun RecordContent(uiState: RecordUiState, viewModel: RecordViewModel, navControl
                                                     Pair(
                                                         thisUiState.appName,
                                                         thisUiState.date
-                                                    )
+                                                    ),
+                                                    UserTokenStore.getToken(context)!!,
+                                                    UserTokenStore.getUserId(context)
                                                 )
                                             }
                                         )

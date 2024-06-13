@@ -1,10 +1,13 @@
 package com.example.record
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.analysisdomain.AnDomain
+import com.example.local.user.UserTokenStore
 import com.example.recorddomain.ReDomain
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class RecordViewModel @Inject constructor(
     private val reDomain: ReDomain,
-    private val anDomain: AnDomain
+    private val anDomain: AnDomain,
+    @ApplicationContext context: Context
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(RecordUiState())
     val uiState: StateFlow<RecordUiState> = _uiState.asStateFlow()
@@ -72,19 +76,20 @@ class RecordViewModel @Inject constructor(
         }
     }
 
-    fun deleteOngoingRecord(record: Pair<String, String>){
+    fun deleteOngoingRecord(record: Pair<String, String>, token:String, username:String){
         viewModelScope.launch {
-            reDomain.deleteGoal(record)
+            reDomain.deleteGoal(record, token, username)
         }
         _uiState.value = _uiState.value.copy(ongoingList = _uiState.value.ongoingList.filterNot{
             it.appName == record.first
         })
 
+
     }
 
-    fun deleteFinishedRecord(record: Pair<String, String>){
+    fun deleteFinishedRecord(record: Pair<String, String>, token:String, username:String){
         viewModelScope.launch {
-            reDomain.deleteGoal(record)
+            reDomain.deleteGoal(record, token, username)
         }
         _uiState.value = _uiState.value.copy(finishedList = _uiState.value.finishedList.filterNot{
             it.appName == record.first

@@ -256,7 +256,7 @@ internal class RetrofitNetworkRepository @Inject constructor(
     }
 
     override fun deleteGoalByUserName(token: String, username: String) {
-        deleteData(retrofitNetworkApi.deleteGoalByUserName(token, username), "Goal by User Name")
+        deleteData(retrofitNetworkApi.deleteGoalByUserName("Bearer $token", username), "Delete Goal")
     }
 
     override fun deleteSelectedApp(token: String, username: String) {
