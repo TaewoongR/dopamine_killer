@@ -12,4 +12,5 @@
     <string name="app_카카오페이지">com.kakao.page</string>
     <string name="app_카카오웹툰">net.daum.android.webtoon</string>
     <string name="app_시리즈">com.nhn.android.nbooks</string>
+    <string name="app_브롤스타즈">com.supercell.brawlstars</string>
 </resources>

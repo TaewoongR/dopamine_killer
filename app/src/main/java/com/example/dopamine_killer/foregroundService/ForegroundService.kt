@@ -54,9 +54,7 @@ class ForegroundService : Service() {
                     foregroundAppChecker.getForegroundApp() == appFetchingInfo.getPackageNameBy(it.second)
                 }
                 if (type?.first == 1) {
-                    startWarningRoutine(type.second)
-                } else {
-                    stopWarningRoutine()
+                    showWarning(type.second)
                 }
                 warningType.forEach {
                     if (it.first == 2) {
@@ -77,14 +75,6 @@ class ForegroundService : Service() {
             }
             // 일주일(7일) 후에 다시 실행하도록 설정
             mainHandler.postDelayed(this, 7 * 24 * 60 * 60 * 1000L) // 7일 = 7 * 24 * 60 * 60 * 1000 밀리초
-        }
-    }
-
-    private val warningRunnable = object : Runnable {
-        var appName: String = ""
-        override fun run() {
-            showWarning(appName)
-            mainHandler.postDelayed(this, 5000) // 5초마다 실행
         }
     }
 
@@ -115,7 +105,9 @@ class ForegroundService : Service() {
                 screenStateReceiver.register(this)
 
                 // CustomPopupView 초기화
-                customPopupView = CustomPopupView(this)
+                if (!::customPopupView.isInitialized) {
+                    customPopupView = CustomPopupView(this)
+                }
             }
         }
     }
@@ -143,7 +135,6 @@ class ForegroundService : Service() {
         jobScope.cancel() // 서비스 종료 시 jobScope 범위에서 실행되는 모든 Coroutine 취소
         mainHandler.removeCallbacks(hourlyUpdateRunnable) // 서비스 종료 시 Runnable 제거
         mainHandler.removeCallbacks(weeklyUpdateRunnable) // 서비스 종료 시 Runnable 제거
-        mainHandler.removeCallbacks(warningRunnable) // 서비스 종료 시 warning Runnable 제거
         unregisterReceiver(screenStateReceiver) // 서비스 종료 시 리시버 해제
     }
 
@@ -174,6 +165,7 @@ class ForegroundService : Service() {
 
     private fun showWarning(appName: String) {
         val message = "$appName 사용량이 목표 시간에 근접했습니다."
+        showNotification(message)
         showPopup(message)
     }
 
@@ -195,15 +187,5 @@ class ForegroundService : Service() {
                 customPopupView.showMessage(message)
             }
         }
-    }
-
-    private fun startWarningRoutine(appName: String) {
-        warningRunnable.appName = appName
-        showNotification("$appName 사용량이 목표 시간에 근접했습니다.")
-        mainHandler.post(warningRunnable)
-    }
-
-    private fun stopWarningRoutine() {
-        mainHandler.removeCallbacks(warningRunnable)
     }
 }

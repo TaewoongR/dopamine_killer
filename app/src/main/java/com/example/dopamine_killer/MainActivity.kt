@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
@@ -18,7 +17,6 @@ import com.example.coredomain.CoreDomain
 import com.example.dopamine_killer.foregroundService.ForegroundService
 import com.example.dopamine_killer.permission.PermissionUtils
 import com.example.dopamine_killer.workManager.CoreWorker
-import com.example.local.user.UserTokenStore
 import com.example.navigation.MainScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -117,8 +115,7 @@ class MainActivity : ComponentActivity() {
             .build()
 
         // WorkManager 작업 체인 설정
-        workManager
-            .beginUniqueWork(
+        workManager.beginUniqueWork(
                 "Post Network",
                 ExistingWorkPolicy.REPLACE,
                 updateInstalledRequest

@@ -13,14 +13,15 @@ import android.graphics.drawable.Drawable
 import android.os.Environment
 import android.os.PowerManager
 import android.util.Log
-import android.widget.ImageView
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.core.content.ContextCompat
 import com.example.local.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.io.FileOutputStream
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -84,12 +85,25 @@ class AppFetchingInfoImpl @Inject constructor(
             val appInfo = packageManager.getApplicationInfo(packageName, 0)
             val drawable = packageManager.getApplicationIcon(appInfo)
             val bitmap = drawableToBitmap(drawable)
-            // saveBitmapToExternalStorage(bitmap.asImageBitmap(), "$appName.png")
+/*
+            saveBitmapToExternalStorage(bitmap.asImageBitmap(), "${getPackageNameBy(appName)
+                    .replace(".", "").lowercase(Locale.getDefault())}.png")
+
+ */
             bitmap.asImageBitmap()
         } catch (e: Exception) {
-            val resId = context.resources.getIdentifier(getPackageNameBy(appName).replace(".", ""), "drawable", context.packageName)
-            val bitmap = BitmapFactory.decodeResource(context.resources, resId)
-            bitmap.asImageBitmap()
+            return try {
+                val resId = context.resources.getIdentifier(
+                    getPackageNameBy(appName)
+                        .replace(".", ""), "drawable", context.packageName
+                )
+                val bitmap = BitmapFactory.decodeResource(context.resources, resId)
+                bitmap.asImageBitmap()
+            }catch(e: NullPointerException){
+                val fallbackDrawable = ContextCompat.getDrawable(context, R.drawable.dkapplogo)
+                val fallbackBitmap = drawableToBitmap(fallbackDrawable!!)
+                fallbackBitmap.asImageBitmap()
+            }
         }
     }
 
@@ -135,7 +149,6 @@ class AppFetchingInfoImpl @Inject constructor(
             Log.e("AppInfoImpl", "Failed to get external storage directory")
         }
     }
-
  */
 
     override suspend fun getHourlyUsage(appName: String, numberAgo: Int, isInitialSetting: Boolean): Triple<List<Int>, String, Int> {

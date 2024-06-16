@@ -33,7 +33,7 @@ class CustomPopupView(private val context: Context) {
 
     init {
         // Setup touch listener for popup view
-        popupView.setOnTouchListener{ _, event ->
+        popupView.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     initialX = popupView.x
@@ -66,7 +66,12 @@ class CustomPopupView(private val context: Context) {
     }
 
     fun showMessage(message: String, duration: Long = 10000) {
-        if (isShowing || !Settings.canDrawOverlays(context)) return
+        if (isShowing) {
+            updateMessage(message, duration)
+            return
+        }
+
+        if (!Settings.canDrawOverlays(context)) return
 
         val messageTextView: TextView = popupView.findViewById(R.id.popup_message)
         messageTextView.text = message
@@ -97,6 +102,17 @@ class CustomPopupView(private val context: Context) {
         }, duration)
     }
 
+    private fun updateMessage(message: String, duration: Long) {
+        val messageTextView: TextView = popupView.findViewById(R.id.popup_message)
+        messageTextView.text = message
+
+        // 기존 핸들러 콜백 제거 후 다시 등록하여 팝업 유지 시간 갱신
+        handler.removeCallbacksAndMessages(null)
+        handler.postDelayed({
+            hidePopup()
+        }, duration)
+    }
+
     private fun hidePopup() {
         if (isShowing && popupView.visibility == View.VISIBLE) {
             try {
@@ -106,8 +122,19 @@ class CustomPopupView(private val context: Context) {
                 e.printStackTrace()
             } finally {
                 isShowing = false
+                // 팝업을 숨긴 후에도 다시 보일 수 있도록 뷰 초기화
+                handler.postDelayed({
+                    resetPopupView()
+                }, 100)
             }
         }
+    }
+
+    private fun resetPopupView() {
+        if (popupView.parent != null) {
+            windowManager.removeView(popupView)
+        }
+        popupView.visibility = View.GONE
     }
 
     private fun performAction() {
