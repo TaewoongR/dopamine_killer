@@ -32,7 +32,7 @@ class CustomPopupView(private val context: Context) {
     private val clickThreshold = 10
 
     init {
-        // Setup touch listener for popup view
+
         popupView.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -66,12 +66,7 @@ class CustomPopupView(private val context: Context) {
     }
 
     fun showMessage(message: String, duration: Long = 10000) {
-        if (isShowing) {
-            updateMessage(message, duration)
-            return
-        }
-
-        if (!Settings.canDrawOverlays(context)) return
+        if (isShowing || !Settings.canDrawOverlays(context)) return
 
         val messageTextView: TextView = popupView.findViewById(R.id.popup_message)
         messageTextView.text = message
@@ -123,9 +118,7 @@ class CustomPopupView(private val context: Context) {
             } finally {
                 isShowing = false
                 // 팝업을 숨긴 후에도 다시 보일 수 있도록 뷰 초기화
-                handler.postDelayed({
-                    resetPopupView()
-                }, 100)
+                resetPopupView()
             }
         }
     }
