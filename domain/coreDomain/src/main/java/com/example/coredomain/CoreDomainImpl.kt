@@ -174,6 +174,7 @@ class CoreDomainImpl @Inject constructor(
                 }
             }
         }
+        withContext(Dispatchers.IO) {monitoringUsageByGoal()}
     }
 
     override suspend fun monitoringUsageByGoal(): List<Pair<Int, String>> {
