@@ -18,6 +18,8 @@ import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import com.example.dopamine_killer.R
 import kotlin.math.abs
 
@@ -25,14 +27,13 @@ class CustomPopupView(private val context: Context) {
     private val handler = Handler(Looper.getMainLooper())
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private val popupView: View = LayoutInflater.from(context).inflate(R.layout.view_custom_popup, null)
-    private var isShowing = false
+    private val isShowing: MutableState<Boolean> = mutableStateOf(false)
     private var initialX = 0f
     private var initialTouchX = 0f
     private var initialTouchY = 0f
     private val clickThreshold = 10
 
     init {
-
         popupView.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -66,7 +67,7 @@ class CustomPopupView(private val context: Context) {
     }
 
     fun showMessage(message: String, duration: Long = 10000) {
-        if (isShowing || !Settings.canDrawOverlays(context)) return
+        if (isShowing.value || !Settings.canDrawOverlays(context)) return
 
         val messageTextView: TextView = popupView.findViewById(R.id.popup_message)
         messageTextView.text = message
@@ -85,49 +86,29 @@ class CustomPopupView(private val context: Context) {
         layoutParams.gravity = android.view.Gravity.TOP or android.view.Gravity.CENTER_HORIZONTAL
         layoutParams.windowAnimations = android.R.style.Animation_Dialog
 
-        if (popupView.parent == null) {
-            windowManager.addView(popupView, layoutParams)
-        }
-
-        popupView.visibility = View.VISIBLE
-        isShowing = true
-
-        handler.postDelayed({
-            hidePopup()
-        }, duration)
-    }
-
-    private fun updateMessage(message: String, duration: Long) {
-        val messageTextView: TextView = popupView.findViewById(R.id.popup_message)
-        messageTextView.text = message
-
-        // 기존 핸들러 콜백 제거 후 다시 등록하여 팝업 유지 시간 갱신
-        handler.removeCallbacksAndMessages(null)
-        handler.postDelayed({
-            hidePopup()
-        }, duration)
-    }
-
-    private fun hidePopup() {
-        if (isShowing && popupView.visibility == View.VISIBLE) {
-            try {
-                windowManager.removeView(popupView)
-            } catch (e: IllegalArgumentException) {
-                // View가 이미 제거된 경우 예외 처리
-                e.printStackTrace()
-            } finally {
-                isShowing = false
-                // 팝업을 숨긴 후에도 다시 보일 수 있도록 뷰 초기화
-                resetPopupView()
-            }
-        }
-    }
-
-    private fun resetPopupView() {
         if (popupView.parent != null) {
             windowManager.removeView(popupView)
         }
-        popupView.visibility = View.GONE
+
+        windowManager.addView(popupView, layoutParams)
+
+        popupView.visibility = View.VISIBLE
+        isShowing.value = true
+
+        handler.postDelayed({
+            hidePopup()
+        }, duration)
+    }
+
+
+    private fun hidePopup() {
+        if (isShowing.value) {
+            popupView.visibility = View.GONE
+            if (popupView.parent != null) {
+                windowManager.removeView(popupView)
+            }
+            isShowing.value = false
+        }
     }
 
     private fun performAction() {
@@ -138,15 +119,14 @@ class CustomPopupView(private val context: Context) {
                 val intent = Intent("com.example.dopamine_killer.FORCE_STOP_APP")
                 intent.putExtra("EXTRA_APP_PACKAGE", foregroundApp)
                 context.sendBroadcast(intent)
-
                 launchApp("com.example.dopamine_killer")
-                hidePopup() // 팝업 종료
+                hidePopup()
             } else {
                 Toast.makeText(context, "Unable to determine foreground app", Toast.LENGTH_SHORT).show()
-                hidePopup() // 팝업 종료
+                hidePopup()
             }
         } else {
-            Toast.makeText(context, "Accessibility Service is not enabled", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "접근성 설정이 비활성화 상태입니다.", Toast.LENGTH_SHORT).show()
             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)

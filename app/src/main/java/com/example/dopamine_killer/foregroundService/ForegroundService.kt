@@ -37,12 +37,12 @@ class ForegroundService : Service() {
     private lateinit var screenStateReceiver: ScreenStateReceiver
     private lateinit var customPopupView: CustomPopupView
 
-    private val mainHandler = Handler(Looper.getMainLooper()) // 메인 스레드의 Handler
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     private val prefs: SharedPreferences by lazy {
         getSharedPreferences("user_token_prefs", Context.MODE_PRIVATE)
     }
-    private val isBackgroundRunning: Boolean    // 앱 재실행 후에도 값이 초기화 되지 않도록 영구저장소에 값 저장
+    private val isBackgroundRunning: Boolean
         get() = prefs.getBoolean("isBackgroundRunning", false)
 
     private val hourlyUpdateRunnable = object : Runnable {
@@ -62,7 +62,7 @@ class ForegroundService : Service() {
                     }
                 }
             }
-            mainHandler.postDelayed(this, 60 * 1000) // 1분(60,000 밀리초)마다 실행
+            mainHandler.postDelayed(this, 60 * 1000)
         }
     }
 
@@ -73,8 +73,7 @@ class ForegroundService : Service() {
                     coreDomain.updateWeeklyUsage()
                 }
             }
-            // 일주일(7일) 후에 다시 실행하도록 설정
-            mainHandler.postDelayed(this, 7 * 24 * 60 * 60 * 1000L) // 7일 = 7 * 24 * 60 * 60 * 1000 밀리초
+            mainHandler.postDelayed(this, 7 * 24 * 60 * 60 * 1000L)
         }
     }
 
@@ -82,21 +81,20 @@ class ForegroundService : Service() {
         if (key == "token") {
             val token = sharedPreferences.getString(key, null)
             if (token != null) {
-                if (!isBackgroundRunning) {        // 하나의 쓰레드만을 보장하는 플래그
+                if (!isBackgroundRunning) {
                     mainHandler.post(hourlyUpdateRunnable)
                     mainHandler.post(weeklyUpdateRunnable)
                     prefs.edit().putBoolean("isBackgroundRunning", true).apply()
                 }
-                // ScreenStateReceiver 초기화 및 등록
                 screenStateReceiver = ScreenStateReceiver(
                     onScreenOn = {
-                        if(!isBackgroundRunning) {
+                        if (!isBackgroundRunning) {
                             mainHandler.post(hourlyUpdateRunnable)
                             prefs.edit().putBoolean("isBackgroundRunning", true).apply()
                         }
                     },
                     onScreenOff = {
-                        if(isBackgroundRunning) {
+                        if (isBackgroundRunning) {
                             mainHandler.removeCallbacks(hourlyUpdateRunnable)
                             prefs.edit().putBoolean("isBackgroundRunning", false).apply()
                         }
@@ -104,7 +102,6 @@ class ForegroundService : Service() {
                 )
                 screenStateReceiver.register(this)
 
-                // CustomPopupView 초기화
                 if (!::customPopupView.isInitialized) {
                     customPopupView = CustomPopupView(this)
                 }
@@ -114,28 +111,24 @@ class ForegroundService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        // 알림 채널 생성
         createNotificationChannel()
         val notification = createNotification("도파민 킬러 대기중")
-        startForeground(1, notification)        // foregroundService를 실행하기 위한 필수적 실행 함수
+        startForeground(1, notification)
         foregroundAppChecker = ForegroundAppChecker(this)
-
-        // SharedPreferences 리스너 등록
         prefs.registerOnSharedPreferenceChangeListener(prefsChangeListener)
-        // 초기 SharedPreferences 값 확인 및 필요한 초기화 작업 수행
         prefsChangeListener.onSharedPreferenceChanged(prefs, "token")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return START_STICKY         // 재부팅 후 자동 실행 설정
+        return START_STICKY
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        jobScope.cancel() // 서비스 종료 시 jobScope 범위에서 실행되는 모든 Coroutine 취소
-        mainHandler.removeCallbacks(hourlyUpdateRunnable) // 서비스 종료 시 Runnable 제거
-        mainHandler.removeCallbacks(weeklyUpdateRunnable) // 서비스 종료 시 Runnable 제거
-        unregisterReceiver(screenStateReceiver) // 서비스 종료 시 리시버 해제
+        jobScope.cancel()
+        mainHandler.removeCallbacks(hourlyUpdateRunnable)
+        mainHandler.removeCallbacks(weeklyUpdateRunnable)
+        unregisterReceiver(screenStateReceiver)
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -144,8 +137,7 @@ class ForegroundService : Service() {
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel("DEFAULT_CHANNEL", "과도한 도파민 방지중", NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
+            val channel = NotificationChannel("DEFAULT_CHANNEL", "과도한 도파민 방지중", NotificationManager.IMPORTANCE_DEFAULT).apply {
                 description = "Channel for foreground service"
             }
 
@@ -184,6 +176,9 @@ class ForegroundService : Service() {
     private fun showPopup(message: String) {
         if (Settings.canDrawOverlays(this)) {
             mainHandler.post {
+                if (!::customPopupView.isInitialized) {
+                    customPopupView = CustomPopupView(this)
+                }
                 customPopupView.showMessage(message)
             }
         }
